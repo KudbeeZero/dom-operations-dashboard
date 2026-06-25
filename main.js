@@ -596,12 +596,12 @@ function initUnderwater() {
       scrollTrigger: { trigger: section, start: 'top 80%', end: 'top 20%', scrub: 1.5 },
     });
 
-    // "Eyes adjusting to depth" — blur the deep bg in then back out on entry.
-    gsap.timeline({
-      scrollTrigger: { trigger: section, start: 'top 90%', end: 'top 30%', scrub: 1 },
-    })
-      .fromTo('.uw-bg', { filter: 'blur(0px)' }, { filter: 'blur(2px)', ease: 'none' })
-      .to('.uw-bg', { filter: 'blur(0px)', ease: 'none' });
+    // "Settling into the deep" — the caustic light dims to rest as you descend.
+    // Opacity-only (cheap to composite); avoids per-frame blur raster / jank.
+    gsap.fromTo('.uw-caustics', { opacity: 0.12 }, {
+      opacity: 0.06, ease: 'none',
+      scrollTrigger: { trigger: section, start: 'top 90%', end: 'top 40%', scrub: 1 },
+    });
 
     // Cards rise from the deep, staggered.
     gsap.from('.uw-card', {
@@ -617,20 +617,22 @@ function initUnderwater() {
 
   let w = 0, h = 0, dpr = 1, bubbles = [], rafId = null, lastT = 0;
 
-  const makeBubble = (initial) => ({
-    x: Math.random() * w,
-    y: initial ? Math.random() * h : h + 10,
-    r: 1 + Math.random() * 3.5,
-    speed: RISE_MIN + Math.random() * (RISE_MAX - RISE_MIN),
-    drift: (Math.random() - 0.5) * 8,
-    driftPhase: Math.random() * Math.PI * 2,
-    alpha: 0.1 + Math.random() * 0.35,
-    teal: Math.random() < 0.5,
-  });
+  // Reset a bubble in place (no per-respawn allocation on the rAF path).
+  const resetBubble = (b, initial) => {
+    b.x = Math.random() * w;
+    b.y = initial ? Math.random() * h : h + 10;
+    b.r = 1 + Math.random() * 3.5;
+    b.speed = RISE_MIN + Math.random() * (RISE_MAX - RISE_MIN);
+    b.drift = (Math.random() - 0.5) * 8;
+    b.driftPhase = Math.random() * Math.PI * 2;
+    b.alpha = 0.1 + Math.random() * 0.35;
+    b.teal = Math.random() < 0.5;
+    return b;
+  };
 
   function build() {
     const n = w < MOBILE_BP ? BUBBLES_MOBILE : BUBBLES_DESKTOP;
-    bubbles = Array.from({ length: n }, () => makeBubble(true));
+    bubbles = Array.from({ length: n }, () => resetBubble({}, true));
   }
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -648,7 +650,7 @@ function initUnderwater() {
     for (const b of bubbles) {
       b.y -= b.speed * dt;
       b.driftPhase += dt;
-      if (b.y < -10) Object.assign(b, makeBubble(false));
+      if (b.y < -10) resetBubble(b, false);
       const x = b.x + Math.sin(b.driftPhase) * b.drift;
       ctx.beginPath();
       ctx.arc(x, b.y, b.r, 0, Math.PI * 2);

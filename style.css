@@ -774,7 +774,6 @@ button { font: inherit; cursor: pointer; }
   position: absolute; inset: 0; z-index: 0;
   background: radial-gradient(ellipse at 50% 0%,
     var(--deep-1) 0%, var(--deep-2) 60%, var(--deep-3) 100%);
-  will-change: filter;
 }
 
 /* Layer 2 — caustics (CSS-only dappled refraction, very subtle) */
@@ -801,7 +800,6 @@ button { font: inherit; cursor: pointer; }
 .uw-rays {
   position: absolute; inset: 0; z-index: 2;
   pointer-events: none;
-  mix-blend-mode: screen;
   opacity: 0.6;                        /* GSAP scrubs 0→0.7; this is the no-JS value */
 }
 .uw-rays span {

@@ -217,3 +217,28 @@
 - WEAKNESS to review: #deep's "Every service" intro sits right above the real
   #services grid — possible thematic redundancy; judge on the live page. Also lots
   of spectacle now stacks before services (before/after + video dive + underwater).
+
+## Underwater particle physics + shark-bite — 2026-06-25
+- Same branch/PR (claude/hermes-underwater-world / #6); owner directed it onto
+  this branch (Option C: showpieces in #deep now, no footer-reef descent yet).
+- Owner review-trim first: headline "Every service. Clarity guaranteed." →
+  "Go deeper." (avoids repeating hero's "Clarity"; stops competing with #services).
+  Plus a review-driven perf pass (removed scrubbed blur, mix-blend-mode, bubble GC).
+- Then the particle scene (one IO-gated canvas in #deep, vanilla, reduced-motion
+  skips it entirely): plankton (sediment), 70/30 rising bubbles (small=faster,
+  grow+pop near surface, sinusoidal wobble), drifting CHAOS WORDS, and a shark
+  that crosses and BITES a chaos word → letters fly apart, a ripple pops, and
+  nearby bubbles/plankton scatter via a wake impulse. Chaos devoured, clarity wins.
+- Shark = canvas silhouette (dark body + teal rim + eye), nose-first via dir flip,
+  jaw opens on the chomp. Fires every ~11s; first pass ~2.6s after the section
+  enters view. Emits a prod-safe `uw:shark-bite` CustomEvent (future sound/analytics
+  hook + QA seam).
+- QA: node --check pass; headless smoke (normal + reduced) zero JS errors; bite
+  logic verified deterministically (forced shark stepped across → devoured "chaos",
+  event fired). NOTE: headless throttles rAF to ~2-3fps so the *timed* shark can't
+  be watched headless — verified via manual stepping instead; real-browser feel is
+  owner's to judge on the preview. Temporary debug hooks were added then stripped.
+- Tunables at top of initUnderwater(): BUBBLES_*, PLANKTON_*, RISE_*, CHAOS_WORDS,
+  WORD_COUNT, SHARK_LEN/SPEED/FIRST_MS/EVERY_MS, WAKE_RADIUS/FORCE.
+- WEAKNESS to review: shark is dark-on-navy — reads in motion (rim+eye+wake) but is
+  subtle in a still; bumped rim/body contrast a touch. Easy to make bolder if wanted.

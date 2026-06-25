@@ -568,17 +568,29 @@ function initDiveHero() {
 }
 
 /* -------------------------------------------------------------------------
-   8. UNDERWATER WORLD — "the deep dive" atmosphere
-   GSAP ScrollTrigger scrubs the rays/blur as you descend; a canvas of
-   rising bubbles runs only while the section is on screen.
+   8. UNDERWATER WORLD — "the deep dive" atmosphere + particle physics
+   GSAP ScrollTrigger scrubs the rays/caustics as you descend. A single
+   IO-gated canvas runs the underwater scene: plankton, rising bubbles,
+   drifting chaos words, and a shark that crosses and bites a chaos word
+   (chaos devoured → clarity wins), scattering nearby particles in its wake.
    ------------------------------------------------------------------------- */
 function initUnderwater() {
   /* ---- Tunable constants (no magic numbers inline) ----------------------- */
-  const BUBBLES_DESKTOP = 28;
-  const BUBBLES_MOBILE  = 14;
-  const RISE_MIN        = 12;   // px/sec slowest bubble
-  const RISE_MAX        = 42;   // px/sec fastest bubble
-  const MOBILE_BP       = 600;  // px width below which we use the mobile count
+  const MOBILE_BP        = 600;   // px width below which we drop to mobile counts
+  const BUBBLES_DESKTOP  = 70;    // "numerous" rising bubbles
+  const BUBBLES_MOBILE   = 30;
+  const PLANKTON_DESKTOP = 80;    // suspended sediment / plankton
+  const PLANKTON_MOBILE  = 36;
+  const RISE_MIN         = 14;    // px/sec — slowest (largest) bubble
+  const RISE_MAX         = 52;    // px/sec — fastest (smallest) bubble
+  const CHAOS_WORDS      = ['messy', 'typo', 'draft', 'chaos', '??', 'mess'];
+  const WORD_COUNT       = 5;     // floating chaos words the shark can devour
+  const SHARK_LEN        = 150;   // px nose-to-tail (scaled down on mobile)
+  const SHARK_SPEED      = 300;   // px/sec cruising speed across the scene
+  const SHARK_FIRST_MS   = 2600;  // first pass after the section enters view
+  const SHARK_EVERY_MS   = 11000; // gap between passes
+  const WAKE_RADIUS      = 110;   // px around the shark that disturbs particles
+  const WAKE_FORCE       = 5;     // per-frame wake nudge (decays); bite is stronger
   /* ----------------------------------------------------------------------- */
 
   const section = document.getElementById('deep');
@@ -610,30 +622,66 @@ function initUnderwater() {
     });
   }
 
-  // Rising-bubble canvas — skipped entirely under reduced motion.
+  // Underwater scene canvas — skipped entirely under reduced motion.
   if (prefersReduced || !canvas) return;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  let w = 0, h = 0, dpr = 1, bubbles = [], rafId = null, lastT = 0;
+  const rand = (a, b) => a + Math.random() * (b - a);
+  let w = 0, h = 0, dpr = 1, rafId = null, lastT = 0, sceneT = 0, mobile = false;
+  let bubbles = [], plankton = [], words = [], fragments = [], ripples = [];
+  let shark = null, nextSharkAt = SHARK_FIRST_MS;
 
-  // Reset a bubble in place (no per-respawn allocation on the rAF path).
+  /* Bubbles — rise with a sinusoidal wobble; smaller bubbles rise faster and
+     grow slightly as they climb, then fade + pop near the surface. vx/vy hold
+     a wake impulse that decays. */
   const resetBubble = (b, initial) => {
-    b.x = Math.random() * w;
-    b.y = initial ? Math.random() * h : h + 10;
-    b.r = 1 + Math.random() * 3.5;
-    b.speed = RISE_MIN + Math.random() * (RISE_MAX - RISE_MIN);
-    b.drift = (Math.random() - 0.5) * 8;
-    b.driftPhase = Math.random() * Math.PI * 2;
-    b.alpha = 0.1 + Math.random() * 0.35;
+    b.r0 = rand(1.2, 4.5);
+    b.r = b.r0;
+    b.baseX = rand(0, w);
+    b.y = initial ? rand(0, h) : h + rand(4, 30);
+    b.speed = RISE_MAX - ((b.r0 - 1.2) / 3.3) * (RISE_MAX - RISE_MIN); // small ⇒ fast
+    b.wobAmp = rand(4, 16);
+    b.wobFreq = rand(0.6, 1.6);
+    b.phase = rand(0, Math.PI * 2);
+    b.alpha = rand(0.12, 0.4);
+    b.draw = b.alpha;
     b.teal = Math.random() < 0.5;
+    b.vx = 0; b.vy = 0;
     return b;
   };
 
+  /* Plankton — tiny, low-opacity sediment drifting gently; wraps at edges. */
+  const resetPlankton = (p) => {
+    p.x = rand(0, w); p.y = rand(0, h);
+    p.r = rand(0.4, 1.5);
+    p.alpha = rand(0.05, 0.2);
+    p.dx = rand(-6, 6); p.dy = rand(-4, 4);
+    p.vx = 0; p.vy = 0;
+    return p;
+  };
+
+  /* Chaos words — slow-drifting bite targets in the upper band (clear of cards). */
+  const resetWord = (wd) => {
+    wd.text = CHAOS_WORDS[Math.floor(Math.random() * CHAOS_WORDS.length)];
+    wd.x = rand(w * 0.15, w * 0.85);
+    wd.y = rand(h * 0.12, h * 0.46);
+    wd.dx = rand(-10, 10); wd.dy = rand(-4, 4);
+    wd.rot = rand(-0.22, 0.22);
+    wd.size = mobile ? 16 : rand(20, 30);
+    wd.alpha = rand(0.35, 0.6);
+    wd.alive = true;
+    return wd;
+  };
+
   function build() {
-    const n = w < MOBILE_BP ? BUBBLES_MOBILE : BUBBLES_DESKTOP;
-    bubbles = Array.from({ length: n }, () => resetBubble({}, true));
+    mobile = w < MOBILE_BP;
+    bubbles  = Array.from({ length: mobile ? BUBBLES_MOBILE : BUBBLES_DESKTOP }, () => resetBubble({}, true));
+    plankton = Array.from({ length: mobile ? PLANKTON_MOBILE : PLANKTON_DESKTOP }, () => resetPlankton({}));
+    words    = Array.from({ length: WORD_COUNT }, () => resetWord({}));
+    fragments = []; ripples = []; shark = null; nextSharkAt = sceneT + SHARK_FIRST_MS;
   }
+
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvas.getBoundingClientRect();
@@ -643,20 +691,193 @@ function initUnderwater() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     build();
   }
+
+  // Push particles away from (cx,cy): impulse falls off linearly to the radius.
+  function disturb(list, cx, cy, radius, force) {
+    const r2 = radius * radius;
+    for (const p of list) {
+      const px = p.baseX !== undefined ? p.baseX : p.x;
+      const dx = px - cx, dy = p.y - cy;
+      const d2 = dx * dx + dy * dy;
+      if (d2 > r2 || d2 === 0) continue;
+      const d = Math.sqrt(d2);
+      const k = (1 - d / radius) * force;
+      p.vx += (dx / d) * k; p.vy += (dy / d) * k;
+    }
+  }
+
+  // Tear a chaos word apart: its letters fly off, particles scatter, ripple pops.
+  function biteWord(wd) {
+    wd.alive = false;
+    const chars = wd.text.split('');
+    const span = wd.size * 0.6 * chars.length;
+    chars.forEach((ch, i) => {
+      fragments.push({
+        ch, x: wd.x - span / 2 + i * (wd.size * 0.6), y: wd.y,
+        vx: rand(-90, 90), vy: rand(-120, -20),
+        rot: wd.rot, vrot: rand(-6, 6),
+        size: wd.size, life: 1, ttl: rand(0.9, 1.5),
+      });
+    });
+    ripples.push({ x: wd.x, y: wd.y, r: 8, life: 1 });
+    disturb(bubbles, wd.x, wd.y, WAKE_RADIUS * 1.6, 150);
+    disturb(plankton, wd.x, wd.y, WAKE_RADIUS * 1.6, 130);
+    // Extensibility hook (sound/analytics later) + lets QA confirm the bite.
+    window.dispatchEvent(new CustomEvent('uw:shark-bite', { detail: { word: wd.text } }));
+    setTimeout(() => resetWord(wd), 4200);   // a fresh chaos word drifts back in
+  }
+
+  function launchShark() {
+    const targets = words.filter((wd) => wd.alive);
+    if (!targets.length) { nextSharkAt = sceneT + 3000; return; }
+    const victim = targets[Math.floor(Math.random() * targets.length)];
+    const dir = victim.x < w / 2 ? 1 : -1;             // approach from the near side
+    const len = mobile ? SHARK_LEN * 0.7 : SHARK_LEN;
+    shark = { x: dir > 0 ? -len : w + len, y: victim.y + rand(-10, 10),
+              dir, len, speed: SHARK_SPEED, victim, bitten: false, mouth: 0 };
+  }
+
+  // Shark silhouette (dark body + teal rim light), drawn nose-first via dir flip.
+  function drawShark(c, sh) {
+    const L = sh.len, H = L * 0.34, m = sh.mouth;
+    c.save();
+    c.translate(sh.x, sh.y);
+    c.scale(sh.dir, 1);
+    c.fillStyle = 'rgba(6,16,26,0.95)';
+    c.beginPath();                                   // body
+    c.moveTo(-L * 0.5, 0);
+    c.quadraticCurveTo(-L * 0.12, -H, L * 0.32, -H * 0.2);
+    c.quadraticCurveTo(L * 0.52, 0, L * 0.34, H * (0.16 + m * 0.5));  // jaw opens with mouth
+    c.quadraticCurveTo(L * 0.05, H * 0.55, -L * 0.5, H * 0.18);
+    c.closePath(); c.fill();
+    c.beginPath();                                   // dorsal fin
+    c.moveTo(-L * 0.04, -H * 0.82); c.lineTo(L * 0.14, -H * 0.8); c.lineTo(0, -H * 1.5);
+    c.closePath(); c.fill();
+    c.beginPath();                                   // pectoral fin
+    c.moveTo(L * 0.1, H * 0.32); c.lineTo(L * 0.24, H * 0.32); c.lineTo(L * 0.02, H * 0.98);
+    c.closePath(); c.fill();
+    c.beginPath();                                   // tail (fork)
+    c.moveTo(-L * 0.46, 0); c.lineTo(-L * 0.64, -H * 0.72); c.lineTo(-L * 0.5, 0); c.lineTo(-L * 0.64, H * 0.58);
+    c.closePath(); c.fill();
+    c.strokeStyle = 'rgba(0,212,200,0.32)'; c.lineWidth = 1.5;   // rim light
+    c.beginPath();
+    c.moveTo(-L * 0.12, -H * 0.9); c.quadraticCurveTo(L * 0.18, -H * 0.84, L * 0.33, -H * 0.22); c.stroke();
+    c.fillStyle = 'rgba(0,212,200,0.55)';            // eye
+    c.beginPath(); c.arc(L * 0.3, -H * 0.06, 1.7, 0, Math.PI * 2); c.fill();
+    c.restore();
+  }
+
+  function update(dt) {
+    sceneT += dt * 1000;
+
+    for (const b of bubbles) {
+      b.phase += dt * b.wobFreq;
+      b.baseX += b.vx * dt;
+      b.y += (-b.speed + b.vy) * dt;
+      b.vx *= 0.9; b.vy *= 0.9;                       // wake decays
+      b.r = b.r0 * (1 + (1 - b.y / h) * 0.5);         // grows as it climbs
+      const near = b.y / (h * 0.16);
+      b.draw = b.y < h * 0.16 ? b.alpha * Math.max(0, near) : b.alpha; // fade + pop
+      if (b.y < -10) resetBubble(b, false);
+    }
+
+    for (const p of plankton) {
+      p.x += (p.dx + p.vx) * dt; p.y += (p.dy + p.vy) * dt;
+      p.vx *= 0.92; p.vy *= 0.92;
+      if (p.x < -5) p.x = w + 5; else if (p.x > w + 5) p.x = -5;
+      if (p.y < -5) p.y = h + 5; else if (p.y > h + 5) p.y = -5;
+    }
+
+    for (const wd of words) {
+      if (!wd.alive) continue;
+      wd.x += wd.dx * dt; wd.y += wd.dy * dt;
+      if (wd.x < w * 0.08 || wd.x > w * 0.92) wd.dx *= -1;
+      if (wd.y < h * 0.08 || wd.y > h * 0.5) wd.dy *= -1;
+    }
+
+    for (let i = fragments.length - 1; i >= 0; i--) {
+      const f = fragments[i];
+      f.x += f.vx * dt; f.y += f.vy * dt;
+      f.vy += 26 * dt; f.vx *= 0.98;                  // slight sink after the burst
+      f.rot += f.vrot * dt;
+      f.life -= dt / f.ttl;
+      if (f.life <= 0) fragments.splice(i, 1);
+    }
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const rp = ripples[i];
+      rp.r += 120 * dt; rp.life -= dt / 0.6;
+      if (rp.life <= 0) ripples.splice(i, 1);
+    }
+
+    if (!shark && sceneT >= nextSharkAt) launchShark();
+    if (shark) {
+      shark.x += shark.dir * shark.speed * dt;
+      const noseX = shark.x + shark.dir * shark.len * 0.5;
+      // continuous wake (dt-normalized so it's frame-rate independent)
+      disturb(bubbles, shark.x, shark.y, WAKE_RADIUS, WAKE_FORCE * dt * 60);
+      disturb(plankton, shark.x, shark.y, WAKE_RADIUS, WAKE_FORCE * dt * 60);
+      const reached = shark.dir > 0 ? noseX >= shark.victim.x : noseX <= shark.victim.x;
+      if (!shark.bitten && shark.victim.alive && reached) {
+        shark.bitten = true; shark.mouth = 1; biteWord(shark.victim);
+      }
+      shark.mouth = Math.max(0, shark.mouth - dt * 2);
+      if ((shark.dir > 0 && shark.x > w + shark.len) ||
+          (shark.dir < 0 && shark.x < -shark.len)) {
+        shark = null; nextSharkAt = sceneT + SHARK_EVERY_MS;
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+
+    for (const p of plankton) {                       // sediment (back)
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(180,225,235,${p.alpha})`; ctx.fill();
+    }
+
+    for (const wd of words) {                         // chaos words (muted red)
+      if (!wd.alive) continue;
+      ctx.save();
+      ctx.translate(wd.x, wd.y); ctx.rotate(wd.rot);
+      ctx.font = `600 ${wd.size}px 'DM Sans', sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = `rgba(200,150,140,${wd.alpha})`;
+      ctx.fillText(wd.text, 0, 0);
+      ctx.restore();
+    }
+
+    for (const f of fragments) {                      // torn letters flying off
+      ctx.save();
+      ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+      ctx.font = `600 ${f.size}px 'DM Sans', sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = `rgba(220,130,120,${Math.max(0, f.life)})`;
+      ctx.fillText(f.ch, 0, 0);
+      ctx.restore();
+    }
+
+    for (const rp of ripples) {                       // bite shock ring
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(0,212,200,${0.4 * rp.life})`;
+      ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    for (const b of bubbles) {                        // bubbles (front)
+      ctx.beginPath();
+      ctx.arc(b.baseX + Math.sin(b.phase) * b.wobAmp, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = b.teal ? `rgba(0,212,200,${b.draw})` : `rgba(220,245,255,${b.draw})`;
+      ctx.fill();
+    }
+
+    if (shark) drawShark(ctx, shark);                 // shark on top
+  }
+
   function tick(now) {
     const dt = lastT ? Math.min((now - lastT) / 1000, 0.05) : 0.016;
     lastT = now;
-    ctx.clearRect(0, 0, w, h);
-    for (const b of bubbles) {
-      b.y -= b.speed * dt;
-      b.driftPhase += dt;
-      if (b.y < -10) resetBubble(b, false);
-      const x = b.x + Math.sin(b.driftPhase) * b.drift;
-      ctx.beginPath();
-      ctx.arc(x, b.y, b.r, 0, Math.PI * 2);
-      ctx.fillStyle = b.teal ? `rgba(0,212,200,${b.alpha})` : `rgba(220,245,255,${b.alpha})`;
-      ctx.fill();
-    }
+    update(dt); draw();
     rafId = requestAnimationFrame(tick);
   }
   const start = () => { if (rafId == null) { lastT = 0; rafId = requestAnimationFrame(tick); } };
@@ -666,7 +887,7 @@ function initUnderwater() {
   let rt = null;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); }, { passive: true });
 
-  // Only animate bubbles while the section is on screen.
+  // Run the scene only while the section is on screen.
   new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) start(); else stop();
   }, { threshold: 0 }).observe(section);

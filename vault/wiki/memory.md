@@ -25,6 +25,39 @@
 - 2026-06-25 — Initial build. Created vault structure + full single-page
   site (nav, hero, services, pricing, process, contact w/ QR, footer).
 
+## Working preferences (STANDING — apply every session)
+> Owner: Dominick. Added 2026-06-25. Do not drop these.
+
+- **Always end every task/sprint with a copy-paste-ready WRAP-UP block** (see
+  template below). Dominick is always looking for *actionable* next steps so he
+  can keep the process moving — lead with what HE can do, then what HERMES will
+  do next. Make it skimmable and literally copy-pasteable.
+- Be decisive: state the defaults chosen, don't make him re-answer.
+
+### WRAP-UP template (paste-ready, use verbatim shape)
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ HERMES WRAP-UP — <Sprint/Task name>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS:   ✅ shipped / 🚧 blocked
+BRANCH:   <branch>      PR: <#/url>
+LIVE:     <url or "not deployed">
+
+DONE:
+ • <bullet> ...
+
+⚡ YOUR NEXT ACTIONS (do these to move forward):
+ 1. [ ] <one concrete action>
+ 2. [ ] <decision needed: option A vs B — my rec: A>
+
+🤖 HERMES NEXT (queued for next sprint, say "go" to run):
+ 1. [ ] <task>
+
+⛔ BLOCKED ON YOU:
+ • <anything that stops progress, or "nothing">
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
 ## Sprint 2 — 2026-06-25 — Polish & Conversion
 - Branch: claude/hermes-sprint-2-polish-conversion (off the Sprint 1 branch
   claude/hermes-igotadom-build-cyev52, NOT main).

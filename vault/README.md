@@ -14,21 +14,29 @@ vault/
 │   ├── copy.md          ← approved headlines, CTAs, disclaimers
 │   ├── design.md        ← color/type/design tokens & rules
 │   └── memory.md        ← channel identity, goals, decision log
-└── outputs/
-    └── site/            ← the built website
-        ├── index.html   ← single-page entry point
-        ├── style.css    ← design tokens + all component styles
-        ├── main.js      ← GSAP hero animation, nav, form, QR code
-        └── assets/      ← logo.svg, og-image.svg
+└── outputs/             ← (build output now lives at the repo root)
 ```
+
+The built site is served from the **repository root** so Cloudflare Pages
+(which deploys the repo root) shows it live:
+
+```
+<repo root>/
+├── index.html           ← single-page entry point
+├── style.css            ← design tokens + all component styles
+├── main.js              ← GSAP hero animation, nav, form, QR code
+└── assets/              ← logo.svg, og-image.svg
+```
+
+The previous operations-dashboard stub is archived at
+`vault/.raw/operations-dashboard.html`.
 
 ## View it
 
-It's a static site — open `outputs/site/index.html` directly, or serve it:
+It's a static site — open `index.html` at the repo root directly, or serve it:
 
 ```bash
-cd vault/outputs/site
-python3 -m http.server 8000   # then visit http://localhost:8000
+python3 -m http.server 8000   # from the repo root, then visit http://localhost:8000
 ```
 
 ## HERMES commands (run in chat)

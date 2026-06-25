@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I Got A Dom — Chaos to Clarity. Same-Day Document Cleanup.</title>
+  <meta name="description" content="I turn messy notes, screenshots, menus, and rough drafts into clean, professional, ready-to-send results. Same day." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="I Got A Dom — Chaos to Clarity." />
+  <meta property="og:description" content="Messy notes, screenshots, menus, and rough drafts in. Clean, ready-to-send results out. Same day." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/og-image.svg" />
+
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@300..700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ============================== NAV ============================== -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo" aria-label="I Got A Dom — home">
+        <img src="assets/logo.svg" alt="I Got A Dom" width="180" height="36" />
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#services">What I Do</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#process">How It Works</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <a href="#contact" class="btn btn-primary nav-cta">Send Me Something →</a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile overlay -->
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+      <a href="#services">What I Do</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#process">How It Works</a>
+      <a href="#contact">Contact</a>
+      <a href="#contact" class="btn btn-primary">Send Me Something →</a>
+    </div>
+  </nav>
+
+  <!-- ============================== HERO ============================== -->
+  <section id="hero" class="hero">
+    <div class="hero-bg">
+      <div class="teal-orb"></div>
+      <div class="grid-overlay"></div>
+    </div>
+
+    <div class="chaos-field" id="chaosField" aria-hidden="true">
+      <div class="chaos-card" data-label="Resume Draft"></div>
+      <div class="chaos-card" data-label="Screenshot"></div>
+      <div class="chaos-card" data-label="Menu"></div>
+      <div class="chaos-card" data-label="Notes"></div>
+      <div class="chaos-card" data-label="Long Email"></div>
+      <div class="chaos-card" data-label="Text Thread"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">Same-Day Document Cleanup</div>
+      <h1 class="hero-headline">
+        <span class="word-chaos">Chaos</span>
+        <span class="word-to">to</span>
+        <span class="word-clarity">Clarity.</span>
+      </h1>
+      <p class="hero-sub">
+        I turn messy notes, screenshots, menus, and rough drafts into clean,
+        professional, ready-to-send results. Same day.
+      </p>
+      <div class="hero-cta-row">
+        <a href="#contact" class="btn btn-primary">Send Me Something →</a>
+        <a href="#services" class="btn btn-ghost">See What I Do ↓</a>
+      </div>
+    </div>
+
+    <div class="clarity-field" id="clarityField" aria-hidden="true">
+      <div class="clarity-card" data-label="Clean Resume ✓"></div>
+      <div class="clarity-card" data-label="Timeline ✓"></div>
+      <div class="clarity-card" data-label="Menu ✓"></div>
+      <div class="clarity-card" data-label="Flyer ✓"></div>
+    </div>
+
+    <div class="glass-surface" id="glassSurface" aria-hidden="true"></div>
+  </section>
+
+  <!-- ============================== SERVICES ============================== -->
+  <section id="services" class="section">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="section-kicker">What I Do</span>
+        <h2 class="section-title">Send it messy. Get it clean.</h2>
+        <p class="section-lead">
+          Whatever shape it comes in, it leaves ready to send.
+        </p>
+      </header>
+
+      <div class="bento">
+        <article class="bento-card glass anchor reveal">
+          <div class="bento-icon">📄</div>
+          <h3>Document &amp; Resume Cleanup</h3>
+          <p>Rough resume, bio, or document in — clean, formatted, ready-to-send version out. This is the one most people start with.</p>
+        </article>
+
+        <article class="bento-card glass reveal">
+          <div class="bento-icon">🖼️</div>
+          <h3>Screenshot → Clean Text</h3>
+          <p>Pull the words out of a screenshot or photo and format them properly.</p>
+        </article>
+
+        <article class="bento-card glass reveal">
+          <div class="bento-icon">🍽️</div>
+          <h3>Menu &amp; Flyer Formatting</h3>
+          <p>An unstructured menu or flyer turned into a clean, scannable layout.</p>
+        </article>
+
+        <article class="bento-card glass reveal">
+          <div class="bento-icon">🗒️</div>
+          <h3>Notes → Organized Doc</h3>
+          <p>Messy notes reorganized into a clear, structured document.</p>
+        </article>
+
+        <article class="bento-card glass reveal">
+          <div class="bento-icon">✉️</div>
+          <h3>Email &amp; Message Drafting</h3>
+          <p>Rough thoughts turned into a polished, ready-to-send message.</p>
+        </article>
+
+        <article class="bento-card glass reveal">
+          <div class="bento-icon">⚡</div>
+          <h3>Same-Day Buildout</h3>
+          <p>Bigger jobs assembled and cleaned, same day where possible.</p>
+        </article>
+      </div>
+
+      <p class="disclaimer reveal">
+        I Got A Dom does not provide legal, tax, financial, or professional
+        advice. I organize facts, clean up writing, and create clear drafts.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================== PRICING ============================== -->
+  <section id="pricing" class="section section-alt">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="section-kicker">Simple Pricing</span>
+        <h2 class="section-title">No quotes, no games.</h2>
+        <p class="section-lead">Pick a lane. Send it. I'll get it back to you.</p>
+      </header>
+
+      <div class="pricing-grid">
+        <article class="price-card glass reveal">
+          <div class="price-name">Quick Fix</div>
+          <div class="price-amount">$25</div>
+          <p class="price-for">One short document or screenshot cleanup.</p>
+          <ul class="price-list">
+            <li>Single page or screenshot</li>
+            <li>Clean formatting</li>
+            <li>Same-day turnaround</li>
+          </ul>
+          <a href="#contact" class="btn btn-ghost price-cta">Start Here →</a>
+        </article>
+
+        <article class="price-card glass featured reveal">
+          <div class="price-badge">Most Popular</div>
+          <div class="price-name">Clean Package</div>
+          <div class="price-amount">$50</div>
+          <p class="price-for">Resume or multi-page document, fully formatted.</p>
+          <ul class="price-list">
+            <li>Up to several pages</li>
+            <li>Full formatting &amp; structure</li>
+            <li>One round of tweaks</li>
+            <li>Same-day turnaround</li>
+          </ul>
+          <a href="#contact" class="btn btn-primary price-cta">Send Me Something →</a>
+        </article>
+
+        <article class="price-card glass reveal">
+          <div class="price-name">Same-Day Buildout</div>
+          <div class="price-amount">$75<span>+</span></div>
+          <p class="price-for">Larger or rush jobs, multiple pieces.</p>
+          <ul class="price-list">
+            <li>Multiple documents</li>
+            <li>Priority same-day handling</li>
+            <li>Assembled &amp; cleaned together</li>
+          </ul>
+          <a href="#contact" class="btn btn-ghost price-cta">Let's Talk →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== HOW IT WORKS ============================== -->
+  <section id="process" class="section">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="section-kicker">How It Works</span>
+        <h2 class="section-title">Three steps. Same day.</h2>
+      </header>
+
+      <div class="steps">
+        <div class="step-line" aria-hidden="true"></div>
+        <article class="step reveal">
+          <div class="step-num">1</div>
+          <h3>Send It</h3>
+          <p>Text, email, or upload whatever you've got — messy is fine.</p>
+        </article>
+        <article class="step reveal">
+          <div class="step-num">2</div>
+          <h3>I Clean It</h3>
+          <p>I organize, format, and polish it into something professional.</p>
+        </article>
+        <article class="step reveal">
+          <div class="step-num">3</div>
+          <h3>You Send It</h3>
+          <p>You get back a clean, ready-to-send result. Same day.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== CONTACT ============================== -->
+  <section id="contact" class="section section-alt">
+    <div class="container contact-grid">
+      <div class="reveal">
+        <span class="section-kicker">Send Me Something</span>
+        <h2 class="section-title">Got something messy?</h2>
+        <p class="section-lead">
+          Tell me what you need. I'll tell you what it costs and when it's done.
+        </p>
+
+        <form class="contact-form glass" id="contactForm" novalidate>
+          <div class="field">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" autocomplete="name" required />
+            <span class="error" data-for="name"></span>
+          </div>
+          <div class="field">
+            <label for="need">What do you need?</label>
+            <textarea id="need" name="need" rows="4" required></textarea>
+            <span class="error" data-for="need"></span>
+          </div>
+          <div class="field">
+            <label for="reach">How can I reach you?</label>
+            <input type="text" id="reach" name="reach" placeholder="Email or phone" autocomplete="email" required />
+            <span class="error" data-for="reach"></span>
+          </div>
+          <button type="submit" class="btn btn-primary form-submit">Send It →</button>
+          <p class="form-success" id="formSuccess" hidden>Got it — I'll be in touch shortly. ✓</p>
+        </form>
+      </div>
+
+      <aside class="qr-block glass reveal">
+        <div id="qrcode" class="qr-img"></div>
+        <p>Scan to visit on your phone</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================== FOOTER ============================== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="assets/logo.svg" alt="I Got A Dom" width="180" height="36" />
+        <p class="footer-tag">Chaos to Clarity.</p>
+      </div>
+      <p class="disclaimer footer-disclaimer">
+        I Got A Dom does not provide legal, tax, financial, or professional
+        advice. I organize facts, clean up writing, and create clear drafts.
+      </p>
+      <p class="footer-copy">© 2026 I Got A Dom</p>
+    </div>
+  </footer>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

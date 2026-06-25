@@ -190,3 +190,30 @@
   a real browser.
 - Decision: pushed branch + opened a DRAFT PR. Not a deploy; owner reviews
   before any Cloudflare Pages production deploy (merge to main).
+
+## Underwater World — "the deep dive" — 2026-06-25
+- Branch: claude/hermes-underwater-world (off main, after #3/#4/#5 merged). DRAFT PR.
+- Owner spec offered React + Framer Motion OR GSAP — built VANILLA (no build
+  system here; React/Framer Motion off the table). Used GSAP core (already loaded)
+  + added the ScrollTrigger plugin via CDN.
+- Owner decisions (AskUserQuestion): KEEP the #dive video hero AND add this as a
+  new STANDALONE section below it (do NOT restyle existing #services); extend the
+  palette with deep-navy scoped to this section. Page flow is now:
+  hero → before/after → #dive(video) → #deep(underwater world) → services → …
+- New #deep section between #dive and #services. Layers (z 0→10): deep radial bg,
+  CSS caustics (blurred, opacity 0.06, drift anim), 5 teal light rays (CSS shimmer,
+  GSAP scrubs opacity 0→0.7 on enter), rising-bubble <canvas> (IO-gated rAF, 28/14
+  bubbles), then content. Top + exit "surface-divider" shimmer transitions.
+- Content is NEW brand-voice copy (NOT a duplicate of the 6 services): eyebrow
+  "Beneath the surface", headline "Every service. <em>Clarity guaranteed.</em>",
+  3 glass depth-cards (Chaos sinks / Clarity rises / Same day). First person.
+- New tokens --deep-1/2/3 added to :root (deep-navy), scoped to this section.
+- GSAP ScrollTrigger transitions: rays fade-in scrub, bg blur 0→2→0 on entry,
+  cards rise+stagger. All gated behind gsap+ScrollTrigger presence AND
+  prefers-reduced-motion; cards/rays stay visible if GSAP fails (no-JS safe).
+- QA: node --check pass; headless smoke (normal + reduced) zero JS errors; screenshots
+  desktop+mobile look right. Could NOT verify the ScrollTrigger scrub headless (GSAP
+  CDN offline in sandbox) — owner to eyeball on the real page.
+- WEAKNESS to review: #deep's "Every service" intro sits right above the real
+  #services grid — possible thematic redundancy; judge on the live page. Also lots
+  of spectacle now stacks before services (before/after + video dive + underwater).

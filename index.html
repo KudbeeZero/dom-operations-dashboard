@@ -60,6 +60,8 @@
       <div class="grid-overlay"></div>
     </div>
 
+    <canvas id="heroCanvas" class="hero-canvas" aria-hidden="true"></canvas>
+
     <div class="chaos-field" id="chaosField" aria-hidden="true">
       <div class="chaos-card" data-label="Resume Draft"></div>
       <div class="chaos-card" data-label="Screenshot"></div>
@@ -99,6 +101,62 @@
       <span class="scroll-indicator-label">Scroll</span>
       <span class="scroll-chevron" aria-hidden="true"></span>
     </a>
+  </section>
+
+  <!-- ============================== BEFORE / AFTER ============================== -->
+  <section id="showcase" class="ba-section">
+    <div class="container">
+      <header class="section-head ba-head reveal">
+        <span class="section-kicker">See The Difference</span>
+        <h2 class="section-title">Drag to see chaos become clarity.</h2>
+      </header>
+
+      <div class="ba reveal" id="baSlider">
+        <!-- AFTER (clean) sits underneath, full width -->
+        <div class="ba-panel ba-after-panel">
+          <span class="ba-tag ba-tag-after">After</span>
+          <div class="ba-doc ba-doc-after" aria-hidden="true">
+            <p class="ba-line ba-title-line">Resume <span class="ba-dash">—</span> John Smith</p>
+            <p class="ba-line">Experience 2019<span class="ba-dash">–</span>Present</p>
+            <p class="ba-line">Google <span class="ba-dash">—</span> Software Engineer</p>
+            <p class="ba-line ba-skills">
+              <span class="ba-chip">Python</span>
+              <span class="ba-chip">Java</span>
+            </p>
+            <p class="ba-line ba-stamp"><span class="ba-check">✓</span> Clean &amp; ready to send</p>
+          </div>
+        </div>
+
+        <!-- BEFORE (messy) clipped on top -->
+        <div class="ba-panel ba-before-panel" id="baBefore">
+          <span class="ba-tag ba-tag-before">Before</span>
+          <div class="ba-doc ba-doc-before" aria-hidden="true">
+            <p class="ba-line ba-title-line"><span class="ba-bad">resuMe</span> - <span class="ba-bad">johN smIth</span></p>
+            <p class="ba-line"><span class="ba-bad">excperience</span> 2019-curent</p>
+            <p class="ba-line">google <span class="ba-bad">sofTware</span> eng</p>
+            <p class="ba-line ba-skills-messy">•skills:python java</p>
+            <p class="ba-line ba-stamp-messy">draft?? messy ??</p>
+          </div>
+        </div>
+
+        <!-- Draggable divider -->
+        <div class="ba-divider" id="baDivider">
+          <button
+            class="ba-handle"
+            id="baHandle"
+            type="button"
+            role="slider"
+            tabindex="0"
+            aria-label="Drag to compare before and after"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="50"
+          >
+            <span class="ba-handle-arrows" aria-hidden="true">⟨ ⟩</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ============================== SERVICES ============================== -->

@@ -567,13 +567,116 @@ function initDiveHero() {
   try { video.load(); } catch (_) {}
 }
 
+/* -------------------------------------------------------------------------
+   8. UNDERWATER WORLD — "the deep dive" atmosphere
+   GSAP ScrollTrigger scrubs the rays/blur as you descend; a canvas of
+   rising bubbles runs only while the section is on screen.
+   ------------------------------------------------------------------------- */
+function initUnderwater() {
+  /* ---- Tunable constants (no magic numbers inline) ----------------------- */
+  const BUBBLES_DESKTOP = 28;
+  const BUBBLES_MOBILE  = 14;
+  const RISE_MIN        = 12;   // px/sec slowest bubble
+  const RISE_MAX        = 42;   // px/sec fastest bubble
+  const MOBILE_BP       = 600;  // px width below which we use the mobile count
+  /* ----------------------------------------------------------------------- */
+
+  const section = document.getElementById('deep');
+  if (!section) return;
+  const canvas = document.getElementById('uwBubbles');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Scroll-tied transitions — only when motion is OK and GSAP+ScrollTrigger loaded.
+  if (!prefersReduced && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Light rays fade in as the section enters view.
+    gsap.fromTo('.uw-rays', { opacity: 0 }, {
+      opacity: 0.7, ease: 'none',
+      scrollTrigger: { trigger: section, start: 'top 80%', end: 'top 20%', scrub: 1.5 },
+    });
+
+    // "Eyes adjusting to depth" — blur the deep bg in then back out on entry.
+    gsap.timeline({
+      scrollTrigger: { trigger: section, start: 'top 90%', end: 'top 30%', scrub: 1 },
+    })
+      .fromTo('.uw-bg', { filter: 'blur(0px)' }, { filter: 'blur(2px)', ease: 'none' })
+      .to('.uw-bg', { filter: 'blur(0px)', ease: 'none' });
+
+    // Cards rise from the deep, staggered.
+    gsap.from('.uw-card', {
+      y: 40, opacity: 0, duration: 0.6, stagger: 0.15, ease: 'power2.out',
+      scrollTrigger: { trigger: '.uw-cards', start: 'top 85%' },
+    });
+  }
+
+  // Rising-bubble canvas — skipped entirely under reduced motion.
+  if (prefersReduced || !canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  let w = 0, h = 0, dpr = 1, bubbles = [], rafId = null, lastT = 0;
+
+  const makeBubble = (initial) => ({
+    x: Math.random() * w,
+    y: initial ? Math.random() * h : h + 10,
+    r: 1 + Math.random() * 3.5,
+    speed: RISE_MIN + Math.random() * (RISE_MAX - RISE_MIN),
+    drift: (Math.random() - 0.5) * 8,
+    driftPhase: Math.random() * Math.PI * 2,
+    alpha: 0.1 + Math.random() * 0.35,
+    teal: Math.random() < 0.5,
+  });
+
+  function build() {
+    const n = w < MOBILE_BP ? BUBBLES_MOBILE : BUBBLES_DESKTOP;
+    bubbles = Array.from({ length: n }, () => makeBubble(true));
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    w = rect.width; h = rect.height;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    build();
+  }
+  function tick(now) {
+    const dt = lastT ? Math.min((now - lastT) / 1000, 0.05) : 0.016;
+    lastT = now;
+    ctx.clearRect(0, 0, w, h);
+    for (const b of bubbles) {
+      b.y -= b.speed * dt;
+      b.driftPhase += dt;
+      if (b.y < -10) Object.assign(b, makeBubble(false));
+      const x = b.x + Math.sin(b.driftPhase) * b.drift;
+      ctx.beginPath();
+      ctx.arc(x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = b.teal ? `rgba(0,212,200,${b.alpha})` : `rgba(220,245,255,${b.alpha})`;
+      ctx.fill();
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+  const start = () => { if (rafId == null) { lastT = 0; rafId = requestAnimationFrame(tick); } };
+  const stop  = () => { if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; } };
+
+  resize();
+  let rt = null;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); }, { passive: true });
+
+  // Only animate bubbles while the section is on screen.
+  new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) start(); else stop();
+  }, { threshold: 0 }).observe(section);
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
     initHeroCanvas, initHeroAnimation, initNav, initDiveHero,
-    initBeforeAfter, initScrollReveals, initContactForm, initQRCode,
+    initBeforeAfter, initScrollReveals, initUnderwater, initContactForm, initQRCode,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

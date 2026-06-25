@@ -448,12 +448,131 @@ function initScrollReveals() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   7. UNDERWATER DIVE — scroll-scrubbed video hero (Apple-style)
+   Scroll position pins video.currentTime across the section's scroll height.
+   Driven by requestAnimationFrame (no raw scroll handler) for smoothness.
+   ------------------------------------------------------------------------- */
+function initDiveHero() {
+  /* ---- Tunable constants (no magic numbers inline) ----------------------- */
+  const VIDEO_SRC        = 'assets/hero/underwater.mp4';  // wired path; drop the mp4 here
+  const POSTER_SRC       = 'assets/hero/underwater-poster.svg';
+  const SCROLL_HEIGHT_VH = 300;   // viewport-heights of scroll == the full clip
+  const SCRUB_SMOOTHING  = 0.12;  // 0..1 ease toward target time (lower = smoother/laggier)
+  const MOBILE_MAX_PX    = 768;   // at/below this width -> poster fallback (no scrub)
+  const END_EPSILON      = 0.05;  // stay just shy of duration to avoid 'ended' flicker
+  /* ----------------------------------------------------------------------- */
+
+  const section = document.getElementById('dive');
+  if (!section) return;
+  const video = document.getElementById('diveVideo');
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isSmall = window.matchMedia(`(max-width: ${MOBILE_MAX_PX}px)`).matches;
+  const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+
+  // Scroll-scrub only on larger, fine-pointer, motion-OK devices. iOS Safari
+  // throttles per-frame video seeking badly, so small/coarse screens (and
+  // reduced-motion) get the static poster instead.
+  const posterOnly = prefersReduced || isSmall || isCoarse || !video;
+
+  // Drop to a clean still hero: no tall track, no video download, no cue.
+  function enablePosterOnly() {
+    section.classList.add('dive--poster-only');
+    section.classList.remove('is-scrub', 'is-playable');
+    if (video) {
+      video.preload = 'none';                 // don't pull ~9 MB just to hide it
+      const src = video.querySelector('source');
+      if (src) src.remove();                  // drop the source entirely
+      video.removeAttribute('src');
+      try { video.load(); } catch (_) {}       // reset + abort any in-flight fetch
+    }
+  }
+
+  if (posterOnly) { enablePosterOnly(); return; }
+
+  // --- Scroll-scrub path ---------------------------------------------------
+  // Single source of truth for the track height = SCROLL_HEIGHT_VH.
+  section.style.setProperty('--dive-scroll-vh', String(SCROLL_HEIGHT_VH));
+  section.classList.add('is-scrub');
+  video.preload = 'auto';
+
+  // Keep the wired paths as the single source of truth (defensive if the
+  // markup ever drifts from these constants).
+  if (!video.getAttribute('poster')) video.setAttribute('poster', POSTER_SRC);
+  let sourceEl = video.querySelector('source');
+  if (!sourceEl) {
+    sourceEl = document.createElement('source');
+    sourceEl.type = 'video/mp4';
+    sourceEl.src = VIDEO_SRC;
+    video.appendChild(sourceEl);
+  }
+
+  let duration = 0;
+  let renderTime = 0;
+  let rafId = null;
+  let inView = false;
+  let metaReady = false;
+
+  // If the asset is missing or the codec is unsupported, stay on the poster.
+  function failToPoster() {
+    stopLoop();
+    section.classList.remove('is-scrub', 'is-playable');
+    section.classList.add('dive--poster-only');
+  }
+  video.addEventListener('error', failToPoster);
+  sourceEl.addEventListener('error', failToPoster);
+
+  video.addEventListener('loadedmetadata', () => {
+    if (!isFinite(video.duration) || video.duration <= 0) { failToPoster(); return; }
+    duration = video.duration;
+    metaReady = true;
+    section.classList.add('is-playable');   // fade the video in over the poster
+    if (inView) startLoop();
+  });
+
+  // 0..1 progress across the section's scrollable height (read in rAF, not on scroll)
+  function progress() {
+    const scrollable = section.offsetHeight - window.innerHeight;
+    if (scrollable <= 0) return 0;
+    const scrolled = Math.min(Math.max(-section.getBoundingClientRect().top, 0), scrollable);
+    return scrolled / scrollable;
+  }
+
+  function tick() {
+    const target = progress() * (duration - END_EPSILON);
+    renderTime += (target - renderTime) * SCRUB_SMOOTHING;     // ease for buttery scrub
+    if (Math.abs(target - renderTime) < 0.004) renderTime = target;
+    if (metaReady && video.readyState >= 2 &&
+        Math.abs(video.currentTime - renderTime) > 0.01) {
+      try { video.currentTime = renderTime; } catch (_) {}
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+  function startLoop() { if (rafId == null) rafId = requestAnimationFrame(tick); }
+  function stopLoop() { if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; } }
+
+  // Only spin the rAF loop while the hero is actually on screen.
+  const io = new IntersectionObserver((entries) => {
+    inView = entries[0].isIntersecting;
+    if (inView && metaReady) startLoop(); else stopLoop();
+  }, { threshold: 0 });
+  io.observe(section);
+
+  window.addEventListener('resize', () => {
+    // mapping is recomputed every frame; nothing to cache, but keep the hook
+    // explicit so future tunables (e.g. cached rects) have a home.
+  }, { passive: true });
+
+  try { video.load(); } catch (_) {}
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
-    initHeroCanvas, initHeroAnimation, initNav,
+    initHeroCanvas, initHeroAnimation, initNav, initDiveHero,
     initBeforeAfter, initScrollReveals, initContactForm, initQRCode,
   ];
   for (const init of inits) {

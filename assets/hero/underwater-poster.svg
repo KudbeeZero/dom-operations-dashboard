@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Sunlight fading into deep water above a sunken ship">
+  <defs>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b6f87"/>
+      <stop offset="0.28" stop-color="#0e4d63"/>
+      <stop offset="0.6" stop-color="#072a3a"/>
+      <stop offset="1" stop-color="#02060c"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="-6%" r="70%">
+      <stop offset="0" stop-color="#8fe9ff" stop-opacity="0.55"/>
+      <stop offset="0.35" stop-color="#3aa8c4" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#02060c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ray" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bff0ff" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#bff0ff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="vig" cx="50%" cy="42%" r="75%">
+      <stop offset="0.55" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#water)"/>
+  <rect width="1600" height="900" fill="url(#sun)"/>
+
+  <!-- god rays -->
+  <g fill="url(#ray)">
+    <polygon points="700,-40 770,-40 560,720 470,720"/>
+    <polygon points="860,-40 905,-40 800,760 720,760"/>
+    <polygon points="980,-40 1060,-40 1180,700 1080,700"/>
+  </g>
+
+  <!-- sunken ship silhouette, low and dim in the gloom -->
+  <g fill="#020a11" fill-opacity="0.85" transform="translate(420 560)">
+    <path d="M40 150 Q380 250 760 150 L700 96 Q380 150 96 96 Z"/>
+    <rect x="250" y="40" width="240" height="60" rx="6"/>
+    <rect x="330" y="-36" width="70" height="86"/>
+    <!-- masts -->
+    <rect x="200" y="-150" width="9" height="196"/>
+    <rect x="520" y="-120" width="9" height="166"/>
+    <line x1="204" y1="-150" x2="525" y2="-120" stroke="#020a11" stroke-opacity="0.7" stroke-width="4"/>
+  </g>
+
+  <!-- drifting particulate -->
+  <g fill="#cdeaf2" fill-opacity="0.22">
+    <circle cx="300" cy="240" r="2.5"/><circle cx="520" cy="420" r="1.8"/>
+    <circle cx="780" cy="300" r="2.2"/><circle cx="1020" cy="500" r="1.6"/>
+    <circle cx="1200" cy="260" r="2.4"/><circle cx="1380" cy="440" r="1.8"/>
+    <circle cx="180" cy="520" r="1.6"/><circle cx="900" cy="620" r="2"/>
+    <circle cx="1120" cy="700" r="1.5"/><circle cx="640" cy="560" r="1.7"/>
+  </g>
+
+  <rect width="1600" height="900" fill="url(#vig)"/>
+</svg>

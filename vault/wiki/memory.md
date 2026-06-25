@@ -134,3 +134,29 @@
 - Confirm igotadom.com is the live domain for the QR before launch.
 
 - index.html location: repo root ✅
+
+## Visual Upgrade — Phase 1 — 2026-06-25
+- Branch: claude/dom-visual-upgrade-p1-qq1g38 (baton named feat/hero-animation-
+  upgrade, but the assigned working branch is the claude/… one — developed there).
+- Stack confirmed: static HTML/CSS/JS (no framework). GSAP + qrcodejs via CDN.
+- Files modified: index.html, style.css, main.js. No files created/deleted.
+- 1A Canvas particle hero (`#heroCanvas`, z-index 1, behind text z-10, pointer-
+  events:none): rAF loop of word/char particles — chaos float (0–2s) → drift into
+  two rows (2–5s) → left→right glow sweep (4–5.2s) → snap full-opacity rows
+  (5–6.5s) → fade + reseed loop (6.5–7.6s). DPR-capped at 2, debounced resize,
+  reduced-motion draws the static clean state only. Measured 60 FPS at 1440px.
+  Two-row targets at 32%/68% height to stay clear of the headline band.
+- 1B Before/After slider: new `#showcase` section between hero and services.
+  Pure CSS clip-path (`--pos`) + vanilla Pointer Events (mouse+touch+pen),
+  click-to-jump, draggable handle, keyboard (arrows/Home/End), role=slider.
+  Decorative resume mock only — no site copy touched.
+- 1C Scroll reveals: replaced the CSS `animation-timeline: view()` block with
+  IntersectionObserver. Adds `html.js` so the hidden pre-reveal state only
+  applies with JS + no-reduced-motion (no-JS stays visible). Fade-up 24px/400ms;
+  stagger services 80ms / pricing 120ms / process 200ms via `--reveal-delay`.
+  Elements already in the viewport on load show instantly (no animation).
+- Did NOT touch: copy, section structure, contact form logic, pricing numbers,
+  nav, logo, color tokens. No new npm packages.
+- Decision: pushed to the feature branch + opened a DRAFT PR for human review.
+  This is NOT a deploy (Cloudflare Pages deploys on merge to main), so it honors
+  the baton's "human reviews before any Cloudflare Pages deploy" stop condition.

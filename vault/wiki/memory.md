@@ -160,3 +160,33 @@
 - Decision: pushed to the feature branch + opened a DRAFT PR for human review.
   This is NOT a deploy (Cloudflare Pages deploys on merge to main), so it honors
   the baton's "human reviews before any Cloudflare Pages deploy" stop condition.
+
+## Underwater scroll-scrub hero — 2026-06-25
+- Branch: feat/underwater-scroll-hero (off main, per owner). One PR, no merge
+  without owner approval. NON-HERMES branch name — owner-directed.
+- Stack reconfirmed: static HTML/CSS/JS, no framework, no package manager, no
+  build step. So "component" = markup in index.html + CSS in style.css + logic
+  in main.js. There is no public/ dir — assets live in assets/ (owner's baton
+  said public/hero/...; corrected to assets/hero/ to match the repo).
+- Added new #dive section BETWEEN #hero and #services (owner chose "add as new
+  section", non-destructive — existing hero untouched).
+- Asset: owner uploaded an mp4 → assets/hero/underwater.mp4 (9.2 MB, H.264).
+  Generated a guaranteed SVG poster (assets/hero/underwater-poster.svg) as the
+  always-present fallback so the section never shows a blank box.
+- Effect: scroll position pins diveVideo.currentTime across SCROLL_HEIGHT_VH
+  (=300) of scroll via a sticky stage + rAF loop (no raw scroll handler),
+  eased by SCRUB_SMOOTHING (=0.12). Scroll down sinks, scroll up rises.
+- Device strategy: full scroll-scrub only on wide (>768px), fine-pointer,
+  motion-OK devices. iOS Safari seeks video poorly, so small/coarse-pointer
+  AND reduced-motion get the static poster (no tall track, no video download —
+  preload forced to 'none', source dropped). Missing/undecodable asset →
+  poster, no crash (verified: this sandbox's headless Chromium can't decode
+  H.264, which exercised the fallback for real).
+- Tunable constants live at the top of initDiveHero(): VIDEO_SRC, POSTER_SRC,
+  SCROLL_HEIGHT_VH, SCRUB_SMOOTHING, MOBILE_MAX_PX, END_EPSILON.
+- No build/lint/typecheck exist in this repo; ran `node --check main.js` (pass)
+  + headless-Chromium QA (fallback paths + scrub-math stub). Could not run
+  Lighthouse / real video scrub headless (no H.264 codec) — owner to eyeball in
+  a real browser.
+- Decision: pushed branch + opened a DRAFT PR. Not a deploy; owner reviews
+  before any Cloudflare Pages production deploy (merge to main).

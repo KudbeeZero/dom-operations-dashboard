@@ -94,6 +94,11 @@
     </div>
 
     <div class="glass-surface" id="glassSurface" aria-hidden="true"></div>
+
+    <a href="#services" class="scroll-indicator" aria-label="Scroll to see what I do">
+      <span class="scroll-indicator-label">Scroll</span>
+      <span class="scroll-chevron" aria-hidden="true"></span>
+    </a>
   </section>
 
   <!-- ============================== SERVICES ============================== -->
@@ -259,8 +264,13 @@
             <span class="error" data-for="reach"></span>
           </div>
           <button type="submit" class="btn btn-primary form-submit">Send It →</button>
-          <p class="form-success" id="formSuccess" hidden>Got it — I'll be in touch shortly. ✓</p>
         </form>
+
+        <div class="form-confirm glass" id="formConfirm" hidden role="status" aria-live="polite">
+          <div class="form-confirm-check" aria-hidden="true">✓</div>
+          <h3>Got it.</h3>
+          <p>I'll have something clean back to you same day.</p>
+        </div>
       </div>
 
       <aside class="qr-block glass reveal">
@@ -278,8 +288,8 @@
         <p class="footer-tag">Chaos to Clarity.</p>
       </div>
       <p class="disclaimer footer-disclaimer">
-        I Got A Dom does not provide legal, tax, financial, or professional
-        advice. I organize facts, clean up writing, and create clear drafts.
+        I Got A Dom is not a law firm and does not provide legal, tax,
+        financial, or professional advice.
       </p>
       <p class="footer-copy">© 2026 I Got A Dom</p>
     </div>

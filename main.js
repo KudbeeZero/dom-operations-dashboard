@@ -17,24 +17,8 @@ function initHeroAnimation() {
   const ctaRow   = document.querySelector('.hero-cta-row');
   const eyebrow  = document.querySelector('.hero-eyebrow');
 
-  // Scatter positions for chaos cards (around the edges)
-  const chaosPositions = [
-    { top: '12%', left:  '5%',  rotate: -15 },
-    { top: '15%', right: '8%',  rotate:  12 },
-    { top: '58%', left:  '3%',  rotate:  -8 },
-    { top: '60%', right: '5%',  rotate:  20 },
-    { top: '32%', left:  '16%', rotate: -22 },
-    { top: '36%', right: '14%', rotate:  18 },
-  ];
-  const clarityPositions = [
-    { top: '20%', left:  '6%' },
-    { top: '20%', right: '6%' },
-    { top: '55%', left:  '4%' },
-    { top: '55%', right: '4%' },
-  ];
-
-  chaos.forEach((card, i) => Object.assign(card.style, chaosPositions[i % chaosPositions.length]));
-  clarity.forEach((card, i) => Object.assign(card.style, clarityPositions[i % clarityPositions.length]));
+  // Card positions live in style.css (.chaos-card/.clarity-card :nth-child).
+  // GSAP only animates transforms/opacity/filter on top of those positions.
 
   // Reduced motion (or GSAP failed to load): show static clarity state, no animation.
   if (prefersReduced || typeof gsap === 'undefined') {
@@ -130,18 +114,22 @@ function initNav() {
 function initContactForm() {
   const form = document.getElementById('contactForm');
   if (!form) return;
-  const success = document.getElementById('formSuccess');
+  const confirm = document.getElementById('formConfirm');
 
   const fields = ['name', 'need', 'reach'];
+  const MIN_MESSAGE = 10;
 
   const validateField = (id) => {
     const input = document.getElementById(id);
     const wrap = input.closest('.field');
     const err = form.querySelector(`.error[data-for="${id}"]`);
+    const value = input.value.trim();
     let msg = '';
 
-    if (!input.value.trim()) {
+    if (!value) {
       msg = 'This one’s required.';
+    } else if (id === 'need' && value.length < MIN_MESSAGE) {
+      msg = `A little more detail, please (${value.length}/${MIN_MESSAGE}).`;
     } else if (id === 'reach' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value) && !/\d{7,}/.test(input.value.replace(/\D/g, ''))) {
       msg = 'Add a valid email or phone number.';
     }
@@ -166,8 +154,12 @@ function initContactForm() {
       form.querySelector('.field.invalid input, .field.invalid textarea')?.focus();
       return;
     }
-    form.querySelectorAll('input, textarea, button').forEach((el) => (el.disabled = true));
-    if (success) success.hidden = false;
+    // Success: swap the form out for the branded confirmation state.
+    form.hidden = true;
+    if (confirm) {
+      confirm.hidden = false;
+      confirm.focus?.();
+    }
   });
 }
 
@@ -177,11 +169,8 @@ function initContactForm() {
 function initQRCode() {
   const target = document.getElementById('qrcode');
   if (!target || typeof QRCode === 'undefined') return;
-  const url = (window.location && /^https?:/.test(window.location.href))
-    ? window.location.href
-    : 'https://igotadom.com';
   new QRCode(target, {
-    text: url,
+    text: 'https://igotadom.com',
     width: 128, height: 128,
     colorDark: '#00d4c8',
     colorLight: '#131316',

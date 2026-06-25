@@ -12,7 +12,7 @@ vault/
 │   ├── brand.md         ← name, tone, tagline, promise, disclaimer
 │   ├── services.md      ← services + pricing tiers
 │   ├── copy.md          ← approved headlines, CTAs, disclaimers
-│   ├── design.md        ← color/type/design tokens & rules
+│   ├── design-tokens.md ← color/type/design tokens & rules
 │   └── memory.md        ← channel identity, goals, decision log
 └── outputs/             ← (build output now lives at the repo root)
 ```

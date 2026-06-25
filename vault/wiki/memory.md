@@ -24,38 +24,59 @@
 ## Decision log
 - 2026-06-25 — Initial build. Created vault structure + full single-page
   site (nav, hero, services, pricing, process, contact w/ QR, footer).
+- 2026-06-25 — Summary format change. Owner asked that every summary use the
+  sectioned "HERMES — Session Status" layout (## SUMMARY / WHAT WAS DELIVERED /
+  WHAT WAS ACTUALLY DONE / STATE / REMAINS MANUAL / ISSUES-WEAKNESSES + the
+  actionable trio) instead of the old boxed ━━━ WRAP-UP. Updated CLAUDE.md and
+  the Working-preferences template to match. HERMES name + trio retained.
 
 ## Working preferences (STANDING — apply every session)
 > Owner: Dominick. Added 2026-06-25. Do not drop these.
 
-- **Always end every task/sprint with a copy-paste-ready WRAP-UP block** (see
-  template below). Dominick is always looking for *actionable* next steps so he
-  can keep the process moving — lead with what HE can do, then what HERMES will
-  do next. Make it skimmable and literally copy-pasteable.
+- **Always end every task/sprint with a HERMES Session Status summary** (see
+  template below). Dominick wants it *actionable* AND *honest* — lead with what
+  shipped, be blunt about what's real vs stubbed and what's weak, then what HE
+  can do next, then what HERMES will do. Skimmable and literally copy-pasteable.
 - Be decisive: state the defaults chosen, don't make him re-answer.
 
-### WRAP-UP template (paste-ready, use verbatim shape)
+### HERMES Session Status template (paste-ready, use this shape)
+> Updated 2026-06-25: owner asked for the sectioned `##` layout below (modeled
+> on his "Session Status" example) instead of the old boxed `━━━` WRAP-UP. Keep
+> the HERMES name + the actionable trio. Drop sections that don't apply; always
+> keep SUMMARY + the trio.
 ```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- HERMES WRAP-UP — <Sprint/Task name>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-STATUS:   ✅ shipped / 🚧 blocked
-BRANCH:   <branch>      PR: <#/url>
-LIVE:     <url or "not deployed">
+# HERMES — Session Status (<Sprint/Phase>: <name>)
 
-DONE:
- • <bullet> ...
+## ✅ SUMMARY
+- <what shipped> → PR <#/url>, branch <name>, base <branch>
+- STATUS: ✅ shipped / 🚧 blocked   ·   LIVE: <url or "not deployed">
+- <CI state> + <how it was validated>. <watch/check-in status>.
 
-⚡ YOUR NEXT ACTIONS (do these to move forward):
- 1. [ ] <one concrete action>
- 2. [ ] <decision needed: option A vs B — my rec: A>
+## WHAT WAS DELIVERED
+- <file/area> — <what it does>
+- <tests / docs / QA; any seeded or demo state>
 
-🤖 HERMES NEXT (queued for next sprint, say "go" to run):
- 1. [ ] <task>
+## WHAT WAS ACTUALLY DONE THIS BRANCH
+- <honest real-vs-recorded/stubbed list — no overclaiming>
 
-⛔ BLOCKED ON YOU:
- • <anything that stops progress, or "nothing">
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## STATE / BEHAVIOR NOW LIVE
+- <new behavior, transitions, or gates that now work>
+
+## WHAT REMAINS MANUAL / NOT DONE
+- <still needs a human or a later phase>
+
+## ISSUES / WEAKNESSES
+- <real bugs found/fixed, by-design gaps, "look here in review">
+
+## ⚡ YOUR NEXT ACTIONS
+1. [ ] <concrete action>
+2. [ ] <decision needed — my rec: ...>
+
+## 🤖 HERMES NEXT (say "go" to run)
+1. [ ] <queued task>
+
+## ⛔ BLOCKED ON YOU
+- <anything blocking, or "nothing">
 ```
 
 ## Sprint 2 — 2026-06-25 — Polish & Conversion

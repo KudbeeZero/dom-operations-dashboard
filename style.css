@@ -1171,6 +1171,125 @@ button { font: inherit; cursor: pointer; }
 .footer-copy { font-size: var(--text-sm); color: var(--text-faint); }
 
 /* --------------------------------------------------------------------------
+   DEPTH ZONE — one continuous body of water from #deep down into the reef.
+   A single vertical gradient sits behind the lower sections (which go
+   transparent), so the page deepens the further you scroll — no obsidian gap.
+   -------------------------------------------------------------------------- */
+.depth-zone { position: relative; }
+.depth-zone > * { position: relative; z-index: 1; }
+.depth-zone::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(to bottom,
+    var(--deep-1) 0%, var(--deep-2) 28%, #00121d 52%, #000c15 78%, var(--deep-3) 100%);
+}
+/* very subtle drifting caustic so the open water isn't dead-flat */
+.depth-zone::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 25% 18%, rgba(0,212,200,0.5) 0 5%, transparent 8%),
+    radial-gradient(circle at 70% 45%, rgba(120,230,255,0.4) 0 4%, transparent 7%),
+    radial-gradient(circle at 40% 75%, rgba(0,212,200,0.4) 0 5%, transparent 8%);
+  background-size: 60% 60%;
+  filter: blur(40px);
+  opacity: 0.04;
+  animation: caustic-drift 22s ease-in-out infinite alternate;
+}
+/* lower sections go transparent so the continuous deep water shows through */
+.depth-zone .section,
+.depth-zone .section-alt { background: transparent; }
+/* the process number chip masked the connector line with the page bg;
+   on deep water, use a deep tone so it still masks (no obsidian block) */
+.depth-zone .step-num { background: rgba(0,12,20,0.85); }
+
+/* The glass cards were tuned for obsidian (rgba-white 0.03/0.07) and dissolve
+   on the deep water — give them a frosted "deep glass" body + a defined edge
+   and a soft lift so they read as panels floating in the water. (The #deep
+   .uw-cards keep their own teal glass; the featured price card keeps its gold.) */
+.depth-zone .bento-card,
+.depth-zone .price-card,
+.depth-zone .contact-form,
+.depth-zone .qr-block {
+  background: rgba(14,32,46,0.55);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.depth-zone .bento-card,
+.depth-zone .price-card:not(.featured),
+.depth-zone .contact-form,
+.depth-zone .qr-block {
+  border-color: rgba(130,200,215,0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .depth-zone::after { animation: none; }
+}
+
+/* --------------------------------------------------------------------------
+   FOOTER — seafloor reef (the page descends and lands on the bottom)
+   -------------------------------------------------------------------------- */
+/* In the depth zone the water is already continuous, so the descent is just
+   open water (transparent) rather than an obsidian→deep transition. */
+.reef-descent {
+  height: 160px;
+  margin-bottom: -1px;
+  background: transparent;
+}
+
+.footer--reef {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--deep-3);
+  border-top: none;
+  padding: var(--space-24) 0;
+}
+.reef-scene { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.reef-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% -10%,
+    var(--deep-1) 0%, var(--deep-2) 45%, var(--deep-3) 100%);
+}
+.reef-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* faint light shafts filtering down from the surface */
+.reef-rays { position: absolute; inset: 0; opacity: 0.5; }
+.reef-rays span {
+  position: absolute; top: -10%; height: 120%;
+  width: clamp(40px, 8vw, 120px);
+  background: linear-gradient(to bottom, rgba(0,212,200,0.06), transparent 70%);
+  filter: blur(8px);
+  animation: ray-shimmer 9s ease-in-out infinite alternate;
+}
+.reef-rays span:nth-child(1) { left: 22%; transform: rotate(6deg); }
+.reef-rays span:nth-child(2) { left: 52%; transform: rotate(-3deg); animation-delay: 1.5s; }
+.reef-rays span:nth-child(3) { left: 78%; transform: rotate(-9deg); animation-delay: 0.8s; }
+
+/* coral reef silhouette ridges along the seafloor */
+.reef-ridge { position: absolute; left: 0; right: 0; bottom: 0; background-repeat: repeat-x; background-position: bottom center; }
+.reef-ridge--back {
+  height: 120px; opacity: 0.6;
+  background-size: 900px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='120'%3E%3Cpath d='M0 120 L0 75 Q150 35 300 70 Q450 95 600 55 Q750 25 900 75 L900 120 Z' fill='%23001a2e'/%3E%3C/svg%3E");
+}
+.reef-ridge--front {
+  height: 92px;
+  background-size: 700px 92px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='92'%3E%3Cpath d='M0 92 L0 62 Q70 58 110 32 Q132 8 150 34 Q172 56 235 50 Q300 44 345 20 Q366 6 384 30 Q404 54 470 50 Q545 46 590 24 Q636 6 660 34 Q686 62 700 60 L700 92 Z' fill='%23000508' stroke='%2300d4c8' stroke-opacity='0.25' stroke-width='1.5'/%3E%3C/svg%3E");
+}
+
+/* keep the footer content legible, sitting on the seafloor */
+.footer--reef .footer-inner { position: relative; z-index: 1; }
+.footer--reef .footer-tag,
+.footer--reef .footer-disclaimer,
+.footer--reef .footer-copy { text-shadow: 0 2px 12px rgba(0,5,8,0.8); }
+.footer--reef .footer-copy { color: rgba(240,237,232,0.45); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reef-rays span { animation: none; }
+}
+
+/* --------------------------------------------------------------------------
    Scroll reveals (CSS-native)
    -------------------------------------------------------------------------- */
 /* No-JS and reduced-motion: everything is visible by default. */

@@ -283,3 +283,45 @@
   eyebrow, Chaos→Clarity, sub, $25, Text Dominick CTA; sticky bar reveals on
   scroll; sms/tel hrefs correct; desktop unaffected (bar display:none); zero
   JS errors. No build step exists — node --check + headless smoke is the build.
+
+## Seafloor reef footer — "the page lands on the bottom" — 2026-06-25
+- Branch: claude/hermes-footer-reef (off main, after #7 merged). DRAFT PR.
+- HERMES NEXT #1 (footer-reef descent). SCOPED: themed the FOOTER as a seafloor
+  reef only — did NOT re-theme the middle sections (services/pricing/process/
+  contact) underwater (that's the bigger Option A; deferred, flagged to owner).
+- New: a `.reef-descent` gradient divider (obsidian → deepest water) above the
+  footer; the footer becomes `.footer--reef` — deep radial bg, 3 faint light
+  shafts (CSS), two coral-silhouette ridges (SVG data-URIs, front ridge has a
+  teal rim), and a `#reefCanvas` of drifting reef fish + rising motes.
+- initReef() in main.js: 16/8 reef fish (ellipse body + tail, teal/ivory, gentle
+  bob, re-enter from far side), 40/18 motes. IO-gated to the footer; reduced-
+  motion returns early (static CSS reef only). Tunables hoisted (FISH_*, MOTES_*).
+- Footer copy got a tail: "© 2026 I Got A Dom · You've reached the bottom."
+  Text-shadow added so the brand/disclaimer/copy stay legible on the seafloor.
+- QA: node --check pass; headless smoke (desktop/mobile/reduced) zero JS errors;
+  screenshots verified (fish + ridges + legible content). Feel = owner on preview.
+- WEAKNESS to review: there's now obsidian (services→contact) BETWEEN the #deep
+  underwater world and the reef footer — two underwater zones with dark theme
+  between. Cohesive only if we later theme the middle (Option A). Judge live.
+
+## Underwater lower page (Option A) — continuous depth zone — 2026-06-25
+- Same branch/PR as the reef footer (claude/hermes-footer-reef / #8) — owner
+  picked HERMES NEXT #1 (Option A) right after the reef, so it's stacked on top
+  to make one cohesive piece. PR #8 retitled to cover both.
+- Wrapped surface-divider…#deep…services…pricing…process…contact…reef-descent…
+  footer in a single `.depth-zone` div. A `.depth-zone::before` vertical gradient
+  (deep-1 → deep-2 → #00121d → #000c15 → deep-3) is the continuous body of water;
+  the lower `.section`/`.section-alt` go transparent so it shows through. No more
+  obsidian gap between #deep and the reef — the page deepens the whole way down.
+- `.depth-zone::after` = very subtle drifting caustic (opacity 0.04, reduced-motion
+  off). reef-descent divider made transparent (water is already continuous).
+  `.step-num` chip re-tinted to a deep tone (was masking the connector with the
+  obsidian page bg). Pure CSS — no JS.
+- Legibility: glass cards + ivory text still read on the deeper gradient (mid-depth
+  ~#000c15 is comparable to the old obsidian #0d0d0f). Verified services bento +
+  the #deep→services transition; all 20 reveals fire; zero JS errors.
+- TEST NOTE: the site's `scroll-behavior:smooth` doesn't complete in headless, so
+  scrollIntoView left reveals at opacity 0 and screenshots looked black at first —
+  forcing `scrollBehavior:auto` fixed the harness (reveals 20/20). Not a code bug.
+- DEFERRED: ambient fish swimming through the open mid-water (the #deep scene + reef
+  scene carry the life at the ends; middle is calm open water by design). Easy add.

@@ -242,3 +242,19 @@
   WORD_COUNT, SHARK_LEN/SPEED/FIRST_MS/EVERY_MS, WAKE_RADIUS/FORCE.
 - WEAKNESS to review: shark is dark-on-navy — reads in motion (rim+eye+wake) but is
   subtle in a still; bumped rim/body contrast a touch. Easy to make bolder if wanted.
+
+## Custom domain igotadom.online — 2026-06-25
+- Owner bought igotadom.online (registered at Namecheap) for the Cloudflare
+  Pages site (dom-operations-dashboard.pages.dev). Resolves the old open
+  question "confirm igotadom.com for the QR" → it's igotadom.ONLINE now.
+- Branch: claude/hermes-custom-domain (off main). DRAFT PR.
+- Code: QR text → https://igotadom.online (was igotadom.com); added
+  <link canonical>, og:url, og:site_name, absolute og:image, twitter:card — all
+  → https://igotadom.online. README gets a Deployment section with the exact
+  Cloudflare Pages custom-domain + Namecheap nameserver steps.
+- Recommended DNS path: move nameservers Namecheap → Cloudflare (apex needs
+  CNAME-flattening, which external DNS can't do), then add the custom domain in
+  the Pages project (auto DNS + SSL). Guidance only — owner does the dashboard
+  steps; I have no access to their Cloudflare/Namecheap accounts.
+- Contact CTAs (sms:7736477598 / tel:7736477598) live in PR #9 — NOT duplicated
+  here to avoid conflicts. Task-5 "CTAs use sms/tel" is satisfied once #9 merges.

@@ -29,3 +29,34 @@ See `vault/README.md` for the full HERMES layout and commands.
 
 > The earlier operations-dashboard stub now lives at
 > `vault/.raw/operations-dashboard.html`.
+
+## Deployment
+
+Hosted on **Cloudflare Pages** (project: `dom-operations-dashboard`).
+Production deploys on merge to `main`; every PR gets a preview URL.
+
+- **Production / canonical domain:** https://igotadom.online
+- **Pages default URL:** https://dom-operations-dashboard.pages.dev
+- Primary contact CTAs use `sms:7736477598` and `tel:7736477598`
+  (number: 773‑647‑7598). The QR code, canonical link, and Open Graph
+  `og:url`/`og:image` all point at https://igotadom.online.
+
+### Custom domain (igotadom.online → Cloudflare Pages)
+
+The domain is registered at **Namecheap**. Recommended path — move DNS to
+Cloudflare so the apex domain works with automatic CNAME flattening + free SSL:
+
+1. Cloudflare dashboard → **Add a site** → `igotadom.online` (Free plan); let it
+   scan existing records.
+2. Cloudflare gives you **two nameservers** (e.g. `xxx.ns.cloudflare.com`).
+3. Namecheap → Domain List → **Manage** → *Nameservers* → **Custom DNS** → paste
+   the two Cloudflare nameservers → save (propagation up to ~24 h).
+4. Once the zone is **Active** in Cloudflare: **Workers & Pages →
+   dom-operations-dashboard → Custom domains → Set up a custom domain** → add
+   `igotadom.online` (and optionally `www.igotadom.online`). Cloudflare creates
+   the DNS records and provisions the SSL cert automatically.
+
+If you keep DNS at Namecheap instead, only a `www` subdomain is straightforward
+(CNAME `www → dom-operations-dashboard.pages.dev`); the apex (`@`) can't be a
+CNAME on Namecheap BasicDNS, so the apex needs Cloudflare DNS (above) or a
+redirect from apex → www. Using Cloudflare nameservers is the clean option.

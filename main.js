@@ -338,7 +338,7 @@ function initQRCode() {
   const target = document.getElementById('qrcode');
   if (!target || typeof QRCode === 'undefined') return;
   new QRCode(target, {
-    text: 'https://igotadom.com',
+    text: 'https://igotadom.online',
     width: 128, height: 128,
     colorDark: '#00d4c8',
     colorLight: '#131316',

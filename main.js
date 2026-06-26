@@ -905,13 +905,114 @@ function initUnderwater() {
   }, { threshold: 0 }).observe(section);
 }
 
+/* -------------------------------------------------------------------------
+   9. SEAFLOOR REEF — the page lands on the bottom (footer)
+   The deep gradient, light shafts, and coral ridges are CSS; this canvas
+   adds drifting reef fish + rising motes, only while the footer is in view.
+   ------------------------------------------------------------------------- */
+function initReef() {
+  /* ---- Tunable constants (no magic numbers inline) ----------------------- */
+  const MOBILE_BP     = 600;
+  const FISH_DESKTOP  = 16;
+  const FISH_MOBILE   = 8;
+  const MOTES_DESKTOP = 40;   // tiny rising sediment
+  const MOTES_MOBILE  = 18;
+  /* ----------------------------------------------------------------------- */
+
+  const footer = document.querySelector('.footer--reef');
+  const canvas = document.getElementById('reefCanvas');
+  if (!footer || !canvas) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;            // static reef (CSS ridges + rays) only
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+  let w = 0, h = 0, dpr = 1, fish = [], motes = [], rafId = null, lastT = 0, mobile = false;
+
+  // Reef fish — drift across near the seafloor with a gentle vertical bob;
+  // re-enter from the far side (with a fresh heading) once off-screen.
+  const resetFish = (f, initial) => {
+    f.dir = Math.random() < 0.5 ? 1 : -1;
+    f.x = initial ? rand(0, w) : (f.dir > 0 ? -20 : w + 20);
+    f.y = rand(h * 0.45, h * 0.9);
+    f.speed = rand(18, 40);
+    f.size = rand(7, 14) * (mobile ? 0.8 : 1);
+    f.bob = rand(0.4, 1.2); f.bobPhase = rand(0, Math.PI * 2); f.bobAmp = rand(3, 8);
+    f.alpha = rand(0.25, 0.55);
+    f.teal = Math.random() < 0.6;
+    return f;
+  };
+  const resetMote = (m) => {
+    m.x = rand(0, w); m.y = rand(0, h);
+    m.r = rand(0.4, 1.4); m.alpha = rand(0.05, 0.2);
+    m.vx = rand(-3, 3); m.vy = -rand(3, 10);
+    return m;
+  };
+
+  function build() {
+    mobile = w < MOBILE_BP;
+    fish  = Array.from({ length: mobile ? FISH_MOBILE : FISH_DESKTOP }, () => resetFish({}, true));
+    motes = Array.from({ length: mobile ? MOTES_MOBILE : MOTES_DESKTOP }, () => resetMote({}));
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    w = rect.width; h = rect.height;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    build();
+  }
+
+  function drawFish(f) {
+    const s = f.size, y = f.y + Math.sin(f.bobPhase) * f.bobAmp;
+    ctx.save();
+    ctx.translate(f.x, y); ctx.scale(f.dir, 1);
+    ctx.fillStyle = f.teal ? `rgba(0,212,200,${f.alpha})` : `rgba(200,225,235,${f.alpha})`;
+    ctx.beginPath(); ctx.ellipse(0, 0, s, s * 0.5, 0, 0, Math.PI * 2); ctx.fill();        // body
+    ctx.beginPath();                                                                       // tail
+    ctx.moveTo(-s * 0.9, 0); ctx.lineTo(-s * 1.6, -s * 0.5); ctx.lineTo(-s * 1.6, s * 0.5);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  function tick(now) {
+    const dt = lastT ? Math.min((now - lastT) / 1000, 0.05) : 0.016;
+    lastT = now;
+    ctx.clearRect(0, 0, w, h);
+    for (const m of motes) {                       // rising sediment
+      m.x += m.vx * dt; m.y += m.vy * dt;
+      if (m.y < -5) { m.y = h + 5; m.x = rand(0, w); }
+      ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(180,225,235,${m.alpha})`; ctx.fill();
+    }
+    for (const f of fish) {                        // reef fish
+      f.x += f.dir * f.speed * dt;
+      f.bobPhase += dt * f.bob;
+      if ((f.dir > 0 && f.x > w + 30) || (f.dir < 0 && f.x < -30)) resetFish(f, false);
+      drawFish(f);
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+  const start = () => { if (rafId == null) { lastT = 0; rafId = requestAnimationFrame(tick); } };
+  const stop  = () => { if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; } };
+
+  resize();
+  let rt = null;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); }, { passive: true });
+  new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) start(); else stop();
+  }, { threshold: 0 }).observe(footer);
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
     initHeroCanvas, initHeroAnimation, initNav, initMobileBar, initDiveHero,
-    initBeforeAfter, initScrollReveals, initUnderwater, initContactForm, initQRCode,
+    initBeforeAfter, initScrollReveals, initUnderwater, initReef, initContactForm, initQRCode,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

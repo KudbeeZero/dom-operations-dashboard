@@ -325,3 +325,21 @@
   forcing `scrollBehavior:auto` fixed the harness (reveals 20/20). Not a code bug.
 - DEFERRED: ambient fish swimming through the open mid-water (the #deep scene + reef
   scene carry the life at the ends; middle is calm open water by design). Easy add.
+
+## Merge train — PRs #10 → #9 → #8 landed on main — 2026-06-26
+- Merge order: #10 (domain/canonical) → #9 (mobile hero) → #8 (reef/depth zone).
+- #10 merged via GitHub (auto-detected as clean, no rebase needed).
+- #9 rebased onto main post-#10; one conflict in vault/wiki/memory.md (new sections
+  from both PRs — unioned, kept all content). JS check passed.
+- #8 rebased onto main post-#9; conflicts in main.js (init array — unioned
+  initMobileBar + initReef) and memory.md (same pattern — unioned all sections).
+  JS check passed after each step.
+- Final init order: initHeroCanvas, initHeroAnimation, initNav, initMobileBar,
+  initDiveHero, initBeforeAfter, initScrollReveals, initUnderwater, initReef,
+  initContactForm, initQRCode.
+- Pushed main (9f485f2 → b842a9f). Cloudflare Pages auto-deploy triggered.
+- PRs #8 and #9 closed on GitHub (changes on main; not merged via GitHub button).
+- PR #10 merged via GitHub webhook (confirmed merged).
+- LIVE domain pending: https://igotadom.online requires Cloudflare custom-domain
+  setup (nameservers Namecheap → Cloudflare, then add custom domain in Pages project).
+  Until then the site is live at https://dom-operations-dashboard.pages.dev.

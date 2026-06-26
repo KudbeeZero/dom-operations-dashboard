@@ -1203,6 +1203,24 @@ button { font: inherit; cursor: pointer; }
    on deep water, use a deep tone so it still masks (no obsidian block) */
 .depth-zone .step-num { background: rgba(0,12,20,0.85); }
 
+/* The glass cards were tuned for obsidian (rgba-white 0.03/0.07) and dissolve
+   on the deep water — give them a frosted "deep glass" body + a defined edge
+   and a soft lift so they read as panels floating in the water. (The #deep
+   .uw-cards keep their own teal glass; the featured price card keeps its gold.) */
+.depth-zone .bento-card,
+.depth-zone .price-card,
+.depth-zone .contact-form,
+.depth-zone .qr-block {
+  background: rgba(14,32,46,0.55);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.depth-zone .bento-card,
+.depth-zone .price-card:not(.featured),
+.depth-zone .contact-form,
+.depth-zone .qr-block {
+  border-color: rgba(130,200,215,0.22);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .depth-zone::after { animation: none; }
 }

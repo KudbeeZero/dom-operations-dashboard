@@ -347,6 +347,18 @@ function initQRCode() {
 }
 
 /* -------------------------------------------------------------------------
+   4b. STICKY MOBILE CONTACT BAR — reveal after the hero scrolls past
+   ------------------------------------------------------------------------- */
+function initMobileBar() {
+  const bar = document.getElementById('mobileBar');
+  if (!bar) return;
+  // Show once the user has scrolled past ~60% of the first screen.
+  const onScroll = () => bar.classList.toggle('show', window.scrollY > window.innerHeight * 0.6);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
+/* -------------------------------------------------------------------------
    5. BEFORE / AFTER — draggable comparison slider (pointer = mouse + touch)
    ------------------------------------------------------------------------- */
 function initBeforeAfter() {
@@ -898,7 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
-    initHeroCanvas, initHeroAnimation, initNav, initDiveHero,
+    initHeroCanvas, initHeroAnimation, initNav, initMobileBar, initDiveHero,
     initBeforeAfter, initScrollReveals, initUnderwater, initContactForm, initQRCode,
   ];
   for (const init of inits) {

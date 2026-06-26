@@ -258,3 +258,28 @@
   steps; I have no access to their Cloudflare/Namecheap accounts.
 - Contact CTAs (sms:7736477598 / tel:7736477598) live in PR #9 — NOT duplicated
   here to avoid conflicts. Task-5 "CTAs use sms/tel" is satisfied once #9 merges.
+
+## Mobile hero conversion polish — 2026-06-25
+- Branch: claude/hermes-mobile-hero-polish (off main; independent of the
+  underwater PRs #8). DRAFT PR. Owner phone: 773-647-7598 (sms + tel).
+- Readability: brightened "Chaos" (#d7d2ca, was --text-muted) + headline
+  text-shadow so it pops; strengthened "Clarity" teal glow; on mobile the
+  hero canvas is dimmed (opacity 0.35) + blurred (2px) so the floating words
+  recede instead of competing with the text.
+- Conversion copy added under the sub: "Quick fixes start at $25" ($25 teal);
+  contact line "Text or call Dominick at 773-647-7598" (number → tel:);
+  trust strip "Same-day help • Personal service • Ready-to-send results".
+- CTAs: primary renamed "Text Dominick →" → sms:7736477598 (hero + nav +
+  mobile menu — DECISION: pointed all primary CTAs at sms since the contact
+  form isn't wired to send yet; easy to revert). Secondary "See What I Do ↓"
+  kept. On mobile the two CTAs stack full-width.
+- Sticky mobile contact bar (#mobileBar, initMobileBar): fixed bottom, mobile
+  only (≤600px), slides up after scrolling past 60% of the first screen;
+  "Text Dominick" (teal) + "Call" (outline); safe-area-inset-bottom aware.
+- Header: nav padding-top uses max(space-4, env(safe-area-inset-top)) so the
+  logo clears the notch/browser overlay.
+- Kept the dark cinematic vibe — no over-brightening, teal energy intact.
+- QA: node --check pass; headless (390px iPhone) — first screen shows logo,
+  eyebrow, Chaos→Clarity, sub, $25, Text Dominick CTA; sticky bar reveals on
+  scroll; sms/tel hrefs correct; desktop unaffected (bar display:none); zero
+  JS errors. No build step exists — node --check + headless smoke is the build.

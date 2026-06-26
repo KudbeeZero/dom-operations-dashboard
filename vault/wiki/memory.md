@@ -242,3 +242,23 @@
   WORD_COUNT, SHARK_LEN/SPEED/FIRST_MS/EVERY_MS, WAKE_RADIUS/FORCE.
 - WEAKNESS to review: shark is dark-on-navy — reads in motion (rim+eye+wake) but is
   subtle in a still; bumped rim/body contrast a touch. Easy to make bolder if wanted.
+
+## Seafloor reef footer — "the page lands on the bottom" — 2026-06-25
+- Branch: claude/hermes-footer-reef (off main, after #7 merged). DRAFT PR.
+- HERMES NEXT #1 (footer-reef descent). SCOPED: themed the FOOTER as a seafloor
+  reef only — did NOT re-theme the middle sections (services/pricing/process/
+  contact) underwater (that's the bigger Option A; deferred, flagged to owner).
+- New: a `.reef-descent` gradient divider (obsidian → deepest water) above the
+  footer; the footer becomes `.footer--reef` — deep radial bg, 3 faint light
+  shafts (CSS), two coral-silhouette ridges (SVG data-URIs, front ridge has a
+  teal rim), and a `#reefCanvas` of drifting reef fish + rising motes.
+- initReef() in main.js: 16/8 reef fish (ellipse body + tail, teal/ivory, gentle
+  bob, re-enter from far side), 40/18 motes. IO-gated to the footer; reduced-
+  motion returns early (static CSS reef only). Tunables hoisted (FISH_*, MOTES_*).
+- Footer copy got a tail: "© 2026 I Got A Dom · You've reached the bottom."
+  Text-shadow added so the brand/disclaimer/copy stay legible on the seafloor.
+- QA: node --check pass; headless smoke (desktop/mobile/reduced) zero JS errors;
+  screenshots verified (fish + ridges + legible content). Feel = owner on preview.
+- WEAKNESS to review: there's now obsidian (services→contact) BETWEEN the #deep
+  underwater world and the reef footer — two underwater zones with dark theme
+  between. Cohesive only if we later theme the middle (Option A). Judge live.

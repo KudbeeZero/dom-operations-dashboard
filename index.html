@@ -400,8 +400,17 @@
     </div>
   </section>
 
-  <!-- ============================== FOOTER ============================== -->
-  <footer class="footer">
+  <!-- ============================== FOOTER (seafloor reef) ============================== -->
+  <div class="reef-descent" aria-hidden="true"></div>
+  <footer class="footer footer--reef">
+    <div class="reef-scene" aria-hidden="true">
+      <div class="reef-bg"></div>
+      <div class="reef-rays"><span></span><span></span><span></span></div>
+      <canvas id="reefCanvas" class="reef-canvas"></canvas>
+      <div class="reef-ridge reef-ridge--back"></div>
+      <div class="reef-ridge reef-ridge--front"></div>
+    </div>
+
     <div class="container footer-inner">
       <div class="footer-brand">
         <img src="assets/logo.svg" alt="I Got A Dom" width="180" height="36" />
@@ -411,7 +420,7 @@
         I Got A Dom is not a law firm and does not provide legal, tax,
         financial, or professional advice.
       </p>
-      <p class="footer-copy">© 2026 I Got A Dom</p>
+      <p class="footer-copy">© 2026 I Got A Dom · You've reached the bottom.</p>
     </div>
   </footer>
 

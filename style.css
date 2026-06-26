@@ -1171,14 +1171,51 @@ button { font: inherit; cursor: pointer; }
 .footer-copy { font-size: var(--text-sm); color: var(--text-faint); }
 
 /* --------------------------------------------------------------------------
+   DEPTH ZONE — one continuous body of water from #deep down into the reef.
+   A single vertical gradient sits behind the lower sections (which go
+   transparent), so the page deepens the further you scroll — no obsidian gap.
+   -------------------------------------------------------------------------- */
+.depth-zone { position: relative; }
+.depth-zone > * { position: relative; z-index: 1; }
+.depth-zone::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(to bottom,
+    var(--deep-1) 0%, var(--deep-2) 28%, #00121d 52%, #000c15 78%, var(--deep-3) 100%);
+}
+/* very subtle drifting caustic so the open water isn't dead-flat */
+.depth-zone::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 25% 18%, rgba(0,212,200,0.5) 0 5%, transparent 8%),
+    radial-gradient(circle at 70% 45%, rgba(120,230,255,0.4) 0 4%, transparent 7%),
+    radial-gradient(circle at 40% 75%, rgba(0,212,200,0.4) 0 5%, transparent 8%);
+  background-size: 60% 60%;
+  filter: blur(40px);
+  opacity: 0.04;
+  animation: caustic-drift 22s ease-in-out infinite alternate;
+}
+/* lower sections go transparent so the continuous deep water shows through */
+.depth-zone .section,
+.depth-zone .section-alt { background: transparent; }
+/* the process number chip masked the connector line with the page bg;
+   on deep water, use a deep tone so it still masks (no obsidian block) */
+.depth-zone .step-num { background: rgba(0,12,20,0.85); }
+
+@media (prefers-reduced-motion: reduce) {
+  .depth-zone::after { animation: none; }
+}
+
+/* --------------------------------------------------------------------------
    FOOTER — seafloor reef (the page descends and lands on the bottom)
    -------------------------------------------------------------------------- */
-/* Descent: obsidian page → deepest water, just above the footer */
+/* In the depth zone the water is already continuous, so the descent is just
+   open water (transparent) rather than an obsidian→deep transition. */
 .reef-descent {
   height: 160px;
   margin-bottom: -1px;
-  background: linear-gradient(to bottom,
-    var(--surface) 0%, rgba(0,16,28,0.9) 45%, var(--deep-3) 100%);
+  background: transparent;
 }
 
 .footer--reef {

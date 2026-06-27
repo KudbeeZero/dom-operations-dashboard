@@ -3660,6 +3660,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initParallaxHeroText, initCardFlipReveal, initScrollHueShift,     // Sprint 82
     initNoiseTextureOverlay, initBtnRipple, initHeroScrollBlur,       // Sprint 83
     initFloatingLabelInput, initFadeUpReveal, initCursorTrail,        // Sprint 84
+    initTextScrambleHover, initBtnBorderDraw, initScrollBandReveal,   // Sprint 85
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5507,4 +5508,73 @@ function initCursorTrail() {
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
+}
+
+/* Sprint 85 — text scramble hover, button border draw, scroll band reveal ---- */
+
+function initTextScrambleHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&';
+  const els = document.querySelectorAll(
+    '.nav a, .nav-link, .section-kicker, .hero-badge, .kicker, [data-scramble]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.scrambleInit) return;
+    el.dataset.scrambleInit = '1';
+    const orig = el.textContent.trim();
+    let raf = null;
+    el.addEventListener('mouseenter', () => {
+      cancelAnimationFrame(raf);
+      let iter = 0;
+      const tick = () => {
+        el.textContent = orig.split('').map((ch, i) => {
+          if (i < iter) return orig[i];
+          if (ch === ' ') return ' ';
+          return CHARS[Math.floor(Math.random() * CHARS.length)];
+        }).join('');
+        if (iter < orig.length) {
+          iter += 0.4;
+          raf = requestAnimationFrame(tick);
+        } else {
+          el.textContent = orig;
+        }
+      };
+      raf = requestAnimationFrame(tick);
+    });
+    el.addEventListener('mouseleave', () => {
+      cancelAnimationFrame(raf);
+      el.textContent = orig;
+    });
+  });
+}
+
+function initBtnBorderDraw() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btns = document.querySelectorAll('.btn, .cta-btn, .hero-cta, .outline-btn');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.borderDraw) return;
+    btn.dataset.borderDraw = '1';
+    btn.classList.add('btn-border-draw');
+  });
+}
+
+function initScrollBandReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section, .bento-section');
+  if (!sections.length) return;
+  sections.forEach((section, i) => {
+    if (section.dataset.bandReveal) return;
+    section.dataset.bandReveal = '1';
+    section.style.setProperty('--sbri', i % 2 === 0 ? '0' : '1');
+    section.classList.add('scroll-band-reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        section.classList.toggle('scroll-band-reveal--visible', e.isIntersecting);
+      });
+    }, { threshold: 0.08 });
+    io.observe(section);
+  });
 }

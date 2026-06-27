@@ -5755,3 +5755,46 @@ svg path.draw-path, svg .draw-path {
   .cascade-child { opacity: 1; }
   .cascade-reveal--active .cascade-child { animation: none; }
 }
+
+/* Sprint 101 — scroll fade-blur, hover color pop, btn glow pulse */
+
+@keyframes fade-blur-in {
+  from { opacity: 0; filter: blur(6px); transform: translateY(10px); }
+  to   { opacity: 1; filter: blur(0);   transform: translateY(0); }
+}
+.scroll-fade-blur {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(10px);
+}
+.scroll-fade-blur--active {
+  animation: fade-blur-in 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-fade-blur { opacity: 1; filter: none; transform: none; }
+  .scroll-fade-blur--active { animation: none; }
+}
+
+.hover-color-pop {
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+.hover-color-pop--active {
+  filter: drop-shadow(0 0 8px rgba(0,212,200,0.7)) saturate(1.5) brightness(1.2);
+  transform: scale(1.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-color-pop { transition: none; }
+  .hover-color-pop--active { transform: none; }
+}
+
+@keyframes glow-pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(0,212,200,0.5), 0 0 12px rgba(0,212,200,0.3); }
+  70%  { box-shadow: 0 0 0 10px rgba(0,212,200,0), 0 0 20px rgba(123,92,250,0.4); }
+  100% { box-shadow: 0 0 0 0 rgba(0,212,200,0), 0 0 12px rgba(0,212,200,0.3); }
+}
+.btn-glow-pulse {
+  animation: glow-pulse-ring 2.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-glow-pulse { animation: none; }
+}

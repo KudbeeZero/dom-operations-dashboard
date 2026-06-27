@@ -2354,3 +2354,29 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .faq-item[open]::before { transform: scaleY(1); transition: none; }
 }
+
+/* ── Sprint 22: pricing entrance glow, bento GSAP, contact steps ─────── */
+
+/* Price amount teal glow pulse — fires after cards land */
+@keyframes price-glow {
+  0%   { color: var(--text); text-shadow: none; }
+  42%  { color: var(--teal); text-shadow: 0 0 30px rgba(0,212,200,0.6), 0 0 60px rgba(0,212,200,0.25); }
+  100% { color: inherit; text-shadow: none; }
+}
+.price-amount.price-lit { animation: price-glow 1.05s ease-out both; }
+
+/* Contact-next step items: left-slide cascade */
+.contact-next li.step-reveal {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition:
+    opacity   0.52s ease                               var(--step-delay, 0ms),
+    transform 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) var(--step-delay, 0ms);
+}
+.contact-next li.step-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-next li.step-reveal { opacity: 1; transform: none; transition: none; }
+}

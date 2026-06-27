@@ -3670,6 +3670,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroGridLines, initBtnConfetti, initScrollSlideFromSide,      // Sprint 92
     initHoverColorShift, initScrollDepthBlur, initBtnShake,           // Sprint 93
     initFloatingActionBtn, initDotPatternBg, initHoverScaleIcon,      // Sprint 94
+    initSectionDividerWave, initScrollProgressRing, initTextHighlightSweep, // Sprint 95
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6115,5 +6116,65 @@ function initHoverScaleIcon() {
     parent.addEventListener('mouseleave', () => {
       icon.style.transform = 'scale(1) rotate(0deg)';
     });
+  });
+}
+
+/* Sprint 95 — section divider wave, scroll progress ring, text highlight sweep */
+
+function initSectionDividerWave() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section');
+  if (!sections.length) return;
+  sections.forEach((section, i) => {
+    if (section.dataset.dividerWave) return;
+    if (i === 0) return;
+    section.dataset.dividerWave = '1';
+    const wave = document.createElement('div');
+    wave.className = 'section-divider-wave';
+    wave.setAttribute('aria-hidden', 'true');
+    wave.innerHTML = `<svg viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0,30 C300,60 900,0 1200,30 L1200,0 L0,0 Z" fill="currentColor"/></svg>`;
+    section.insertAdjacentElement('afterbegin', wave);
+  });
+}
+
+function initScrollProgressRing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.scroll-progress-ring')) return;
+  const SIZE = 44;
+  const R = 18;
+  const CIRC = 2 * Math.PI * R;
+  const wrap = document.createElement('div');
+  wrap.className = 'scroll-progress-ring';
+  wrap.setAttribute('aria-hidden', 'true');
+  wrap.innerHTML = `<svg width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}"><circle cx="${SIZE/2}" cy="${SIZE/2}" r="${R}" fill="none" stroke="rgba(0,212,200,0.15)" stroke-width="2.5"/><circle class="spr-fill" cx="${SIZE/2}" cy="${SIZE/2}" r="${R}" fill="none" stroke="#00d4c8" stroke-width="2.5" stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC}" stroke-linecap="round" transform="rotate(-90 ${SIZE/2} ${SIZE/2})"/></svg>`;
+  document.body.appendChild(wrap);
+  const fill = wrap.querySelector('.spr-fill');
+  const update = () => {
+    const pct = Math.min(window.scrollY / (document.documentElement.scrollHeight - window.innerHeight), 1);
+    fill.style.strokeDashoffset = String(CIRC * (1 - pct));
+    wrap.style.opacity = window.scrollY > 80 ? '1' : '0';
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+function initTextHighlightSweep() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.highlight, strong, b, [data-highlight], .accent-text'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.highlightSweep) return;
+    el.dataset.highlightSweep = '1';
+    el.classList.add('text-highlight-sweep');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('text-highlight-sweep--active');
+      });
+    }, { threshold: 0.6 });
+    io.observe(el);
   });
 }

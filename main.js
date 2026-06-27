@@ -3636,6 +3636,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPageLeaveGreeting, initScrollColorShift, initInputTypingIndicator, // Sprint 58
     initLivePreviewPanel, initScrollNextHint, initHoverCardLightBeam,     // Sprint 59
     initHeroTextShadowMouse, initScrollMomentumDot, initCtaWaveHover,    // Sprint 60
+    initHeroSubtitleUnderline, initSectionDimmer, initPricePingPulse,   // Sprint 61
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4093,5 +4094,53 @@ function initCtaWaveHover() {
     if (!btn.classList.contains('cta-wave')) {
       btn.classList.add('cta-wave');
     }
+  });
+}
+
+/* Sprint 61 — hero subtitle underline, section dimmer, price ping pulse ------- */
+
+function initHeroSubtitleUnderline() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const subtitle = document.querySelector('.hero-subtitle, .hero-sub, .hero .subtitle');
+  if (!subtitle) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(subtitle);
+      subtitle.classList.add('hero-subtitle--underlined');
+    });
+  }, { threshold: 0.5 });
+  io.observe(subtitle);
+}
+
+function initSectionDimmer() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section');
+  if (sections.length < 2) return;
+  sections.forEach((section) => {
+    section.classList.add('section-dimmable');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        section.classList.toggle('section-dimmable--active', e.isIntersecting);
+      });
+    }, { threshold: 0.35 });
+    io.observe(section);
+  });
+}
+
+function initPricePingPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const prices = document.querySelectorAll('.price, .pricing-amount, .price-value, .price-num');
+  if (!prices.length) return;
+  const ping = (el) => {
+    el.classList.remove('price-ping--active');
+    void el.offsetWidth;
+    el.classList.add('price-ping--active');
+    el.addEventListener('animationend', () => el.classList.remove('price-ping--active'), { once: true });
+  };
+  prices.forEach((price, i) => {
+    price.classList.add('price-ping');
+    setTimeout(() => ping(price), 2000 + i * 350);
+    setInterval(() => ping(price), 5000 + i * 350);
   });
 }

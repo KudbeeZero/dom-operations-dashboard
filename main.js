@@ -2770,6 +2770,51 @@ function initBadgeLevitate() {
   badge.classList.add('badge-levitate');
 }
 
+/* Sprint 37 — footer brand glow, step left-border flash, hero orbit dot ----- */
+
+function initFooterBrandGlow() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const brand = document.querySelector('.footer-brand');
+  if (!brand) return;
+  brand.classList.add('footer-brand-glow');
+  brand.addEventListener('mousemove', (e) => {
+    const r = brand.getBoundingClientRect();
+    brand.style.setProperty('--fx', (e.clientX - r.left) + 'px');
+    brand.style.setProperty('--fy', (e.clientY - r.top) + 'px');
+  }, { passive: true });
+}
+
+function initStepRevealSequence() {
+  const steps = document.querySelectorAll('.step');
+  if (!steps.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  steps.forEach((step, i) => {
+    ScrollTrigger.create({
+      trigger: step,
+      start: 'top 82%',
+      once: true,
+      onEnter: () => {
+        setTimeout(() => {
+          step.classList.add('step-border-flash');
+          step.addEventListener('animationend', () => step.classList.remove('step-border-flash'), { once: true });
+        }, i * 120);
+      },
+    });
+  });
+}
+
+function initHeroOrbitDot() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.getElementById('hero');
+  if (!hero) return;
+  const dot = document.createElement('div');
+  dot.className = 'hero-orbit-dot';
+  dot.setAttribute('aria-hidden', 'true');
+  hero.appendChild(dot);
+}
+
 /* Sprint 34 — price-diff stagger, hero-price flash, QR hover glow ---------- */
 
 function initPriceDiffStagger() {
@@ -2836,6 +2881,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPriceDiffStagger, initHeroPriceFlash, initQRHoverGlow,
     initSocialProofTicker, initCtaMorph, initNavBlur,
     initHeroSubMorph, initContactPulseRing, initBadgeLevitate,
+    initFooterBrandGlow, initStepRevealSequence, initHeroOrbitDot,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

@@ -3707,6 +3707,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollAccordionStagger, initHoverGlowIconRingV2, initBgCircuitTrace,  // Sprint 129
     initScrollTiltCard, initHoverBorderBeam, initBgLavaLamp,                 // Sprint 130
     initScrollRevealCounter, initHoverUnderlineWave, initBgStaticBurst,      // Sprint 131
+    initScrollSpringPop, initHoverGradientText, initBgWarpGrid,              // Sprint 132
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8569,6 +8570,80 @@ function initBgStaticBurst() {
       }
     }
     t++;
+    requestAnimationFrame(draw);
+  };
+  draw();
+}
+
+/* Sprint 132 — scroll spring pop, hover gradient text, bg warp grid */
+
+function initScrollSpringPop() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-spring-pop]');
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.springPop) return;
+    el.dataset.springPop = '1';
+    el.classList.add('scroll-spring-pop');
+    el.style.setProperty('--spp-i', i % 6);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-spring-pop--active');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initHoverGradientText() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.section-title, h1, h2, [data-gradient-text]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.gradientText) return;
+    el.dataset.gradientText = '1';
+    el.classList.add('hover-gradient-text');
+  });
+}
+
+function initBgWarpGrid() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-warp-grid')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-warp-grid';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  let t = 0;
+  const STEP = 48;
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = 'rgba(0,212,200,0.06)';
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x <= canvas.width; x += STEP) {
+      ctx.beginPath();
+      for (let y = 0; y <= canvas.height; y += 4) {
+        const warp = Math.sin((y / canvas.height) * Math.PI * 2 + t) * 6;
+        if (y === 0) ctx.moveTo(x + warp, y);
+        else ctx.lineTo(x + warp, y);
+      }
+      ctx.stroke();
+    }
+    for (let y = 0; y <= canvas.height; y += STEP) {
+      ctx.beginPath();
+      for (let x = 0; x <= canvas.width; x += 4) {
+        const warp = Math.sin((x / canvas.width) * Math.PI * 2 + t * 0.7) * 6;
+        if (x === 0) ctx.moveTo(x, y + warp);
+        else ctx.lineTo(x, y + warp);
+      }
+      ctx.stroke();
+    }
+    t += 0.012;
     requestAnimationFrame(draw);
   };
   draw();

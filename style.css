@@ -6835,3 +6835,66 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-plasma { display: none; }
 }
+
+/* Sprint 123 — scroll curtain lift, hover border dash, bg grid pulse */
+
+@keyframes curtain-lift-in {
+  0%   { clip-path: inset(100% 0 0 0); opacity: 0.4; }
+  55%  { clip-path: inset(0% 0 0 0); opacity: 1; }
+  100% { clip-path: inset(0 0 0 0); }
+}
+.scroll-curtain-lift { clip-path: inset(100% 0 0 0); }
+.scroll-curtain-lift--active {
+  animation: curtain-lift-in 0.75s cubic-bezier(0.77,0,0.18,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-curtain-lift { clip-path: none; }
+  .scroll-curtain-lift--active { animation: none; }
+}
+
+@keyframes border-dash-spin {
+  to { stroke-dashoffset: 0; }
+}
+.hover-border-dash {
+  position: relative;
+  outline: none;
+}
+.hover-border-dash::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px dashed rgba(0,212,200,0);
+  transition: border-color 0.3s ease;
+  pointer-events: none;
+}
+.hover-border-dash:hover::after {
+  border-color: rgba(0,212,200,0.7);
+  animation: border-dash-rotate 3s linear infinite;
+}
+@keyframes border-dash-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-border-dash:hover::after { animation: none; border-color: rgba(0,212,200,0.5); }
+}
+
+@keyframes grid-pulse-fade {
+  0%, 100% { opacity: 0.03; }
+  50%       { opacity: 0.06; }
+}
+.bg-grid-pulse {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+  background-image:
+    linear-gradient(rgba(0,212,200,1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,200,1) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: grid-pulse-fade 4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-grid-pulse { animation: none; opacity: 0.03; }
+}

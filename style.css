@@ -4766,3 +4766,50 @@ nav a, .nav a, .nav-link {
 @media (prefers-reduced-motion: reduce) { [data-speed] { transform: none !important; } }
 
 /* Global focus glow — baseline; JS injects the :focus-visible override at runtime */
+
+/* Sprint 76 — SVG path draw, perspective reveal, tooltip hover -------------- */
+
+/* SVG path draw — stroke-dashoffset animated via JS on IO entry */
+svg path.draw-path, svg .draw-path {
+  fill: none;
+  stroke: rgba(0,212,200,0.6);
+  stroke-width: 1.5;
+}
+
+/* Perspective reveal — rotateX tilt that flattens on IO entry */
+.persp-reveal-elem {
+  opacity: 0;
+  transform: perspective(800px) rotateX(-8deg) translateY(20px);
+  transform-origin: top center;
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+.persp-reveal-elem--in {
+  opacity: 1;
+  transform: perspective(800px) rotateX(0deg) translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .persp-reveal-elem { opacity: 1; transform: none; }
+}
+
+/* Tooltip popover — floating label following cursor */
+.tooltip-popover {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 10001;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(15,15,20,0.92);
+  border: 1px solid rgba(0,212,200,0.25);
+  border-radius: 6px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  will-change: transform;
+}
+.tooltip-popover--visible { opacity: 1; }
+@media (pointer: coarse) { .tooltip-popover { display: none; } }

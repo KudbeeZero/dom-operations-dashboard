@@ -3651,6 +3651,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initGridDiagonalReveal, initCardHoverDepth, initScrollMeter,       // Sprint 73
     initHeroScanline, initClipRevealSlide, initHighlightTextMark,      // Sprint 74
     initSpringClickEffect, initScrollTextParallax, initGlobalFocusGlow, // Sprint 75
+    initSVGPathDraw, initPerspectiveReveal, initTooltipHover,          // Sprint 76
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4953,4 +4954,64 @@ function initGlobalFocusGlow() {
     }
   `;
   document.head.appendChild(style);
+}
+
+/* Sprint 76 — SVG path draw, perspective reveal, tooltip hover -------------- */
+
+function initSVGPathDraw() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('svg path.draw-path, svg .draw-path').forEach((path) => {
+    const len = path.getTotalLength ? path.getTotalLength() : 200;
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
+    path.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1)';
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(path);
+        path.style.strokeDashoffset = '0';
+      });
+    }, { threshold: 0.3 });
+    io.observe(path);
+  });
+}
+
+function initPerspectiveReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.perspective-reveal, .section > .section-inner, .section > .container').forEach((el) => {
+    if (el.dataset.perspReveal) return;
+    el.dataset.perspReveal = '1';
+    el.classList.add('persp-reveal-elem');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('persp-reveal-elem--in');
+      });
+    }, { threshold: 0.12 });
+    io.observe(el);
+  });
+}
+
+function initTooltipHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const tip = document.createElement('div');
+  tip.className = 'tooltip-popover';
+  tip.setAttribute('role', 'tooltip');
+  tip.setAttribute('aria-live', 'polite');
+  document.body.appendChild(tip);
+  let lx = 0, ly = 0;
+  document.addEventListener('mousemove', (e) => {
+    lx = e.clientX; ly = e.clientY;
+    tip.style.transform = `translate(${lx + 14}px, ${ly - 32}px)`;
+  });
+  document.querySelectorAll('[data-tooltip]').forEach((el) => {
+    el.addEventListener('mouseenter', () => {
+      tip.textContent = el.dataset.tooltip;
+      tip.classList.add('tooltip-popover--visible');
+    });
+    el.addEventListener('mouseleave', () => {
+      tip.classList.remove('tooltip-popover--visible');
+    });
+  });
 }

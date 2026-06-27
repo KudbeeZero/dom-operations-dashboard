@@ -3720,6 +3720,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollStaggerChars, initHoverGlowOrb, initBgScanlineOverlay,       // Sprint 142
     initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
     initScrollClipSlide, initHoverImageShimmer, initBgGradientDrift,       // Sprint 144
+    initScrollElasticScale, initHoverBorderPulse, initBgDepthFog,          // Sprint 145
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -9397,6 +9398,47 @@ function initBgGradientDrift() {
   if (document.querySelector('.bg-gradient-drift')) return;
   const el = document.createElement('div');
   el.className = 'bg-gradient-drift';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 145 — elastic scale-in scroll, border pulse hover, depth fog bg -------- */
+
+function initScrollElasticScale() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-elastic-scale]');
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.elasticScaleInit) return;
+    el.dataset.elasticScaleInit = '1';
+    el.style.setProperty('--es-delay', `${i * 60}ms`);
+    el.classList.add('elastic-scale');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('elastic-scale--in');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initHoverBorderPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.btn--secondary, [data-border-pulse]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.borderPulse) return;
+    el.dataset.borderPulse = '1';
+    el.classList.add('hover-border-pulse');
+  });
+}
+
+function initBgDepthFog() {
+  if (document.querySelector('.bg-depth-fog')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-depth-fog';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
 }

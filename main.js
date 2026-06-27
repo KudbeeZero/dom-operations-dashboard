@@ -3688,6 +3688,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollDoorOpen, initHoverCardDepthRing, initTextShimmerWave,        // Sprint 110
     initScrollAccordionReveal, initHoverGlowIconRing, initBgMeshGradient,   // Sprint 111
     initScrollSplitWipe, initHoverCardOutlineDraw, initBgGradientOrbs,      // Sprint 112
+    initScrollTypewriterReveal, initHoverFillSweep, initBgRadialPulse,      // Sprint 113
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7374,4 +7375,62 @@ function initBgGradientOrbs() {
     orb.style.cssText = `top:${cfg.top};left:${cfg.left};width:${cfg.size};height:${cfg.size};background:radial-gradient(circle,${cfg.color} 0%,transparent 70%);animation-duration:${cfg.dur};animation-delay:${i * -4}s`;
     document.body.appendChild(orb);
   });
+}
+
+/* Sprint 113 — scroll typewriter reveal, hover fill sweep, bg radial pulse */
+
+function initScrollTypewriterReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.hero-subtitle, .section-subtitle, [data-typewriter-reveal]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.typewriterReveal) return;
+    el.dataset.typewriterReveal = '1';
+    const text = el.textContent.trim();
+    if (!text) return;
+    el.setAttribute('aria-label', text);
+    el.textContent = '';
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        let i = 0;
+        const type = () => {
+          if (i > text.length) return;
+          el.textContent = text.slice(0, i);
+          i++;
+          setTimeout(type, 28);
+        };
+        type();
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+}
+
+function initHoverFillSweep() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btns = document.querySelectorAll(
+    '.btn, .cta-btn, button, [data-fill-sweep]'
+  );
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.fillSweep) return;
+    btn.dataset.fillSweep = '1';
+    btn.classList.add('hover-fill-sweep');
+  });
+}
+
+function initBgRadialPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-radial-pulse')) return;
+  const hero = document.querySelector('.hero, [data-hero]');
+  if (!hero) return;
+  hero.style.position = hero.style.position || 'relative';
+  const pulse = document.createElement('div');
+  pulse.className = 'bg-radial-pulse';
+  pulse.setAttribute('aria-hidden', 'true');
+  hero.insertAdjacentElement('afterbegin', pulse);
 }

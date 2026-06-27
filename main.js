@@ -1416,6 +1416,58 @@ function initCountUp() {
 }
 
 /* -------------------------------------------------------------------------
+   CUSTOM CURSOR — teal dot + lagging ring (fine pointer + motion-OK only)
+   Dot tracks exact mouse position; ring lerps at 0.13 each frame.
+   ring.over expands on interactive hover; ring.press shrinks on click.
+   ------------------------------------------------------------------------- */
+function initCustomCursor() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const dot  = document.createElement('div');
+  const ring = document.createElement('div');
+  dot.id  = 'cursorDot';
+  ring.id = 'cursorRing';
+  dot.setAttribute('aria-hidden', 'true');
+  ring.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+  document.body.classList.add('custom-cursor');
+
+  let mx = -200, my = -200, rx = -200, ry = -200;
+
+  document.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+
+  // Use event delegation so dynamically-revealed elements are covered
+  const INTERACTIVE = 'a, button, [role="button"], summary, label, .bento-card, .showcase-tab, .ba-handle';
+  document.addEventListener('mouseover', (e) => {
+    ring.classList.toggle('over', Boolean(e.target.closest(INTERACTIVE)));
+  });
+
+  document.addEventListener('mousedown', () => ring.classList.add('press'));
+  document.addEventListener('mouseup',   () => ring.classList.remove('press'));
+
+  // Hide when pointer leaves the viewport
+  document.documentElement.addEventListener('mouseleave', () => {
+    dot.style.opacity  = '0';
+    ring.style.opacity = '0';
+  });
+  document.documentElement.addEventListener('mouseenter', () => {
+    dot.style.opacity  = '';
+    ring.style.opacity = '';
+  });
+
+  const tick = () => {
+    rx += (mx - rx) * 0.13;
+    ry += (my - ry) * 0.13;
+    dot.style.transform  = `translate(${mx}px, ${my}px)`;
+    ring.style.transform = `translate(${rx}px, ${ry}px)`;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* -------------------------------------------------------------------------
    KINETIC TEXT — word-by-word staggered reveal on .kinetic-section entry
    ------------------------------------------------------------------------- */
 function initKineticText() {
@@ -1466,7 +1518,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
     initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
-    initCardTilt, initCountUp, initKineticText, initFaqAnimation,
+    initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

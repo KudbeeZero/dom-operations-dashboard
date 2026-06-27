@@ -1906,6 +1906,65 @@ button { font: inherit; cursor: pointer; }
 }
 
 /* ==========================================================================
+   Sprint 15 — Custom cursor (fine pointer / desktop only)
+   Dot sits at the exact mouse position; ring lerps behind it.
+   body.custom-cursor is added by JS only on pointer:fine + motion-OK devices.
+   ========================================================================== */
+@media (pointer: fine) {
+  body.custom-cursor,
+  body.custom-cursor a,
+  body.custom-cursor button,
+  body.custom-cursor input,
+  body.custom-cursor textarea,
+  body.custom-cursor select,
+  body.custom-cursor label,
+  body.custom-cursor summary { cursor: none; }
+
+  #cursorDot,
+  #cursorRing {
+    position: fixed;
+    top: 0; left: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    will-change: transform;
+  }
+
+  #cursorDot {
+    width: 6px; height: 6px;
+    margin: -3px 0 0 -3px;
+    background: var(--teal);
+    transition: opacity 0.15s;
+  }
+
+  #cursorRing {
+    width: 34px; height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 1.5px solid rgba(0,212,200,0.48);
+    background: transparent;
+    transition:
+      width 0.22s var(--ease-out),
+      height 0.22s var(--ease-out),
+      margin 0.22s var(--ease-out),
+      border-color 0.22s,
+      opacity 0.15s;
+  }
+
+  /* Expanded state — hovering an interactive element */
+  #cursorRing.over {
+    width: 52px; height: 52px;
+    margin: -26px 0 0 -26px;
+    border-color: rgba(0,212,200,0.88);
+  }
+
+  /* Click state */
+  #cursorRing.press {
+    width: 20px; height: 20px;
+    margin: -10px 0 0 -10px;
+  }
+}
+
+/* ==========================================================================
    Sprint 12 — Alive: animated process + card spotlight + hero parallax
    ========================================================================== */
 

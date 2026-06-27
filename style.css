@@ -5195,3 +5195,52 @@ svg path.draw-path, svg .draw-path {
   animation: pulse-badge-anim 2.2s ease-out infinite;
 }
 @media (prefers-reduced-motion: reduce) { .pulse-badge-el { animation: none; } }
+
+/* Sprint 88 — glitch text hover, scroll zoom section, btn liquid fill -------- */
+
+@keyframes glitch-clip-1 {
+  0%,100% { clip-path: inset(0 0 90% 0); transform: translate(-3px, 0); }
+  50%     { clip-path: inset(40% 0 40% 0); transform: translate(3px, 0); }
+}
+@keyframes glitch-clip-2 {
+  0%,100% { clip-path: inset(70% 0 10% 0); transform: translate(3px, 0); }
+  50%     { clip-path: inset(10% 0 70% 0); transform: translate(-3px, 0); }
+}
+.glitch-text-el { position: relative; display: inline-block; }
+.glitch-text-el--active::before,
+.glitch-text-el--active::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.glitch-text-el--active::before {
+  color: #ff6b6b;
+  animation: glitch-clip-1 0.35s steps(2) infinite;
+}
+.glitch-text-el--active::after {
+  color: #00d4c8;
+  animation: glitch-clip-2 0.35s steps(2) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .glitch-text-el--active::before,
+  .glitch-text-el--active::after { display: none; }
+}
+
+.btn-liquid-fill {
+  overflow: hidden;
+  position: relative;
+  z-index: 0;
+}
+.btn-liquid-fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,212,200,0.18);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: -1;
+  border-radius: inherit;
+}
+.btn-liquid-fill:hover::before { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { .btn-liquid-fill::before { display: none; } }

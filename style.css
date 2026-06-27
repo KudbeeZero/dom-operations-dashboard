@@ -5366,3 +5366,44 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .scroll-opacity-fade { opacity: 1; transition: none; }
 }
+
+/* Sprint 92 — hero grid lines, btn confetti, scroll slide from side ---------- */
+
+.hero-grid-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,212,200,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,200,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+@keyframes confetti-burst {
+  0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(var(--cpx,0), var(--cpy,0)) rotate(var(--cpr,180deg)) scale(0); opacity: 0; }
+}
+.confetti-piece {
+  position: absolute;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: confetti-burst 0.6s ease-out forwards;
+  margin: -2px 0 0 -2px;
+}
+@media (prefers-reduced-motion: reduce) { .confetti-piece { display: none; } }
+
+.scroll-slide-side {
+  opacity: 0;
+  transform: translateX(calc(var(--ssdir, -1) * 48px));
+  transition: opacity 0.6s ease calc(var(--ssi, 0) * 0.06s),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--ssi, 0) * 0.06s);
+}
+.scroll-slide-side--visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-slide-side { opacity: 1; transform: none; transition: none; }
+}

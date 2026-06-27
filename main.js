@@ -3654,6 +3654,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSVGPathDraw, initPerspectiveReveal, initTooltipHover,          // Sprint 76
     initScrollElevation, initFeatureIconPulse, initGlowHoverText,      // Sprint 77
     initRadialReveal, initLazyImageFade, initScrollFogEffect,          // Sprint 78
+    initMagneticButton, initCounterAnimation, initCard3DTilt,          // Sprint 79
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5107,5 +5108,84 @@ function initScrollFogEffect() {
       });
     }, { threshold: 0.1 });
     io.observe(section);
+  });
+}
+
+/* Sprint 79 — magnetic button, counter animation, 3D card tilt --------------- */
+
+function initMagneticButton() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btns = document.querySelectorAll('.btn, .cta-btn, .hero-cta, .magnetic-btn');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.magnetic) return;
+    btn.dataset.magnetic = '1';
+    btn.style.transition = 'transform 0.3s cubic-bezier(0.23, 1, 0.32, 1)';
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) * 0.35;
+      const dy = (e.clientY - cy) * 0.35;
+      btn.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = 'translate(0px, 0px)';
+    });
+  });
+}
+
+function initCounterAnimation() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.count-num, .stat-number, .counter, [data-count]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.counterDone) return;
+    const raw = el.dataset.count || el.textContent.replace(/[^0-9.]/g, '');
+    const target = parseFloat(raw);
+    if (isNaN(target)) return;
+    el.dataset.counterDone = '1';
+    const suffix = el.textContent.replace(/[0-9.]/g, '').trim();
+    el.textContent = '0' + (suffix ? suffix : '');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        const dur = 1400;
+        const start = performance.now();
+        const tick = (now) => {
+          const p = Math.min((now - start) / dur, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          const val = target < 10 ? (target * ease).toFixed(1) : Math.round(target * ease);
+          el.textContent = val + (suffix ? suffix : '');
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+}
+
+function initCard3DTilt() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cards = document.querySelectorAll('.bento-card, .pricing-card, .testimonial-card');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.tilt3d) return;
+    card.dataset.tilt3d = '1';
+    card.style.transformStyle = 'preserve-3d';
+    card.style.transition = 'transform 0.15s ease';
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(600px) rotateX(${(-y * 10).toFixed(1)}deg) rotateY(${(x * 10).toFixed(1)}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg)';
+    });
   });
 }

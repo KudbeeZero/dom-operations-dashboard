@@ -4888,3 +4888,16 @@ svg path.draw-path, svg .draw-path {
   .scroll-fog-section::before,
   .scroll-fog-section::after { display: none; }
 }
+
+/* Sprint 79 — magnetic button, counter animation, 3D card tilt --------------- */
+
+.btn[data-magnetic='1'],
+.cta-btn[data-magnetic='1'],
+.hero-cta[data-magnetic='1'],
+.magnetic-btn[data-magnetic='1'] {
+  will-change: transform;
+}
+
+[data-tilt3d='1'] {
+  will-change: transform;
+}

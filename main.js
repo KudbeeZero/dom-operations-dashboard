@@ -3708,6 +3708,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTiltCard, initHoverBorderBeam, initBgLavaLamp,                 // Sprint 130
     initScrollRevealCounter, initHoverUnderlineWave, initBgStaticBurst,      // Sprint 131
     initScrollSpringPop, initHoverGradientText, initBgWarpGrid,              // Sprint 132
+    initScrollCascadeFade, initHoverIconBounce, initBgHexGrid,               // Sprint 133
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8647,4 +8648,80 @@ function initBgWarpGrid() {
     requestAnimationFrame(draw);
   };
   draw();
+}
+
+/* Sprint 133 — scroll cascade fade, hover icon bounce, bg hex grid */
+
+function initScrollCascadeFade() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const containers = document.querySelectorAll('section, .section-wrap, [data-cascade-fade]');
+  if (!containers.length) return;
+  containers.forEach((container) => {
+    if (container.dataset.cascadeFade) return;
+    container.dataset.cascadeFade = '1';
+    const children = Array.from(container.children);
+    children.forEach((child, i) => {
+      if (child.dataset.cascadeChild) return;
+      child.dataset.cascadeChild = '1';
+      child.classList.add('cascade-fade-child');
+      child.style.setProperty('--cfc-i', i);
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(container);
+        container.classList.add('cascade-fade--active');
+      });
+    }, { threshold: 0.1 });
+    io.observe(container);
+  });
+}
+
+function initHoverIconBounce() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const icons = document.querySelectorAll('svg, img[alt*="icon"], [data-icon-bounce]');
+  if (!icons.length) return;
+  icons.forEach((icon) => {
+    if (icon.dataset.iconBounce) return;
+    icon.dataset.iconBounce = '1';
+    icon.classList.add('hover-icon-bounce');
+  });
+}
+
+function initBgHexGrid() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-hex-grid')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-hex-grid';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const R = 30;
+  const W = R * 2;
+  const H = Math.sqrt(3) * R;
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = 'rgba(0,212,200,0.05)';
+    ctx.lineWidth = 0.7;
+    for (let row = -1; row < canvas.height / H + 1; row++) {
+      for (let col = -1; col < canvas.width / (W * 0.75) + 1; col++) {
+        const x = col * W * 0.75;
+        const y = row * H + (col % 2 === 0 ? 0 : H / 2);
+        ctx.beginPath();
+        for (let k = 0; k < 6; k++) {
+          const angle = (Math.PI / 3) * k - Math.PI / 6;
+          const px = x + R * Math.cos(angle);
+          const py = y + R * Math.sin(angle);
+          if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+  };
+  draw();
+  window.addEventListener('resize', draw, { passive: true });
 }

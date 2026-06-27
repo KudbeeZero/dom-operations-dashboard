@@ -3673,6 +3673,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSectionDividerWave, initScrollProgressRing, initTextHighlightSweep, // Sprint 95
     initHoverGlowTrail, initScrollLetterSpacingMorph, initBtnElasticBounce, // Sprint 96
     initMorphingBlob, initScrollParallaxCards, initTextSplitReveal,         // Sprint 97
+    initCursorSpotlight, initScrollClipReveal, initHoverBorderTrace,        // Sprint 98
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6343,5 +6344,76 @@ function initTextSplitReveal() {
       });
     }, { threshold: 0.4 });
     io.observe(el);
+  });
+}
+
+/* Sprint 98 — cursor spotlight, scroll clip reveal, hover border trace */
+
+function initCursorSpotlight() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (document.querySelector('.cursor-spotlight')) return;
+  const spot = document.createElement('div');
+  spot.className = 'cursor-spotlight';
+  spot.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(spot);
+  let cx = -999, cy = -999, tx = -999, ty = -999;
+  let rafId = 0;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const tick = () => {
+    cx = lerp(cx, tx, 0.08);
+    cy = lerp(cy, ty, 0.08);
+    spot.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+    rafId = requestAnimationFrame(tick);
+  };
+  document.addEventListener('mousemove', (e) => {
+    tx = e.clientX;
+    ty = e.clientY;
+    spot.style.opacity = '1';
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => {
+    spot.style.opacity = '0';
+  }, { passive: true });
+  rafId = requestAnimationFrame(tick);
+}
+
+function initScrollClipReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.card, .service-card, .ba-card, img, figure, [data-clip-reveal]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.clipReveal) return;
+    el.dataset.clipReveal = '1';
+    el.classList.add('clip-reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('clip-reveal--active');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initHoverBorderTrace() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const els = document.querySelectorAll(
+    '.card, .service-card, .ba-card, .btn, button, [data-border-trace]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.borderTrace) return;
+    el.dataset.borderTrace = '1';
+    el.classList.add('border-trace');
+    el.addEventListener('mouseenter', () => {
+      el.classList.add('border-trace--active');
+    }, { passive: true });
+    el.addEventListener('mouseleave', () => {
+      el.classList.remove('border-trace--active');
+    }, { passive: true });
   });
 }

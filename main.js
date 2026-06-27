@@ -1847,6 +1847,81 @@ function initContactSteps() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   HERO TRUST CYCLE — .hero-trust rotates through 4 short trust lines every
+   4 s; crossfades via opacity transition. Skipped on reduced-motion.
+   ------------------------------------------------------------------------- */
+function initHeroTrustCycle() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector('.hero-trust');
+  if (!el) return;
+  const LINES = [
+    'Same-day help • Personal service • Ready-to-send results',
+    'No account needed — just text or fill out the form',
+    'You talk to Dominick directly, not a bot',
+    'Quick Fix $25 · Clean Package $50 · Rush jobs from $75',
+  ];
+  let i = 0;
+  el.classList.add('trust-cycle');
+  const rotate = () => {
+    el.classList.add('trust-fade');
+    setTimeout(() => {
+      i = (i + 1) % LINES.length;
+      el.textContent = LINES[i];
+      el.classList.remove('trust-fade');
+    }, 350);
+  };
+  setInterval(rotate, 4200);
+}
+
+/* -------------------------------------------------------------------------
+   TRUST BAR ENTRANCE — .trust-item elements stagger up from y:18 with a
+   spring ease as the bar enters the viewport (first scroll after hero).
+   ------------------------------------------------------------------------- */
+function initTrustBarEntrance() {
+  if (!('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const items = document.querySelectorAll('.trust-item');
+  if (!items.length) return;
+  items.forEach((item, i) => item.style.setProperty('--trust-delay', (i * 110) + 'ms'));
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      e.target.classList.add('trust-visible');
+    });
+  }, { threshold: 0.5 });
+  items.forEach((item) => {
+    item.classList.add('trust-enter');
+    io.observe(item);
+  });
+}
+
+/* -------------------------------------------------------------------------
+   FOOTER ENTRANCE — .footer-inner direct children fade + slide up as the
+   footer enters the viewport; staggered 140ms per element.
+   ------------------------------------------------------------------------- */
+function initFooterEntrance() {
+  if (!('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const inner = document.querySelector('.footer-inner');
+  if (!inner) return;
+  const items = Array.from(inner.children);
+  if (!items.length) return;
+  items.forEach((el, i) => el.style.setProperty('--footer-delay', (i * 140) + 'ms'));
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      e.target.classList.add('footer-visible');
+    });
+  }, { threshold: 0.12 });
+  items.forEach((el) => {
+    el.classList.add('footer-enter');
+    io.observe(el);
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -1861,6 +1936,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollProgress, initMagneticButtons, initHeadingReveal, initActiveNav,
     initButtonRipple, initHeroCursorGlow, initScrollToTop, initSectionAmbient,
     initContactReveal, initContactSteps,
+    initHeroTrustCycle, initTrustBarEntrance, initFooterEntrance,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

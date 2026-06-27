@@ -2380,3 +2380,43 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .contact-next li.step-reveal { opacity: 1; transform: none; transition: none; }
 }
+
+/* ── Sprint 23: hero trust cycle, trust bar entrance, footer entrance ──── */
+
+/* Hero trust line crossfade cycle */
+.hero-trust.trust-cycle {
+  transition: opacity 0.32s ease;
+}
+.hero-trust.trust-fade { opacity: 0; }
+
+/* Trust bar stagger entrance */
+.trust-item.trust-enter {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity   0.5s ease                               var(--trust-delay, 0ms),
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) var(--trust-delay, 0ms);
+}
+.trust-item.trust-enter.trust-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-item.trust-enter { opacity: 1; transform: none; transition: none; }
+}
+
+/* Footer content stagger entrance */
+.footer-inner > .footer-enter {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity   0.55s ease var(--footer-delay, 0ms),
+    transform 0.55s ease var(--footer-delay, 0ms);
+}
+.footer-inner > .footer-enter.footer-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer-inner > .footer-enter { opacity: 1; transform: none; transition: none; }
+}

@@ -3755,6 +3755,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
     initScrollClipSlide, initHoverImageShimmer, initBgGradientDrift,       // Sprint 144
     initScrollElasticScale, initHoverBorderPulse, initBgDepthFog,          // Sprint 145
+    initLiveAvailabilityPing, initTryItDemo, initSonarPing,               // Sprint 148
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -9568,4 +9569,149 @@ function initBgDepthFog() {
   el.className = 'bg-depth-fog';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 148 — Live availability ping, Try-It demo, sonar ping reveal -------- */
+
+function initLiveAvailabilityPing() {
+  const heroContent = document.querySelector('.hero-content');
+  if (!heroContent) return;
+
+  // Determine availability: Mon–Fri, 8 am–8 pm Central Time
+  const now = new Date();
+  const ct = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+  const day = ct.getDay(); // 0=Sun, 6=Sat
+  const hour = ct.getHours();
+  const isAvail = day >= 1 && day <= 5 && hour >= 8 && hour < 20;
+
+  let label;
+  if (isAvail) {
+    label = 'Available now — reply in minutes';
+  } else if (day === 6 || (day === 0 && hour >= 20) || (day === 5 && hour >= 20)) {
+    label = 'Back Monday morning';
+  } else if (day === 0 || (day === 1 && hour < 8)) {
+    label = 'Back Monday morning';
+  } else if (hour < 8) {
+    label = 'Back at 8 am CT';
+  } else {
+    label = 'Back tomorrow morning';
+  }
+
+  const badge = document.createElement('div');
+  badge.className = `avail-ping ${isAvail ? 'avail-ping--on' : 'avail-ping--off'}`;
+  badge.setAttribute('aria-label', isAvail ? 'Dominick is available now' : label);
+  badge.innerHTML = `<span class="avail-dot" aria-hidden="true"></span><span class="avail-text">${label}</span>`;
+
+  const eyebrow = heroContent.querySelector('.hero-eyebrow');
+  if (eyebrow) {
+    heroContent.insertBefore(badge, eyebrow);
+  } else {
+    heroContent.insertAdjacentElement('afterbegin', badge);
+  }
+}
+
+function initTryItDemo() {
+  const input  = document.getElementById('tryInput');
+  const btn    = document.getElementById('tryBtn');
+  const output = document.getElementById('tryOutput');
+  const cta    = document.getElementById('tryCta');
+  if (!input || !btn || !output) return;
+
+  function cleanText(raw) {
+    return raw
+      .replace(/\t/g, ' ')
+      .replace(/[ \t]{2,}/g, ' ')
+      .split(/\n{2,}/)
+      .map(para => para
+        .split(/(?<=[.!?])\s+/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+        .join(' ')
+      )
+      .map(para => para.replace(/\bi\b/g, 'I').trim())
+      .filter(Boolean)
+      .join('\n\n');
+  }
+
+  function typewrite(text, container) {
+    container.innerHTML = '';
+    const paras = text.split('\n\n');
+    let paraIndex = 0;
+    let charIndex = 0;
+
+    const cursor = document.createElement('span');
+    cursor.className = 'try-cursor';
+    cursor.setAttribute('aria-hidden', 'true');
+
+    function nextChar() {
+      if (paraIndex >= paras.length) {
+        cursor.remove();
+        if (cta) { cta.setAttribute('aria-hidden', 'false'); cta.classList.add('visible'); }
+        return;
+      }
+      if (charIndex === 0) {
+        const p = document.createElement('p');
+        p.style.marginBottom = '0.75em';
+        container.appendChild(p);
+        container.appendChild(cursor);
+      }
+      const p = container.querySelectorAll('p')[paraIndex];
+      p.textContent += paras[paraIndex][charIndex];
+      charIndex++;
+      if (charIndex >= paras[paraIndex].length) {
+        paraIndex++;
+        charIndex = 0;
+        setTimeout(nextChar, 180);
+      } else {
+        setTimeout(nextChar, Math.random() * 20 + 8);
+      }
+    }
+    nextChar();
+  }
+
+  btn.addEventListener('click', () => {
+    const raw = input.value.trim();
+    if (!raw) { input.focus(); return; }
+
+    btn.disabled = true;
+    btn.classList.add('loading');
+    output.innerHTML = '';
+    output.classList.add('working');
+    if (cta) { cta.classList.remove('visible'); cta.setAttribute('aria-hidden', 'true'); }
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      output.classList.remove('working');
+      const cleaned = cleanText(raw);
+      typewrite(cleaned, output);
+    }, 1400);
+  });
+}
+
+function initSonarPing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const heads = document.querySelectorAll('.section-head h2, .section-title');
+  if (!heads.length) return;
+  heads.forEach((h2) => {
+    if (h2.dataset.sonarInit) return;
+    h2.dataset.sonarInit = '1';
+    const wrap = h2.parentElement;
+    if (!wrap) return;
+    const cur = getComputedStyle(wrap).position;
+    if (cur === 'static') wrap.style.position = 'relative';
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(h2);
+        const ring = document.createElement('div');
+        ring.className = 'sonar-ring';
+        ring.setAttribute('aria-hidden', 'true');
+        wrap.appendChild(ring);
+        ring.addEventListener('animationend', () => ring.remove(), { once: true });
+      });
+    }, { threshold: 0.6 });
+    io.observe(h2);
+  });
 }

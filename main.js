@@ -3372,6 +3372,73 @@ function initFooterLinkGlow() {
   });
 }
 
+/* Sprint 49 — contact sparkle, QR scanline, scroll echo lines --------------- */
+
+function initContactItemSparkle() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.contact-item, .contact-link, .contact-row').forEach((item) => {
+    item.addEventListener('mouseenter', () => {
+      item.style.position = item.style.position || 'relative';
+      for (let i = 0; i < 3; i++) {
+        const s = document.createElement('span');
+        s.className = 'contact-sparkle';
+        s.setAttribute('aria-hidden', 'true');
+        s.style.setProperty('--cs-angle', `${120 * i + Math.random() * 40 - 20}deg`);
+        s.style.setProperty('--cs-dist', `${22 + Math.random() * 12}px`);
+        item.appendChild(s);
+        s.addEventListener('animationend', () => s.remove(), { once: true });
+      }
+    });
+  });
+}
+
+function initQRScanline() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  const card = document.querySelector('.qr-card');
+  if (!card) return;
+  card.style.position = card.style.position || 'relative';
+  const line = document.createElement('div');
+  line.className = 'qr-scanline';
+  line.setAttribute('aria-hidden', 'true');
+  card.appendChild(line);
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      setTimeout(() => {
+        line.classList.add('qr-scan-active');
+        line.addEventListener('animationend', () => line.classList.remove('qr-scan-active'), { once: true });
+      }, 400);
+    });
+  }, { threshold: 0.5 });
+  io.observe(card);
+}
+
+function initScrollEchoLines() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let ticking = false;
+  let lastY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const dy = Math.abs(window.scrollY - lastY);
+      if (dy > 60) {
+        lastY = window.scrollY;
+        const echo = document.createElement('div');
+        echo.className = 'scroll-echo';
+        echo.setAttribute('aria-hidden', 'true');
+        echo.style.setProperty('--ey', `${window.innerHeight / 2}px`);
+        document.body.appendChild(echo);
+        echo.addEventListener('animationend', () => echo.remove(), { once: true });
+      }
+      ticking = false;
+    });
+  }, { passive: true });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3412,6 +3479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFloatingWords, initMorphBlob, initServiceTagHover,
     initBentoCardShine, initNavDotIndicator, initPricingGridGlow,
     initPricingCardParticles, initAboutSectionPulse, initFooterLinkGlow,
+    initContactItemSparkle, initQRScanline, initScrollEchoLines,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

@@ -6480,3 +6480,58 @@ svg path.draw-path, svg .draw-path {
   .text-reveal-mask-v2 { clip-path: none; }
   .text-reveal-mask-v2--active { animation: none; }
 }
+
+/* Sprint 116 — scroll elastic entry, hover rainbow border, bg dot matrix */
+
+@keyframes elastic-entry-in {
+  0%   { opacity: 0; transform: scaleX(0.3) skewX(10deg); }
+  50%  { opacity: 1; transform: scaleX(1.05) skewX(-2deg); }
+  70%  { transform: scaleX(0.97) skewX(1deg); }
+  100% { transform: scaleX(1) skewX(0deg); }
+}
+.scroll-elastic-entry { opacity: 0; transform-origin: left center; }
+.scroll-elastic-entry--active {
+  animation: elastic-entry-in 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-elastic-entry { opacity: 1; transform: none; }
+  .scroll-elastic-entry--active { animation: none; }
+}
+
+@keyframes rainbow-border-spin {
+  from { --rb-angle: 0deg; }
+  to   { --rb-angle: 360deg; }
+}
+@property --rb-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.hover-rainbow-border { position: relative; }
+.hover-rainbow-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--rb-angle), #00d4c8, #7b5cfa, #ff6b9d, #ffd93d, #00d4c8);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.hover-rainbow-border--active::before {
+  opacity: 1;
+  animation: rainbow-border-spin 2s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-rainbow-border--active::before { animation: none; opacity: 1; }
+}
+
+.bg-dot-matrix {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+  opacity: 0.04;
+  background-image: radial-gradient(circle, rgba(0,212,200,1) 1px, transparent 1px);
+  background-size: 28px 28px;
+}

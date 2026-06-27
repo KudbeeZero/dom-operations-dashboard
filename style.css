@@ -4595,3 +4595,50 @@ nav a, .nav a, .nav-link {
   100% { transform: scaleY(1); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .scroll-flood-fill { display: none; } }
+
+/* Sprint 72 — neon link underline, scroll reveal rotate, velocity skew ----- */
+
+/* Neon link underline — grows from center with glow on hover */
+.neon-link {
+  position: relative;
+  text-decoration: none;
+}
+.neon-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 50%;
+  width: 0; height: 1px;
+  background: rgba(0,212,200,0.9);
+  box-shadow: 0 0 6px rgba(0,212,200,0.7), 0 0 12px rgba(0,212,200,0.4);
+  transition: width 0.3s cubic-bezier(0.22,1,0.36,1), left 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.neon-link:hover::after {
+  width: 100%;
+  left: 0;
+}
+@media (pointer: coarse) { .neon-link::after { display: none; } }
+
+/* Scroll reveal rotate — rotate from -5deg to 0 + fade on IO entry */
+.rotate-reveal-elem {
+  opacity: 0;
+  transform: rotate(-4deg) translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+.rotate-reveal-elem--in {
+  opacity: 1;
+  transform: rotate(0deg) translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rotate-reveal-elem { opacity: 1; transform: none; }
+}
+
+/* Velocity skew — cards skew on Y axis based on scroll speed (JS-driven) */
+.bento-card, .pricing-card, .service-card, .process-step {
+  transition: transform 0.1s linear;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bento-card, .pricing-card, .service-card, .process-step {
+    transform: none !important;
+  }
+}

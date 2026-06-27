@@ -6220,3 +6220,59 @@ svg path.draw-path, svg .draw-path {
     background: none;
   }
 }
+
+/* Sprint 111 — scroll accordion reveal, hover glow icon ring, bg mesh gradient */
+
+@keyframes accordion-item-in {
+  from { opacity: 0; max-height: 0; transform: translateX(-16px); }
+  to   { opacity: 1; max-height: 200px; transform: translateX(0); }
+}
+.accordion-reveal-item {
+  opacity: 0;
+  overflow: hidden;
+}
+.accordion-reveal--active .accordion-reveal-item {
+  animation: accordion-item-in 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: calc(var(--ari) * 65ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .accordion-reveal-item { opacity: 1; overflow: visible; }
+  .accordion-reveal--active .accordion-reveal-item { animation: none; }
+}
+
+@keyframes glow-icon-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(0,212,200,0.4), 0 0 12px rgba(0,212,200,0.2); }
+  50%       { box-shadow: 0 0 0 4px rgba(0,212,200,0.7), 0 0 24px rgba(123,92,250,0.4); }
+}
+.hover-glow-icon-ring {
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+.hover-glow-icon-ring--active {
+  animation: glow-icon-ring-pulse 1s ease-in-out infinite;
+  transform: scale(1.1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-glow-icon-ring--active { animation: none; transform: none; box-shadow: 0 0 0 2px #00d4c8; }
+}
+
+@keyframes mesh-drift {
+  0%   { background-position: 0% 0%, 100% 100%, 50% 50%; }
+  50%  { background-position: 60% 40%, 40% 60%, 80% 20%; }
+  100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+}
+.bg-mesh-gradient {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(0,212,200,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 70%, rgba(123,92,250,0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 50% 50%, rgba(0,255,213,0.06) 0%, transparent 60%);
+  animation: mesh-drift 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(30px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-mesh-gradient { animation: none; }
+}

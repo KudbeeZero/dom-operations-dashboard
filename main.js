@@ -3686,6 +3686,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollBounceIn, initHoverTextOutline, initSectionNoiseLayer,        // Sprint 108
     initScrollPendulumSwing, initHoverNeonBadge, initBgStarfield,           // Sprint 109
     initScrollDoorOpen, initHoverCardDepthRing, initTextShimmerWave,        // Sprint 110
+    initScrollAccordionReveal, initHoverGlowIconRing, initBgMeshGradient,   // Sprint 111
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7254,4 +7255,66 @@ function initTextShimmerWave() {
     el.dataset.shimmerWave = '1';
     el.classList.add('text-shimmer-wave');
   });
+}
+
+/* Sprint 111 — scroll accordion reveal, hover glow icon ring, bg mesh gradient */
+
+function initScrollAccordionReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const lists = document.querySelectorAll('ul, ol, [data-accordion-reveal]');
+  if (!lists.length) return;
+  lists.forEach((list) => {
+    if (list.dataset.accordionReveal) return;
+    const items = list.querySelectorAll('li');
+    if (!items.length) return;
+    list.dataset.accordionReveal = '1';
+    items.forEach((li, i) => {
+      if (li.dataset.accordionItem) return;
+      li.dataset.accordionItem = '1';
+      li.classList.add('accordion-reveal-item');
+      li.style.setProperty('--ari', String(i));
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(list);
+        list.classList.add('accordion-reveal--active');
+      });
+    }, { threshold: 0.15 });
+    io.observe(list);
+  });
+}
+
+function initHoverGlowIconRing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const icons = document.querySelectorAll(
+    '.icon-wrap, .icon-box, [data-glow-icon-ring], .card svg'
+  );
+  if (!icons.length) return;
+  icons.forEach((el) => {
+    if (el.dataset.glowIconRing) return;
+    el.dataset.glowIconRing = '1';
+    el.classList.add('hover-glow-icon-ring');
+    const parent = el.closest('.card, .service-card, a, button') || el;
+    parent.addEventListener('mouseenter', () => {
+      el.classList.add('hover-glow-icon-ring--active');
+    }, { passive: true });
+    parent.addEventListener('mouseleave', () => {
+      el.classList.remove('hover-glow-icon-ring--active');
+    }, { passive: true });
+  });
+}
+
+function initBgMeshGradient() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-mesh-gradient')) return;
+  const section = document.querySelector('.section:last-of-type, .ba-section:last-of-type, footer');
+  if (!section) return;
+  section.style.position = section.style.position || 'relative';
+  section.style.overflow = section.style.overflow || 'hidden';
+  const mesh = document.createElement('div');
+  mesh.className = 'bg-mesh-gradient';
+  mesh.setAttribute('aria-hidden', 'true');
+  section.insertAdjacentElement('afterbegin', mesh);
 }

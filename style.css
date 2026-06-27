@@ -3494,3 +3494,59 @@ body::after {
   text-shadow: 0 0 12px rgba(0,212,200,0.5);
 }
 @media (prefers-reduced-motion: reduce) { .footer-link-glow { transition: none; } }
+
+/* Sprint 49 — contact sparkle, QR scanline, scroll echo lines --------------- */
+
+/* Contact item hover sparkles */
+.contact-sparkle {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(0,212,200,0.85);
+  pointer-events: none;
+  z-index: 5;
+  animation: contact-sparkle-fly 0.5s ease-out forwards;
+}
+@keyframes contact-sparkle-fly {
+  0%   { transform: translate(-50%,-50%) rotate(var(--cs-angle)) translateY(0); opacity: 1; }
+  100% { transform: translate(-50%,-50%) rotate(var(--cs-angle)) translateY(calc(-1 * var(--cs-dist))); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .contact-sparkle { display: none; } }
+
+/* QR code scan-line sweep */
+.qr-scanline {
+  position: absolute;
+  left: 5%; right: 5%;
+  top: 5%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,200,0.7) 40%, rgba(0,212,200,0.9) 50%, rgba(0,212,200,0.7) 60%, transparent);
+  box-shadow: 0 0 8px rgba(0,212,200,0.5);
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+}
+@keyframes qr-scan {
+  0%   { top: 5%; opacity: 0.9; }
+  90%  { top: 92%; opacity: 0.85; }
+  100% { top: 92%; opacity: 0; }
+}
+.qr-scanline.qr-scan-active { animation: qr-scan 1.3s ease-in-out forwards; }
+@media (prefers-reduced-motion: reduce) { .qr-scanline { display: none; } }
+
+/* Scroll echo lines — faint horizontal streak at viewport midpoint */
+.scroll-echo {
+  position: fixed;
+  left: 0; right: 0;
+  top: var(--ey, 50%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,212,200,0.18) 20%, rgba(0,212,200,0.28) 50%, rgba(0,212,200,0.18) 80%, transparent 100%);
+  pointer-events: none;
+  z-index: 9989;
+  animation: scroll-echo-fade 0.8s ease-out forwards;
+}
+@keyframes scroll-echo-fade {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .scroll-echo { display: none; } }

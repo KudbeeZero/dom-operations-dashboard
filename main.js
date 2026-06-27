@@ -2901,6 +2901,53 @@ function initFormFieldGlow() {
   });
 }
 
+/* Sprint 41 — nav progress line, showcase tab pop, price label pop ---------- */
+
+function initNavProgressLine() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const nav = document.getElementById('nav');
+  if (!nav) return;
+  const line = document.createElement('div');
+  line.className = 'nav-progress-line';
+  line.setAttribute('aria-hidden', 'true');
+  nav.appendChild(line);
+  const update = () => {
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+    line.style.setProperty('--np', pct.toFixed(2) + '%');
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+function initShowcaseTabPop() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const tabs = document.querySelectorAll('.showcase-tab');
+  if (!tabs.length) return;
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tab.classList.remove('tab-pop');
+      void tab.offsetWidth;
+      tab.classList.add('tab-pop');
+      tab.addEventListener('animationend', () => tab.classList.remove('tab-pop'), { once: true });
+    });
+  });
+}
+
+function initPriceLabelPop() {
+  const labels = document.querySelectorAll('.price-name');
+  if (!labels.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  labels.forEach((label, i) => {
+    gsap.from(label, {
+      scale: 0.7, opacity: 0, y: 8, duration: 0.65, ease: 'elastic.out(1, 0.5)',
+      delay: i * 0.1, scrollTrigger: { trigger: label.closest('.price-card') || label, start: 'top 85%' },
+    });
+  });
+}
+
 /* Sprint 40 — hero orb drift, pricing urgency badge, form shake validation -- */
 
 function initHeroOrbDrift() {
@@ -3019,6 +3066,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFaqIconSpin, initPriceHoverMorph, initSectionDecoNumbers,
     initHeroTaglineTypewriter, initBentoBorderTrace, initFormFieldGlow,
     initHeroOrbDrift, initPricingUrgency, initFormShakeValidation,
+    initNavProgressLine, initShowcaseTabPop, initPriceLabelPop,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

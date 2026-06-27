@@ -3631,6 +3631,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNeonFlickerText, initCardStackDepth, initScrollProgressRing,  // Sprint 53
     initWordRevealWave, initCardGlintSweep, initStaggerListReveal,    // Sprint 54
     initSectionLineAccent, initFooterWave, initMouseGlowFollower,     // Sprint 55
+    initPageClickRipple, initImageClipReveal, initPricingCountdown,   // Sprint 56
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -3817,4 +3818,58 @@ function initMouseGlowFollower() {
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
+}
+
+/* Sprint 56 — page click ripple, image clip reveal, pricing countdown --------- */
+
+function initPageClickRipple() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.addEventListener('click', (e) => {
+    const ring = document.createElement('div');
+    ring.className = 'page-click-ripple';
+    ring.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;`;
+    ring.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(ring);
+    ring.addEventListener('animationend', () => ring.remove(), { once: true });
+  });
+}
+
+function initImageClipReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const imgs = document.querySelectorAll('img:not(.ba-img):not([data-no-reveal])');
+  if (!imgs.length) return;
+  imgs.forEach((img) => {
+    img.classList.add('img-clip-hidden');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(img);
+        img.classList.add('img-clip-reveal');
+        img.addEventListener('transitionend', () => img.classList.remove('img-clip-hidden', 'img-clip-reveal'), { once: true });
+      });
+    }, { threshold: 0.15 });
+    io.observe(img);
+  });
+}
+
+function initPricingCountdown() {
+  const pricing = document.querySelector('.pricing-section, .pricing, #pricing');
+  if (!pricing) return;
+  const anchor = pricing.querySelector('.pricing-grid, .pricing-cards') || pricing;
+  const wrap = document.createElement('div');
+  wrap.className = 'pricing-countdown';
+  wrap.setAttribute('aria-live', 'off');
+  anchor.insertAdjacentElement('afterend', wrap);
+  const render = () => {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    const rem = Math.max(0, midnight - now);
+    const h = String(Math.floor(rem / 3600000)).padStart(2, '0');
+    const m = String(Math.floor((rem % 3600000) / 60000)).padStart(2, '0');
+    const s = String(Math.floor((rem % 60000) / 1000)).padStart(2, '0');
+    wrap.innerHTML = `<span class="cd-label">Offer resets in</span><span class="cd-time"><span class="cd-seg">${h}</span><span class="cd-sep">:</span><span class="cd-seg">${m}</span><span class="cd-sep">:</span><span class="cd-seg">${s}</span></span>`;
+  };
+  render();
+  setInterval(render, 1000);
 }

@@ -3630,6 +3630,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCustomScrollbar, initCardFocusRing, initSectionCounter,
     initNeonFlickerText, initCardStackDepth, initScrollProgressRing,  // Sprint 53
     initWordRevealWave, initCardGlintSweep, initStaggerListReveal,    // Sprint 54
+    initSectionLineAccent, initFooterWave, initMouseGlowFollower,     // Sprint 55
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -3762,4 +3763,58 @@ function initStaggerListReveal() {
     }, { threshold: 0.25 });
     io.observe(list);
   });
+}
+
+/* Sprint 55 — section line accent, footer wave, mouse glow follower ---------- */
+
+function initSectionLineAccent() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section, .ba-section').forEach((section) => {
+    const line = document.createElement('div');
+    line.className = 'section-line-accent';
+    line.setAttribute('aria-hidden', 'true');
+    const kicker = section.querySelector('.section-kicker');
+    if (kicker) {
+      kicker.parentNode.insertBefore(line, kicker);
+    } else {
+      section.insertBefore(line, section.firstChild);
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(section);
+        line.classList.add('section-line-accent--in');
+      });
+    }, { threshold: 0.2 });
+    io.observe(section);
+  });
+}
+
+function initFooterWave() {
+  const footer = document.querySelector('footer, .footer, .site-footer');
+  if (!footer) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'footer-wave-wrap';
+  wrap.setAttribute('aria-hidden', 'true');
+  wrap.innerHTML = '<svg class="footer-wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2880 48" preserveAspectRatio="none"><path d="M0,24 C240,48 480,0 720,24 C960,48 1200,0 1440,24 C1680,48 1920,0 2160,24 C2400,48 2640,0 2880,24 L2880,48 L0,48 Z" fill="rgba(0,212,200,0.055)"/></svg>';
+  footer.insertBefore(wrap, footer.firstChild);
+}
+
+function initMouseGlowFollower() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const glow = document.createElement('div');
+  glow.className = 'mouse-glow-follower';
+  glow.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(glow);
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  let cx = mx, cy = my;
+  document.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
+  const tick = () => {
+    cx += (mx - cx) * 0.08;
+    cy += (my - cy) * 0.08;
+    glow.style.transform = `translate(${Math.round(cx)}px,${Math.round(cy)}px)`;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }

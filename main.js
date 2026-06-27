@@ -3543,6 +3543,47 @@ function initKickerHoverGlow() {
   });
 }
 
+/* Sprint 52 — custom scrollbar, card focus ring, section counter ------------ */
+
+function initCustomScrollbar() {
+  if (!('CSS' in window) || !CSS.supports('scrollbar-width', 'thin')) {
+    document.documentElement.classList.add('custom-scrollbar');
+  } else {
+    document.documentElement.classList.add('custom-scrollbar');
+  }
+}
+
+function initCardFocusRing() {
+  document.querySelectorAll('.bento-card, .pricing-card, .btn, .nav-link, .faq-question').forEach((el) => {
+    el.classList.add('focus-ring-enhanced');
+  });
+}
+
+function initSectionCounter() {
+  if (window.matchMedia('(max-width: 767px)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section, .hero');
+  if (sections.length < 2) return;
+  const counter = document.createElement('div');
+  counter.className = 'section-counter';
+  counter.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(counter);
+  const total = String(sections.length).padStart(2, '0');
+  const update = (i) => {
+    counter.textContent = `${String(i + 1).padStart(2, '0')} / ${total}`;
+    counter.classList.remove('counter-pop');
+    void counter.offsetWidth;
+    counter.classList.add('counter-pop');
+    counter.addEventListener('animationend', () => counter.classList.remove('counter-pop'), { once: true });
+  };
+  sections.forEach((section, i) => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) update(i); });
+    }, { threshold: 0.35 });
+    io.observe(section);
+  });
+  update(0);
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3586,6 +3627,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initContactItemSparkle, initQRScanline, initScrollEchoLines,
     initAuroraBg, initProcessChainBounce, initSecondaryBtnRipple,
     initParallaxBentoCards, initTimeOfDayTint, initKickerHoverGlow,
+    initCustomScrollbar, initCardFocusRing, initSectionCounter,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

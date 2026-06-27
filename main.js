@@ -1534,6 +1534,27 @@ function initPageIntro() {
 }
 
 /* -------------------------------------------------------------------------
+   ACTIVE NAV — highlights the nav link for the section currently in view.
+   Uses a narrow rootMargin viewport band so only one section wins at a time.
+   ------------------------------------------------------------------------- */
+function initActiveNav() {
+  const links = Array.from(document.querySelectorAll('.nav-links a[href^="#"]'));
+  if (!links.length) return;
+  const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  if (!sections.length) return;
+
+  const setActive = (id) => links.forEach(a =>
+    a.classList.toggle('is-active', a.getAttribute('href') === '#' + id)
+  );
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) setActive(entry.target.id); });
+  }, { rootMargin: '-28% 0px -68% 0px' });
+
+  sections.forEach(s => io.observe(s));
+}
+
+/* -------------------------------------------------------------------------
    SCROLL PROGRESS — thin teal bar at the top edge that fills as you scroll
    ------------------------------------------------------------------------- */
 function initScrollProgress() {
@@ -1607,7 +1628,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
     initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,
-    initScrollProgress, initMagneticButtons, initHeadingReveal,
+    initScrollProgress, initMagneticButtons, initHeadingReveal, initActiveNav,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

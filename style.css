@@ -5244,3 +5244,64 @@ svg path.draw-path, svg .draw-path {
 }
 .btn-liquid-fill:hover::before { transform: translateY(0); }
 @media (prefers-reduced-motion: reduce) { .btn-liquid-fill::before { display: none; } }
+
+/* Sprint 89 — aurora bg section, underline morph, scroll scale text ---------- */
+
+.aurora-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes aurora-drift-1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(8%,5%) scale(1.12); }
+}
+@keyframes aurora-drift-2 {
+  0%,100% { transform: translate(0,0) scale(1.1); }
+  50%     { transform: translate(-6%,8%) scale(0.95); }
+}
+@keyframes aurora-drift-3 {
+  0%,100% { transform: translate(0,0) scale(0.95); }
+  50%     { transform: translate(4%,-6%) scale(1.08); }
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+}
+.aurora-blob--1 {
+  width: 60vw; height: 60vw;
+  top: -15%; left: -10%;
+  background: radial-gradient(circle, #00d4c8, #7b5cfa);
+  animation: aurora-drift-1 14s ease-in-out infinite;
+}
+.aurora-blob--2 {
+  width: 50vw; height: 50vw;
+  top: 10%; right: -15%;
+  background: radial-gradient(circle, #7b5cfa, #ff6b6b);
+  animation: aurora-drift-2 18s ease-in-out infinite;
+}
+.aurora-blob--3 {
+  width: 40vw; height: 40vw;
+  bottom: -10%; left: 30%;
+  background: radial-gradient(circle, #00d4c8, #0fa);
+  animation: aurora-drift-3 12s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .aurora-blob { animation: none; } }
+
+.underline-morph-link {
+  text-decoration: none;
+  background-image: linear-gradient(90deg, #00d4c8, #7b5cfa);
+  background-size: 0% 2px;
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  transition: background-size 0.35s ease;
+  padding-bottom: 1px;
+}
+.underline-morph-link:hover { background-size: 100% 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .underline-morph-link { background-image: none; text-decoration: underline; }
+}

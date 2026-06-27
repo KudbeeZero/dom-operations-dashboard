@@ -3725,6 +3725,65 @@ document.addEventListener('DOMContentLoaded', () => {
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
   }
+
+  // Safety net: sections accumulate scroll-curtain-lift, scroll-blur-panel, and
+  // other scroll-reveal classes from 145+ sprints. CSS `animation` is non-additive
+  // — only the last --active animation in the cascade runs; the others' hidden
+  // pre-states (opacity:0, blur, clip-path) never clear. Sections also have
+  // overflow:hidden which prevents child IO observers from firing.
+  // Strategy:
+  //   1. On scroll: immediately reveal hidden elements in/near the viewport.
+  //   2. Sweep: every 600ms reveal hidden elements that are now above the fold
+  //      (user has scrolled past them) — catches elements missed by timing.
+  //   3. Flush: at 3s and 6s after load, reveal ALL remaining hidden elements
+  //      regardless of position so nothing stays stuck forever.
+  (function revealSafetyNet() {
+    const SCROLL_RE = /^(scroll-|fade-up-reveal$|clip-slide$|elastic-scale$|word-wave$|stagger-chars$|text-stroke-fill$)/;
+
+    function isHidden(cs) {
+      return parseFloat(cs.opacity) < 0.5
+        || cs.visibility === 'hidden'
+        || (cs.clipPath !== 'none' && cs.clipPath !== '')
+        || cs.filter.includes('blur');
+    }
+
+    function bypass(el) {
+      el.classList.add('reveal-bypass');
+    }
+
+    // Scan with optional viewport gate. inViewOnly=true → only near-viewport elements.
+    function scan(inViewOnly) {
+      const vh = window.innerHeight;
+      const scrollY = window.scrollY;
+      document.querySelectorAll('[class]').forEach((el) => {
+        if (el.classList.contains('reveal-bypass')) return;
+        const has = [...el.classList].some((c) => SCROLL_RE.test(c) && !c.includes('--'));
+        if (!has) return;
+        if (inViewOnly) {
+          const r = el.getBoundingClientRect();
+          if (r.width < 1 || r.height < 1) return;
+          // Include element if it overlaps the viewport or is above it (already scrolled past)
+          if (r.top > vh + 120) return;
+        }
+        if (isHidden(getComputedStyle(el))) bypass(el);
+      });
+    }
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { scan(true); ticking = false; });
+    }, { passive: true });
+
+    // Initial viewport check
+    setTimeout(() => scan(true), 400);
+    // Sweep: catch elements above fold as user scrolls
+    const sweepId = setInterval(() => scan(true), 600);
+    // Flush: force-reveal everything still stuck regardless of scroll position
+    setTimeout(() => { scan(false); clearInterval(sweepId); }, 3000);
+    setTimeout(() => scan(false), 6000);
+  }());
 });
 
 /* Sprint 53 — neon flicker text, card stack depth, scroll progress ring ------ */

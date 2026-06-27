@@ -3641,6 +3641,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavHoverScale, initScrollBlobTrack, initScrollActiveBorder,    // Sprint 63
     initBlobCursorBlend, initSectionWatermark, initNavMorphPill,       // Sprint 64
     initBorderBeamBtn, initScrollRippleSection, initStatGlowReveal,    // Sprint 65
+    initCharWaveReveal, initBtnFillHover, initProgressiveTextReveal,   // Sprint 66
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4381,5 +4382,55 @@ function initStatGlowReveal() {
       });
     }, { threshold: 0.5 });
     io.observe(stat);
+  });
+}
+
+/* Sprint 66 — char wave reveal, btn fill hover, progressive text reveal ----- */
+
+function initCharWaveReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section h2, .ba-section h2, .section h3').forEach((el) => {
+    if (el.querySelector('span') || el.dataset.charWave) return;
+    el.dataset.charWave = '1';
+    const text = el.textContent;
+    el.innerHTML = text.split('').map((ch, i) =>
+      `<span class="char-wave-char" style="--ci:${i}" aria-hidden="true">${ch === ' ' ? '&nbsp;' : ch}</span>`
+    ).join('');
+    el.setAttribute('aria-label', text);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('char-wave-reveal--in');
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+function initBtnFillHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  document.querySelectorAll('.btn-secondary, .btn-outline, a.btn:not(.btn-primary)').forEach((btn) => {
+    btn.classList.add('btn-fill-hover');
+  });
+}
+
+function initProgressiveTextReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section p, .ba-section p').forEach((p) => {
+    if (p.dataset.progReveal || p.children.length) return;
+    p.dataset.progReveal = '1';
+    const words = p.textContent.trim().split(/\s+/);
+    p.innerHTML = words.map((w, i) =>
+      `<span class="prog-word" style="--wi:${i}">${w}</span>`
+    ).join(' ');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(p);
+        p.classList.add('prog-text-reveal--in');
+      });
+    }, { threshold: 0.2 });
+    io.observe(p);
   });
 }

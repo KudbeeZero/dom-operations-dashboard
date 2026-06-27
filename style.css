@@ -4296,3 +4296,60 @@ nav a, .nav a, .nav-link {
 @media (prefers-reduced-motion: reduce) {
   .stat-glow-reveal { filter: none; opacity: 1; transform: none; }
 }
+
+/* Sprint 66 — char wave reveal, btn fill hover, progressive text reveal ----- */
+
+/* Character wave reveal — chars slide up with staggered delay */
+.char-wave-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.5em);
+  transition: none;
+}
+.char-wave-reveal--in .char-wave-char {
+  animation: char-wave-in 0.5s cubic-bezier(0.22,1,0.36,1) calc(var(--ci) * 0.025s) both;
+}
+@keyframes char-wave-in {
+  from { opacity: 0; transform: translateY(0.5em); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .char-wave-char { opacity: 1; transform: none; }
+}
+
+/* Button fill hover — slide fill from left on secondary/outline buttons */
+.btn-fill-hover {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+.btn-fill-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,212,200,0.15);
+  transform: translateX(-101%);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+  z-index: -1;
+  border-radius: inherit;
+}
+.btn-fill-hover:hover::before { transform: translateX(0); }
+@media (pointer: coarse) { .btn-fill-hover::before { display: none; } }
+
+/* Progressive text reveal — words fade + rise by index */
+.prog-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: none;
+}
+.prog-text-reveal--in .prog-word {
+  animation: prog-word-in 0.45s ease calc(var(--wi) * 0.018s) both;
+}
+@keyframes prog-word-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .prog-word { opacity: 1; transform: none; }
+}

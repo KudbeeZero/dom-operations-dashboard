@@ -3701,6 +3701,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollCurtainLift, initHoverBorderDash, initBgGridPulse,            // Sprint 123
     initScrollWaveText, initHoverNeonGlow, initBgConstellation,             // Sprint 124
     initScrollStackReveal, initHoverShimmerBorder, initBgMatrixRain,        // Sprint 125
+    initScrollMorphPath, initHoverLiquidBtn, initBgGradientFlow,            // Sprint 126
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8170,4 +8171,57 @@ function initBgMatrixRain() {
     requestAnimationFrame(draw);
   };
   draw();
+}
+
+/* Sprint 126 — scroll morph path, hover liquid btn, bg gradient flow */
+
+function initScrollMorphPath() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.section-title, h2, h3, [data-morph-path]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.morphPath) return;
+    el.dataset.morphPath = '1';
+    el.classList.add('scroll-morph-path');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-morph-path--active');
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+function initHoverLiquidBtn() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const btns = document.querySelectorAll('.btn, button, [data-liquid-btn]');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.liquidBtn) return;
+    btn.dataset.liquidBtn = '1';
+    btn.classList.add('hover-liquid-btn');
+    btn.addEventListener('mouseenter', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+      btn.style.setProperty('--lbx', x + '%');
+      btn.style.setProperty('--lby', y + '%');
+      btn.classList.add('hover-liquid-btn--active');
+    }, { passive: true });
+    btn.addEventListener('mouseleave', () => {
+      btn.classList.remove('hover-liquid-btn--active');
+    }, { passive: true });
+  });
+}
+
+function initBgGradientFlow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-gradient-flow')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-gradient-flow';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
 }

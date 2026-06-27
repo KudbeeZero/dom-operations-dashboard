@@ -7003,3 +7003,64 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-matrix-rain { display: none; }
 }
+
+/* Sprint 126 — scroll morph path, hover liquid btn, bg gradient flow */
+
+@keyframes morph-path-in {
+  0%   { opacity: 0; clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); }
+  50%  { opacity: 1; clip-path: polygon(0 0%, 100% 5%, 100% 95%, 0 100%); }
+  100% { clip-path: polygon(0 0%, 100% 0%, 100% 100%, 0 100%); }
+}
+.scroll-morph-path { opacity: 0; }
+.scroll-morph-path--active {
+  animation: morph-path-in 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-morph-path { opacity: 1; }
+  .scroll-morph-path--active { animation: none; }
+}
+
+.hover-liquid-btn {
+  position: relative;
+  overflow: hidden;
+  transition: color 0.3s ease;
+  z-index: 0;
+}
+.hover-liquid-btn::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at var(--lbx, 50%) var(--lby, 50%), rgba(0,212,200,0.35) 0%, transparent 60%);
+  top: -50%;
+  left: -50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: -1;
+}
+.hover-liquid-btn--active::before {
+  opacity: 1;
+}
+
+@keyframes gradient-flow-move {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.bg-gradient-flow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -7;
+  opacity: 0.05;
+  background: linear-gradient(
+    60deg,
+    #00d4c8, #7b5cfa, #ff6b9d, #ffd93d, #00d4c8, #7b5cfa
+  );
+  background-size: 500% 500%;
+  animation: gradient-flow-move 20s ease infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-gradient-flow { animation: none; background-position: 0% 50%; }
+}

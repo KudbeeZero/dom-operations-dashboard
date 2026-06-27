@@ -3439,6 +3439,65 @@ function initScrollEchoLines() {
   }, { passive: true });
 }
 
+/* Sprint 50 — aurora bg, process chain bounce, secondary btn hover ripple ----- */
+
+function initAuroraBg() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.querySelector('.hero, #hero, .hero-section');
+  if (!hero) return;
+  hero.style.overflow = hero.style.overflow || 'hidden';
+  const colors = [
+    'rgba(0,212,200,0.07)',
+    'rgba(120,40,200,0.05)',
+    'rgba(0,180,220,0.06)',
+  ];
+  colors.forEach((color, i) => {
+    const band = document.createElement('div');
+    band.className = `aurora-band aurora-band--${i}`;
+    band.setAttribute('aria-hidden', 'true');
+    band.style.setProperty('--ab-color', color);
+    band.style.setProperty('--ab-dur', `${14 + i * 4}s`);
+    band.style.setProperty('--ab-delay', `${i * -3}s`);
+    hero.insertBefore(band, hero.firstChild);
+  });
+}
+
+function initProcessChainBounce() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  const steps = document.querySelectorAll('.process-step, .step');
+  if (!steps.length) return;
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      steps.forEach((step, i) => {
+        setTimeout(() => {
+          step.classList.add('step-chain-bounce');
+          step.addEventListener('animationend', () => step.classList.remove('step-chain-bounce'), { once: true });
+        }, i * 180);
+      });
+    });
+  }, { threshold: 0.25 });
+  if (steps[0]) io.observe(steps[0]);
+}
+
+function initSecondaryBtnRipple() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.btn-secondary, .btn-outline, .btn-ghost').forEach((btn) => {
+    btn.style.position = btn.style.position || 'relative';
+    btn.style.overflow = btn.style.overflow || 'hidden';
+    btn.addEventListener('mouseenter', () => {
+      const ring = document.createElement('span');
+      ring.className = 'btn-hover-ring';
+      ring.setAttribute('aria-hidden', 'true');
+      btn.appendChild(ring);
+      ring.addEventListener('animationend', () => ring.remove(), { once: true });
+    });
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3480,6 +3539,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBentoCardShine, initNavDotIndicator, initPricingGridGlow,
     initPricingCardParticles, initAboutSectionPulse, initFooterLinkGlow,
     initContactItemSparkle, initQRScanline, initScrollEchoLines,
+    initAuroraBg, initProcessChainBounce, initSecondaryBtnRipple,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

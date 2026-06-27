@@ -3550,3 +3550,53 @@ body::after {
   100% { opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .scroll-echo { display: none; } }
+
+/* Sprint 50 — aurora bg, process chain bounce, secondary btn hover ripple ----- */
+
+/* Aurora background bands in hero section */
+.aurora-band {
+  position: absolute;
+  left: -20%; right: -20%;
+  height: 55%;
+  background: radial-gradient(ellipse at 50% 100%, var(--ab-color) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(30px);
+  animation: aurora-drift var(--ab-dur) ease-in-out var(--ab-delay) infinite alternate;
+}
+.aurora-band--0 { top: 5%; }
+.aurora-band--1 { top: 20%; animation-direction: alternate-reverse; }
+.aurora-band--2 { top: -10%; }
+@keyframes aurora-drift {
+  0%   { transform: translateX(-10%) scaleY(0.8); opacity: 0.6; }
+  50%  { transform: translateX(5%) scaleY(1.1); opacity: 1; }
+  100% { transform: translateX(15%) scaleY(0.9); opacity: 0.7; }
+}
+@media (prefers-reduced-motion: reduce) { .aurora-band { display: none; } }
+
+/* Process step domino chain bounce */
+@keyframes step-chain-bounce {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-12px); }
+  60%  { transform: translateY(4px); }
+  80%  { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+.step-chain-bounce { animation: step-chain-bounce 0.55s cubic-bezier(0.36,0.07,0.19,0.97); }
+@media (prefers-reduced-motion: reduce) { .step-chain-bounce { animation: none; } }
+
+/* Secondary/outline button hover expanding ring */
+.btn-hover-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,212,200,0.6);
+  pointer-events: none;
+  animation: btn-hover-ring-expand 0.7s ease-out forwards;
+}
+@keyframes btn-hover-ring-expand {
+  0%   { transform: translate(-50%,-50%) scale(1); opacity: 0.8; }
+  100% { transform: translate(-50%,-50%) scale(8); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .btn-hover-ring { display: none; } }

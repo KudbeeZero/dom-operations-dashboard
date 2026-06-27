@@ -7985,3 +7985,61 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-gradient-drift { animation: none; }
 }
+
+/* ============================================================
+   Sprint 145 — elastic scale-in scroll, border pulse hover, depth fog bg
+   ============================================================ */
+
+/* --- Elastic Scale-In Scroll --- */
+.elastic-scale {
+  opacity: 0;
+  transform: scale(0.75);
+  transition:
+    opacity 0.5s ease var(--es-delay, 0ms),
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) var(--es-delay, 0ms);
+}
+.elastic-scale--in {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .elastic-scale { opacity: 1; transform: none; }
+}
+
+/* --- Border Pulse Hover --- */
+.hover-border-pulse {
+  position: relative;
+}
+.hover-border-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1.5px solid rgba(0, 212, 200, 0);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  pointer-events: none;
+}
+.hover-border-pulse:hover::before {
+  border-color: rgba(0, 212, 200, 0.7);
+  box-shadow: 0 0 12px rgba(0, 212, 200, 0.3), inset 0 0 8px rgba(0, 212, 200, 0.08);
+  animation: border-pulse-ring 1.4s ease-in-out infinite;
+}
+@keyframes border-pulse-ring {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 212, 200, 0.3); }
+  50%       { box-shadow: 0 0 20px rgba(0, 212, 200, 0.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-border-pulse:hover::before { animation: none; }
+}
+
+/* --- Depth Fog Background --- */
+.bg-depth-fog {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35vh;
+  z-index: -4;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, transparent 100%);
+}

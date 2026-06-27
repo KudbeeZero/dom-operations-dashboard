@@ -390,6 +390,51 @@
     </div>
   </section>
 
+  <!-- ============================== TRY IT ============================== -->
+  <section id="try" class="try-section section">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="section-kicker">See It In Action</span>
+        <h2 class="section-title">Drop your mess here.</h2>
+        <p class="section-lead">Type something chaotic. See what comes back clean.</p>
+      </header>
+
+      <div class="try-demo reveal">
+        <div class="try-input-side">
+          <div class="try-side-label">You send <span class="try-side-icon">→</span></div>
+          <textarea
+            id="tryInput"
+            class="try-input"
+            rows="7"
+            placeholder="Paste a rough email, meeting notes, or messy draft… anything goes."
+            aria-label="Enter your messy text to clean up"
+            spellcheck="false"
+          ></textarea>
+          <button id="tryBtn" class="btn btn-primary try-cta" aria-label="Clean my text">
+            Clean It <span class="try-arrow" aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        <div class="try-divider-line" aria-hidden="true"></div>
+
+        <div class="try-output-side">
+          <div class="try-side-label">You get back <span class="try-side-icon">✓</span></div>
+          <div
+            id="tryOutput"
+            class="try-output"
+            aria-live="polite"
+            aria-label="Cleaned result"
+          >
+            <p class="try-placeholder">Your cleaned result will appear here…</p>
+          </div>
+          <a href="sms:7736477598" class="try-cta-link" id="tryCta" aria-hidden="true">
+            Want the real thing? Text Dominick →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============================== PRICING ============================== -->
   <section id="pricing" class="section section-alt">
     <div class="container">

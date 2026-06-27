@@ -3653,6 +3653,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSpringClickEffect, initScrollTextParallax, initGlobalFocusGlow, // Sprint 75
     initSVGPathDraw, initPerspectiveReveal, initTooltipHover,          // Sprint 76
     initScrollElevation, initFeatureIconPulse, initGlowHoverText,      // Sprint 77
+    initRadialReveal, initLazyImageFade, initScrollFogEffect,          // Sprint 78
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5049,5 +5050,62 @@ function initGlowHoverText() {
   if (!window.matchMedia('(pointer: fine)').matches) return;
   document.querySelectorAll('.glow-hover-text, .section-kicker, .hero-badge').forEach((el) => {
     el.classList.add('glow-hover-text-elem');
+  });
+}
+
+/* Sprint 78 — radial reveal, lazy image fade, scroll fog effect --------------- */
+
+function initRadialReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.bento-card, .pricing-card, .service-card, .feature-card, .testimonial-card, .ba-card'
+  );
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.radialReveal) return;
+    el.dataset.radialReveal = '1';
+    el.style.setProperty('--ri78', i);
+    el.classList.add('radial-reveal-el');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          el.classList.add('radial-reveal-el--visible');
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initLazyImageFade() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const imgs = document.querySelectorAll('img[loading="lazy"]');
+  if (!imgs.length) return;
+  imgs.forEach((img) => {
+    if (img.dataset.lazyFade) return;
+    img.dataset.lazyFade = '1';
+    if (!img.complete) {
+      img.style.opacity = '0';
+      img.style.transition = 'opacity 0.6s ease';
+      img.addEventListener('load', () => { img.style.opacity = '1'; }, { once: true });
+    }
+  });
+}
+
+function initScrollFogEffect() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section, .bento-section');
+  if (!sections.length) return;
+  sections.forEach((section) => {
+    if (section.dataset.fogEffect) return;
+    section.dataset.fogEffect = '1';
+    section.classList.add('scroll-fog-section');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        section.classList.toggle('scroll-fog-section--visible', e.isIntersecting);
+      });
+    }, { threshold: 0.1 });
+    io.observe(section);
   });
 }

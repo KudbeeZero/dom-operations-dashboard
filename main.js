@@ -3231,6 +3231,46 @@ function initScrollVignette() {
   }, { passive: true });
 }
 
+/* Sprint 46 — floating ghost words, morph blob, service tag hover ----------- */
+
+function initFloatingWords() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.querySelector('.hero, .hero-section, #hero');
+  if (!hero) return;
+  hero.style.overflow = hero.style.overflow || 'hidden';
+  const words = ['CLEAN', 'FAST', 'CLEAR', 'POLISHED', 'READY'];
+  const positions = [10, 25, 60, 75, 45];
+  words.forEach((word, i) => {
+    const el = document.createElement('span');
+    el.className = 'float-word';
+    el.setAttribute('aria-hidden', 'true');
+    el.textContent = word;
+    el.style.setProperty('--fw-x', `${positions[i]}%`);
+    el.style.setProperty('--fw-delay', `${i * 1.8}s`);
+    el.style.setProperty('--fw-dur', `${9 + i * 1.2}s`);
+    hero.insertBefore(el, hero.firstChild);
+  });
+}
+
+function initMorphBlob() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const target = document.querySelector('.about, .about-section, #about');
+  if (!target) return;
+  target.style.position = target.style.position || 'relative';
+  const blob = document.createElement('div');
+  blob.className = 'morph-blob';
+  blob.setAttribute('aria-hidden', 'true');
+  target.insertBefore(blob, target.firstChild);
+}
+
+function initServiceTagHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.format-tag, .bento-tag, .service-tag').forEach((tag) => {
+    tag.classList.add('tag-hover-bounce');
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3268,6 +3308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSectionGlowHalo, initStepIconHover, initCtaPulseRing,
     initHeadlineGlitch, initQROrbitRings, initSectionH2Underline,
     initClickSpark, initSliderHandleGlow, initScrollVignette,
+    initFloatingWords, initMorphBlob, initServiceTagHover,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

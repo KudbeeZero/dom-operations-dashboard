@@ -6034,3 +6034,38 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .typewriter-cursor { animation: none; opacity: 1; }
 }
+
+/* Sprint 107 — scroll wave reveal, hover floating label, btn magnetic pull */
+
+@keyframes wave-child-in {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.wave-reveal-child { opacity: 0; }
+.wave-reveal--active .wave-reveal-child {
+  animation: wave-child-in 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: calc(var(--wrc-i) * 80ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-reveal-child { opacity: 1; }
+  .wave-reveal--active .wave-reveal-child { animation: none; }
+}
+
+.float-label-input {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.float-label-input:focus,
+.float-label-input--filled {
+  border-color: #00d4c8;
+  box-shadow: 0 0 0 3px rgba(0,212,200,0.15);
+  outline: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .float-label-input { transition: none; }
+}
+
+.btn[data-magnetic],
+.cta-btn[data-magnetic] {
+  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1);
+  will-change: transform;
+}

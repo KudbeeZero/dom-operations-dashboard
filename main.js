@@ -3682,6 +3682,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollFlipReveal, initHoverIconSpin, initBgAuroraDrift,             // Sprint 104
     initScrollStaggerGrid, initHoverCardShimmer, initSectionCountUp,        // Sprint 105
     initScrollZoomFade, initHoverBorderGlowPulse, initTypewriterCursor,     // Sprint 106
+    initScrollWaveReveal, initHoverFloatingLabel, initBtnMagneticPull,      // Sprint 107
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6978,4 +6979,79 @@ function initTypewriterCursor() {
   cursor.setAttribute('aria-hidden', 'true');
   cursor.textContent = '|';
   el.appendChild(cursor);
+}
+
+/* Sprint 107 — scroll wave reveal, hover floating label, btn magnetic pull */
+
+function initScrollWaveReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rows = document.querySelectorAll(
+    '.row, .flex-row, [data-wave-reveal]'
+  );
+  if (!rows.length) return;
+  rows.forEach((row) => {
+    if (row.dataset.waveReveal2) return;
+    row.dataset.waveReveal2 = '1';
+    const children = Array.from(row.children);
+    children.forEach((child, i) => {
+      if (child.dataset.waveChild) return;
+      child.dataset.waveChild = '1';
+      child.classList.add('wave-reveal-child');
+      child.style.setProperty('--wrc-i', String(i));
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(row);
+        row.classList.add('wave-reveal--active');
+      });
+    }, { threshold: 0.15 });
+    io.observe(row);
+  });
+}
+
+function initHoverFloatingLabel() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const inputs = document.querySelectorAll(
+    'input[type="text"], input[type="email"], input[type="tel"], textarea, [data-float-label]'
+  );
+  if (!inputs.length) return;
+  inputs.forEach((input) => {
+    if (input.dataset.floatLabel) return;
+    const wrap = input.parentElement;
+    if (!wrap) return;
+    input.dataset.floatLabel = '1';
+    input.classList.add('float-label-input');
+    const check = () => {
+      if (input.value || document.activeElement === input) {
+        input.classList.add('float-label-input--filled');
+      } else {
+        input.classList.remove('float-label-input--filled');
+      }
+    };
+    input.addEventListener('focus', check, { passive: true });
+    input.addEventListener('blur', check, { passive: true });
+    input.addEventListener('input', check, { passive: true });
+    check();
+  });
+}
+
+function initBtnMagneticPull() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const btns = document.querySelectorAll('.btn, .cta-btn, [data-magnetic]');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.magnetic) return;
+    btn.dataset.magnetic = '1';
+    btn.addEventListener('mousemove', (e) => {
+      const r = btn.getBoundingClientRect();
+      const dx = (e.clientX - (r.left + r.width  / 2)) * 0.25;
+      const dy = (e.clientY - (r.top  + r.height / 2)) * 0.25;
+      btn.style.transform = `translate(${dx}px, ${dy}px)`;
+    }, { passive: true });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    }, { passive: true });
+  });
 }

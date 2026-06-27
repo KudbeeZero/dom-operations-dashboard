@@ -3677,6 +3677,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollRevealScale, initHoverTilt3D, initNeonLineDraw,               // Sprint 99
     initCinematicScrollWipe, initHeroParticleBurst, initCascadeReveal,      // Sprint 100
     initScrollFadeBlur, initHoverColorPop, initBtnGlowPulse,               // Sprint 101
+    initScrollSkewEntry, initImageParallaxLayer, initHoverUnderlineExpand,  // Sprint 102
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6662,5 +6663,73 @@ function initBtnGlowPulse() {
     if (btn.dataset.glowPulse) return;
     btn.dataset.glowPulse = '1';
     btn.classList.add('btn-glow-pulse');
+  });
+}
+
+/* Sprint 102 — scroll skew entry, image parallax layer, hover underline expand */
+
+function initScrollSkewEntry() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.card, .service-card, [data-skew-entry]'
+  );
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.skewEntry) return;
+    el.dataset.skewEntry = '1';
+    el.classList.add('scroll-skew-entry');
+    el.style.setProperty('--ske-dir', i % 2 === 0 ? '1' : '-1');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-skew-entry--active');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initImageParallaxLayer() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const images = document.querySelectorAll(
+    '.hero img, .ba-card img, figure img, [data-parallax-img]'
+  );
+  if (!images.length) return;
+  images.forEach((img) => {
+    if (img.dataset.parallaxLayer) return;
+    img.dataset.parallaxLayer = '1';
+    img.classList.add('img-parallax-layer');
+    const update = () => {
+      const r = img.getBoundingClientRect();
+      const mid = window.innerHeight / 2;
+      const offset = (r.top + r.height / 2 - mid) * 0.08;
+      img.style.transform = `translateY(${offset}px) scale(1.06)`;
+    };
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          window.addEventListener('scroll', update, { passive: true });
+          update();
+        } else {
+          window.removeEventListener('scroll', update);
+          img.style.transform = '';
+        }
+      });
+    }, { rootMargin: '100px 0px' });
+    io.observe(img);
+  });
+}
+
+function initHoverUnderlineExpand() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const links = document.querySelectorAll(
+    'a:not(.btn):not(.cta-btn), nav a, .nav-link, [data-underline-expand]'
+  );
+  if (!links.length) return;
+  links.forEach((el) => {
+    if (el.dataset.underlineExpand) return;
+    el.dataset.underlineExpand = '1';
+    el.classList.add('hover-underline-expand');
   });
 }

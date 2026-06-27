@@ -3685,6 +3685,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollWaveReveal, initHoverFloatingLabel, initBtnMagneticPull,      // Sprint 107
     initScrollBounceIn, initHoverTextOutline, initSectionNoiseLayer,        // Sprint 108
     initScrollPendulumSwing, initHoverNeonBadge, initBgStarfield,           // Sprint 109
+    initScrollDoorOpen, initHoverCardDepthRing, initTextShimmerWave,        // Sprint 110
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7196,4 +7197,61 @@ function initBgStarfield() {
     requestAnimationFrame(tick);
   };
   tick();
+}
+
+/* Sprint 110 — scroll door open, hover card depth ring, text shimmer wave */
+
+function initScrollDoorOpen() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section, [data-door-open]');
+  if (!sections.length) return;
+  sections.forEach((section) => {
+    if (section.dataset.doorOpen) return;
+    section.dataset.doorOpen = '1';
+    section.style.position = section.style.position || 'relative';
+    section.style.overflow = section.style.overflow || 'hidden';
+    const left = document.createElement('div');
+    const right = document.createElement('div');
+    left.className = 'door-panel door-panel--left';
+    right.className = 'door-panel door-panel--right';
+    left.setAttribute('aria-hidden', 'true');
+    right.setAttribute('aria-hidden', 'true');
+    section.insertAdjacentElement('afterbegin', left);
+    section.insertAdjacentElement('afterbegin', right);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(section);
+        section.classList.add('door-open--active');
+        const cleanup = () => { left.remove(); right.remove(); };
+        left.addEventListener('animationend', cleanup, { once: true });
+      });
+    }, { threshold: 0.2 });
+    io.observe(section);
+  });
+}
+
+function initHoverCardDepthRing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const cards = document.querySelectorAll('.card, .service-card, .ba-card, [data-depth-ring]');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.depthRing) return;
+    card.dataset.depthRing = '1';
+    card.classList.add('hover-card-depth-ring');
+  });
+}
+
+function initTextShimmerWave() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.hero-subtitle, .section-subtitle, [data-shimmer-wave]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.shimmerWave) return;
+    el.dataset.shimmerWave = '1';
+    el.classList.add('text-shimmer-wave');
+  });
 }

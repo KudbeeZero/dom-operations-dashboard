@@ -3661,6 +3661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNoiseTextureOverlay, initBtnRipple, initHeroScrollBlur,       // Sprint 83
     initFloatingLabelInput, initFadeUpReveal, initCursorTrail,        // Sprint 84
     initTextScrambleHover, initBtnBorderDraw, initScrollBandReveal,   // Sprint 85
+    initSpotlightHover, initScrollInkBlot, initWordPopIn,             // Sprint 86
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5576,5 +5577,77 @@ function initScrollBandReveal() {
       });
     }, { threshold: 0.08 });
     io.observe(section);
+  });
+}
+
+/* Sprint 86 — spotlight hover, scroll ink blot, word pop-in ----------------- */
+
+function initSpotlightHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const panels = document.querySelectorAll(
+    '.bento-card, .pricing-card, .feature-card, .testimonial-card, .service-card'
+  );
+  if (!panels.length) return;
+  panels.forEach((panel) => {
+    if (panel.dataset.spotlight) return;
+    panel.dataset.spotlight = '1';
+    panel.classList.add('spotlight-panel');
+    panel.addEventListener('mousemove', (e) => {
+      const rect = panel.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+      panel.style.setProperty('--sx', `${x}%`);
+      panel.style.setProperty('--sy', `${y}%`);
+      panel.classList.add('spotlight-panel--active');
+    });
+    panel.addEventListener('mouseleave', () => {
+      panel.classList.remove('spotlight-panel--active');
+    });
+  });
+}
+
+function initScrollInkBlot() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const markers = document.querySelectorAll(
+    '.section-kicker, .kicker, .hero-badge, .badge, [data-ink]'
+  );
+  if (!markers.length) return;
+  markers.forEach((el) => {
+    if (el.dataset.inkBlot) return;
+    el.dataset.inkBlot = '1';
+    el.classList.add('ink-blot-el');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('ink-blot-el--reveal');
+      });
+    }, { threshold: 0.6 });
+    io.observe(el);
+  });
+}
+
+function initWordPopIn() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll('.hero-title, h2, h3');
+  if (!targets.length) return;
+  targets.forEach((el) => {
+    if (el.dataset.wordPop) return;
+    el.dataset.wordPop = '1';
+    const words = el.innerHTML.split(/(\s+)/);
+    el.innerHTML = words.map((w, i) =>
+      /^\s+$/.test(w)
+        ? w
+        : `<span class="word-pop" style="--wpi:${i}">${w}</span>`
+    ).join('');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.querySelectorAll('.word-pop').forEach((span) => span.classList.add('word-pop--visible'));
+      });
+    }, { threshold: 0.3 });
+    io.observe(el);
   });
 }

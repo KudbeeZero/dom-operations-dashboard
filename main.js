@@ -3699,6 +3699,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollLensZoom, initHoverSpotlight, initBgVhsNoise,                 // Sprint 121
     initScrollTypewriterV2, initHoverColorShift, initBgPlasma,              // Sprint 122
     initScrollCurtainLift, initHoverBorderDash, initBgGridPulse,            // Sprint 123
+    initScrollWaveText, initHoverNeonGlow, initBgConstellation,             // Sprint 124
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8013,4 +8014,92 @@ function initBgGridPulse() {
   el.className = 'bg-grid-pulse';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 124 — scroll wave text, hover neon glow, bg constellation */
+
+function initScrollWaveText() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.section-title, h2, [data-wave-text]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.waveText) return;
+    el.dataset.waveText = '1';
+    const text = el.textContent.trim();
+    el.textContent = '';
+    el.setAttribute('aria-label', text);
+    text.split('').forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.textContent = ch === ' ' ? ' ' : ch;
+      span.className = 'wave-text-char';
+      span.style.setProperty('--wtc-i', i);
+      span.setAttribute('aria-hidden', 'true');
+      el.appendChild(span);
+    });
+    el.classList.add('scroll-wave-text');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-wave-text--active');
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+function initHoverNeonGlow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.btn, [data-neon-glow]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.neonGlow) return;
+    el.dataset.neonGlow = '1';
+    el.classList.add('hover-neon-glow');
+  });
+}
+
+function initBgConstellation() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-constellation')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-constellation';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const stars = Array.from({ length: 60 }, () => ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random() - 0.5) * 0.0002, vy: (Math.random() - 0.5) * 0.0002,
+  }));
+  const draw = () => {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    stars.forEach((s) => {
+      s.x = (s.x + s.vx + 1) % 1;
+      s.y = (s.y + s.vy + 1) % 1;
+    });
+    stars.forEach((a, i) => {
+      stars.forEach((b, j) => {
+        if (j <= i) return;
+        const dx = (a.x - b.x) * w, dy = (a.y - b.y) * h;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 120) return;
+        ctx.beginPath();
+        ctx.moveTo(a.x * w, a.y * h);
+        ctx.lineTo(b.x * w, b.y * h);
+        ctx.strokeStyle = `rgba(0,212,200,${0.12 * (1 - dist / 120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      });
+      ctx.beginPath();
+      ctx.arc(a.x * w, a.y * h, 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,212,200,0.4)';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  };
+  draw();
 }

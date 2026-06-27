@@ -6898,3 +6898,47 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-grid-pulse { animation: none; opacity: 0.03; }
 }
+
+/* Sprint 124 — scroll wave text, hover neon glow, bg constellation */
+
+@keyframes wave-char-in {
+  0%   { opacity: 0; transform: translateY(20px) rotate(-5deg); }
+  60%  { opacity: 1; transform: translateY(-3px) rotate(1deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+.scroll-wave-text { display: inline-block; }
+.wave-text-char {
+  display: inline-block;
+  opacity: 0;
+}
+.scroll-wave-text--active .wave-text-char {
+  animation: wave-char-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  animation-delay: calc(var(--wtc-i, 0) * 35ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-text-char { opacity: 1; }
+  .scroll-wave-text--active .wave-text-char { animation: none; }
+}
+
+.hover-neon-glow {
+  transition: box-shadow 0.3s ease, text-shadow 0.3s ease;
+}
+.hover-neon-glow:hover {
+  box-shadow:
+    0 0 8px rgba(0,212,200,0.8),
+    0 0 20px rgba(0,212,200,0.5),
+    0 0 40px rgba(0,212,200,0.25);
+  text-shadow:
+    0 0 6px rgba(0,212,200,0.9),
+    0 0 12px rgba(0,212,200,0.5);
+}
+
+.bg-constellation {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-constellation { display: none; }
+}

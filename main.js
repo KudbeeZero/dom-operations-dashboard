@@ -2449,8 +2449,8 @@ function initFloatingCTA() {
   );
   document.body.appendChild(btn);
 
-  let heroGone = false, atContact = false;
-  const update = () => btn.classList.toggle('float-cta-visible', heroGone && !atContact);
+  let heroGone = false, atContact = false, atFooter = false;
+  const update = () => btn.classList.toggle('float-cta-visible', heroGone && !atContact && !atFooter);
 
   new IntersectionObserver(
     (e) => { heroGone = !e[0].isIntersecting; update(); },
@@ -2461,6 +2461,14 @@ function initFloatingCTA() {
     (e) => { atContact = e[0].isIntersecting; update(); },
     { threshold: 0.25 }
   ).observe(contact);
+
+  const footer = document.querySelector('footer');
+  if (footer) {
+    new IntersectionObserver(
+      (e) => { atFooter = e[0].isIntersecting; update(); },
+      { threshold: 0.05 }
+    ).observe(footer);
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -3767,7 +3775,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Matches both animation-based (scroll-*) and transition-based reveal classes
     // (-reveal, -reveal-elem, -reveal-el suffixes) so cards using CSS transitions
     // are detected by scan() and stripped in Phase 2.
-    const SCROLL_RE = /^scroll-|-reveal(-elem|-el)?$|^(clip-slide|elastic-scale|word-wave|stagger-chars|text-stroke-fill)$/;
+    // img-clip-hidden included so the footer logo (clipped 100%) is unclipped by bypass().
+    const SCROLL_RE = /^scroll-|-reveal(-elem|-el)?$|^(clip-slide|elastic-scale|word-wave|stagger-chars|text-stroke-fill|img-clip-hidden)$/;
     const done = new WeakSet();
 
     // Pre-cache reveal candidates once — avoids querySelectorAll('[class]') on

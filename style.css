@@ -1591,7 +1591,8 @@ button { font: inherit; cursor: pointer; }
 .footer--reef .footer-tag,
 .footer--reef .footer-disclaimer,
 .footer--reef .footer-copy { text-shadow: 0 2px 12px rgba(0,5,8,0.8); }
-.footer--reef .footer-copy { color: rgba(240,237,232,0.45); }
+.footer--reef .footer-copy { color: rgba(240,237,232,0.78); }
+.footer--reef .footer-disclaimer { color: rgba(240,237,232,0.6); }
 
 @media (prefers-reduced-motion: reduce) {
   .reef-rays span { animation: none; }

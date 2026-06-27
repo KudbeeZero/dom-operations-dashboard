@@ -3640,6 +3640,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDotGridBg, initTagCloudHover, initSectionEntrySheen,           // Sprint 62
     initNavHoverScale, initScrollBlobTrack, initScrollActiveBorder,    // Sprint 63
     initBlobCursorBlend, initSectionWatermark, initNavMorphPill,       // Sprint 64
+    initBorderBeamBtn, initScrollRippleSection, initStatGlowReveal,    // Sprint 65
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4325,4 +4326,60 @@ function initNavMorphPill() {
     link.addEventListener('mouseenter', () => moveTo(link));
   });
   nav.addEventListener('mouseleave', () => { pill.style.opacity = '0'; });
+}
+
+/* Sprint 65 — border beam btn, scroll ripple, stat glow reveal ------------- */
+
+function initBorderBeamBtn() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.btn-primary, .cta-btn, .hero-cta').forEach((btn) => {
+    btn.classList.add('border-beam-btn');
+  });
+}
+
+function initScrollRippleSection() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section h2, .ba-section h2').forEach((heading) => {
+    const parent = heading.parentElement;
+    if (!parent) return;
+    const savedPos = getComputedStyle(parent).position;
+    if (savedPos === 'static') parent.style.position = 'relative';
+    const rippleWrap = document.createElement('div');
+    rippleWrap.className = 'scroll-ripple-wrap';
+    rippleWrap.setAttribute('aria-hidden', 'true');
+    for (let i = 0; i < 3; i++) {
+      const ring = document.createElement('div');
+      ring.className = 'scroll-ripple-ring';
+      ring.style.setProperty('--ri', i);
+      rippleWrap.appendChild(ring);
+    }
+    parent.insertBefore(rippleWrap, heading);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(heading);
+        rippleWrap.classList.add('scroll-ripple-wrap--fire');
+        rippleWrap.addEventListener('animationend', () => rippleWrap.remove(), { once: true });
+      });
+    }, { threshold: 0.3 });
+    io.observe(heading);
+  });
+}
+
+function initStatGlowReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const stats = document.querySelectorAll('.hero-stat, .trust-stat, .stat-number, [data-stat]');
+  if (!stats.length) return;
+  stats.forEach((stat, i) => {
+    stat.style.setProperty('--si', i);
+    stat.classList.add('stat-glow-reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(stat);
+        stat.classList.add('stat-glow-reveal--in');
+      });
+    }, { threshold: 0.5 });
+    io.observe(stat);
+  });
 }

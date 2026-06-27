@@ -3135,3 +3135,29 @@ body::after {
   animation: field-shake 0.48s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 @media (prefers-reduced-motion: reduce) { .field.field-shake { animation: none; } }
+
+/* Sprint 41 — nav progress line, showcase tab pop, price label pop ---------- */
+
+/* Nav bottom progress line — fills left-to-right with scroll depth */
+.nav-progress-line {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  width: var(--np, 0%);
+  background: linear-gradient(90deg, var(--teal) 0%, rgba(0,212,200,0.5) 100%);
+  pointer-events: none;
+  transition: width 0.1s linear;
+}
+@media (prefers-reduced-motion: reduce) { .nav-progress-line { display: none; } }
+
+/* Showcase tab click pop */
+@keyframes tab-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.22); }
+  70%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+.showcase-tab.tab-pop {
+  animation: tab-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@media (prefers-reduced-motion: reduce) { .showcase-tab.tab-pop { animation: none; } }

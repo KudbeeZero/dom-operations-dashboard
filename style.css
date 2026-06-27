@@ -4531,3 +4531,67 @@ nav a, .nav a, .nav-link {
   overflow: hidden;
 }
 @media (pointer: coarse), (prefers-reduced-motion: reduce) { .section-hover-glow { display: none; } }
+
+/* Sprint 71 — cursor text label, split dual reveal, scroll flood fill ------ */
+
+/* Cursor text label — follows cursor and shows context hint */
+.cursor-text-label {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 10000;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #0d0d0d;
+  background: rgba(0,212,200,0.9);
+  border-radius: 999px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -200%);
+  transition: opacity 0.2s ease;
+  will-change: transform;
+}
+.cursor-text-label--visible { opacity: 1; }
+@media (pointer: coarse) { .cursor-text-label { display: none; } }
+
+/* Split dual reveal — top/bottom halves slide in from opposite sides */
+.split-dual-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.split-dual-half {
+  position: absolute; left: 0;
+  width: 100%; height: 50%;
+  overflow: hidden;
+  transition: transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+.split-dual-top { top: 0; transform: translateY(-100%); }
+.split-dual-bot { top: 50%; transform: translateY(100%); }
+.split-dual-bot > * { margin-top: -50%; }
+.split-dual-wrap--in .split-dual-top,
+.split-dual-wrap--in .split-dual-bot { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .split-dual-top, .split-dual-bot { transform: none !important; }
+}
+
+/* Scroll flood fill — color rises from bottom on section entry then dissolves */
+.scroll-flood-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,212,200,0.06) 0%, transparent 60%);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  pointer-events: none;
+  z-index: 0;
+}
+.scroll-flood-fill--in {
+  animation: flood-rise 1.2s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@keyframes flood-rise {
+  0%   { transform: scaleY(0); opacity: 1; }
+  60%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .scroll-flood-fill { display: none; } }

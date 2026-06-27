@@ -3646,6 +3646,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHoverCharRepel, initScaleReveal, initAttentionPulse,           // Sprint 68
     initBlobMorphHero, initScrollTimelineBar, initRainbowTextHue,      // Sprint 69
     initDepthParallaxLayers, initTextStrokeReveal, initSectionHoverGlow, // Sprint 70
+    initCursorTextLabel, initSplitDualReveal, initScrollFloodFill,      // Sprint 71
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4680,5 +4681,89 @@ function initSectionHoverGlow() {
       glow.style.opacity = '1';
     });
     section.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+  });
+}
+
+/* Sprint 71 — cursor text label, split dual reveal, scroll flood fill ------ */
+
+function initCursorTextLabel() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const label = document.createElement('div');
+  label.className = 'cursor-text-label';
+  label.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(label);
+  let lx = 0, ly = 0, cx = 0, cy = 0;
+  document.addEventListener('mousemove', (e) => { lx = e.clientX; ly = e.clientY; });
+  const tick = () => {
+    cx += (lx - cx) * 0.15;
+    cy += (ly - cy) * 0.15;
+    label.style.transform = `translate(${Math.round(cx)}px, ${Math.round(cy)}px)`;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  const TEXT_MAP = [
+    ['.bento-card, .pricing-card, .service-card', 'VIEW'],
+    ['img, .before-after, .showcase', 'EXPLORE'],
+    ['input, textarea, select', 'TYPE'],
+    ['a[href], button, .btn, [role="button"]', 'OPEN'],
+  ];
+  document.addEventListener('mouseover', (e) => {
+    let found = '';
+    for (const [sel, text] of TEXT_MAP) {
+      if (e.target.closest(sel)) { found = text; break; }
+    }
+    label.textContent = found;
+    label.classList.toggle('cursor-text-label--visible', !!found);
+  });
+}
+
+function initSplitDualReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.split-dual-reveal').forEach((el) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'split-dual-wrap';
+    el.parentNode.insertBefore(wrap, el);
+    const top = document.createElement('div');
+    top.className = 'split-dual-half split-dual-top';
+    top.setAttribute('aria-hidden', 'true');
+    top.innerHTML = el.outerHTML;
+    const bot = document.createElement('div');
+    bot.className = 'split-dual-half split-dual-bot';
+    bot.setAttribute('aria-hidden', 'true');
+    bot.innerHTML = el.outerHTML;
+    el.setAttribute('aria-hidden', 'true');
+    el.style.visibility = 'hidden';
+    wrap.appendChild(top);
+    wrap.appendChild(bot);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        wrap.classList.add('split-dual-wrap--in');
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+function initScrollFloodFill() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section, .ba-section').forEach((section) => {
+    const flood = document.createElement('div');
+    flood.className = 'scroll-flood-fill';
+    flood.setAttribute('aria-hidden', 'true');
+    const pos = getComputedStyle(section).position;
+    if (pos === 'static') section.style.position = 'relative';
+    section.insertBefore(flood, section.firstChild);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(section);
+        flood.classList.add('scroll-flood-fill--in');
+        flood.addEventListener('animationend', () => flood.remove(), { once: true });
+      });
+    }, { threshold: 0.15 });
+    io.observe(section);
   });
 }

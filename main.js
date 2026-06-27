@@ -3681,6 +3681,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollRotateIn, initHoverShadowLift, initTextGradientShift,         // Sprint 103
     initScrollFlipReveal, initHoverIconSpin, initBgAuroraDrift,             // Sprint 104
     initScrollStaggerGrid, initHoverCardShimmer, initSectionCountUp,        // Sprint 105
+    initScrollZoomFade, initHoverBorderGlowPulse, initTypewriterCursor,     // Sprint 106
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6921,4 +6922,60 @@ function initSectionCountUp() {
     }, { threshold: 0.5 });
     io.observe(el);
   });
+}
+
+/* Sprint 106 — scroll zoom-fade, hover border glow pulse, typewriter cursor */
+
+function initScrollZoomFade() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.hero-title, .section-title, h1, h2, [data-zoom-fade]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.zoomFade) return;
+    el.dataset.zoomFade = '1';
+    el.classList.add('scroll-zoom-fade');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-zoom-fade--active');
+      });
+    }, { threshold: 0.3 });
+    io.observe(el);
+  });
+}
+
+function initHoverBorderGlowPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.card, .service-card, .ba-card, [data-border-glow-pulse]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.borderGlowPulse) return;
+    el.dataset.borderGlowPulse = '1';
+    el.classList.add('hover-border-glow-pulse');
+    el.addEventListener('mouseenter', () => {
+      el.classList.add('hover-border-glow-pulse--active');
+    }, { passive: true });
+    el.addEventListener('mouseleave', () => {
+      el.classList.remove('hover-border-glow-pulse--active');
+    }, { passive: true });
+  });
+}
+
+function initTypewriterCursor() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector(
+    '.hero-title, h1, [data-typewriter]'
+  );
+  if (!el || el.dataset.typewriter) return;
+  el.dataset.typewriter = '1';
+  const cursor = document.createElement('span');
+  cursor.className = 'typewriter-cursor';
+  cursor.setAttribute('aria-hidden', 'true');
+  cursor.textContent = '|';
+  el.appendChild(cursor);
 }

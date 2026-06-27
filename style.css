@@ -7719,3 +7719,66 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-grid-reveal { animation: none; opacity: 0.6; }
 }
+
+/* ============================================================
+   Sprint 140 — multi-layer parallax, spotlight card reveal, aurora pulse bg
+   ============================================================ */
+
+/* --- Spotlight Card Reveal --- */
+.spot-reveal-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(
+    circle 120px at var(--sr-x, 50%) var(--sr-y, 50%),
+    rgba(255, 255, 255, 0.07) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.spot-reveal-overlay--active {
+  opacity: 1;
+}
+
+/* --- Aurora Pulse Background --- */
+.bg-aurora-pulse {
+  position: fixed;
+  inset: 0;
+  z-index: -8;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-aurora-pulse__band {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  height: 30vh;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0;
+  animation: aurora-band-drift calc(14s + var(--ap-i, 0) * 4s) ease-in-out infinite alternate;
+  animation-delay: calc(var(--ap-i, 0) * -3s);
+}
+.bg-aurora-pulse__band:nth-child(1) {
+  top: 5%;
+  background: linear-gradient(90deg, rgba(0,212,200,0.12), rgba(0,100,255,0.08));
+}
+.bg-aurora-pulse__band:nth-child(2) {
+  top: 35%;
+  background: linear-gradient(90deg, rgba(100,0,255,0.07), rgba(0,212,200,0.10));
+}
+.bg-aurora-pulse__band:nth-child(3) {
+  top: 65%;
+  background: linear-gradient(90deg, rgba(0,212,200,0.06), rgba(200,0,200,0.06));
+}
+@keyframes aurora-band-drift {
+  0%   { transform: translateX(-10%) scaleY(0.8); opacity: 0.5; }
+  50%  { opacity: 1; }
+  100% { transform: translateX(10%) scaleY(1.2); opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-aurora-pulse { display: none; }
+}

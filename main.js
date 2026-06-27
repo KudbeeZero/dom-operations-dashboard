@@ -3715,6 +3715,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollRevealWords, initHoverGlowRing, initBgInkWash,                // Sprint 137
     initScrollFadeSlide, initHoverMagneticGlow, initBgAmbientWave,          // Sprint 138
     initScrollCountMorph, initHoverNeonBorderTrail, initBgGridReveal,       // Sprint 139
+    initScrollMultiParallax, initHoverSpotlightReveal, initBgAuroraPulse,  // Sprint 140
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -9128,5 +9129,70 @@ function initBgGridReveal() {
   const el = document.createElement('div');
   el.className = 'bg-grid-reveal';
   el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 140 — multi-layer scroll parallax, card spotlight reveal, aurora pulse bg */
+
+function initScrollMultiParallax() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const layers = document.querySelectorAll('[data-parallax-speed]');
+  if (!layers.length) return;
+  let ticking = false;
+  const update = () => {
+    const sy = window.scrollY;
+    layers.forEach((el) => {
+      if (el.dataset.parallaxInit) return;
+      el.dataset.parallaxInit = '1';
+    });
+    layers.forEach((el) => {
+      const speed = parseFloat(el.dataset.parallaxSpeed) || 0.1;
+      el.style.transform = `translateY(${sy * speed}px)`;
+    });
+    ticking = false;
+  };
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
+}
+
+function initHoverSpotlightReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const cards = document.querySelectorAll('.bento-card, .pricing-card');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.spotReveal) return;
+    card.dataset.spotReveal = '1';
+    const overlay = document.createElement('div');
+    overlay.className = 'spot-reveal-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    card.style.position = 'relative';
+    card.appendChild(overlay);
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      overlay.style.setProperty('--sr-x', `${e.clientX - rect.left}px`);
+      overlay.style.setProperty('--sr-y', `${e.clientY - rect.top}px`);
+      overlay.classList.add('spot-reveal-overlay--active');
+    });
+    card.addEventListener('mouseleave', () => {
+      overlay.classList.remove('spot-reveal-overlay--active');
+    });
+  });
+}
+
+function initBgAuroraPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-aurora-pulse')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-aurora-pulse';
+  el.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 3; i++) {
+    const band = document.createElement('span');
+    band.className = 'bg-aurora-pulse__band';
+    band.style.setProperty('--ap-i', i);
+    el.appendChild(band);
+  }
   document.body.insertAdjacentElement('afterbegin', el);
 }

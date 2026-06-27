@@ -1511,6 +1511,29 @@ function initFaqAnimation() {
 }
 
 /* -------------------------------------------------------------------------
+   PAGE INTRO — dark overlay covers the page on load, then wipes upward.
+   Element lives in the HTML so it blocks content from the very first paint.
+   JS adds the exit class; CSS handles the transition and removal fires after.
+   ------------------------------------------------------------------------- */
+function initPageIntro() {
+  const overlay = document.getElementById('pageIntro');
+  if (!overlay) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    overlay.remove();
+    return;
+  }
+  // Two rAF calls guarantee the browser has composited the initial state before
+  // we add the exit class, preventing an instant-skip if the class is added
+  // synchronously in the same frame as the element's insertion.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      overlay.classList.add('intro-exit');
+      overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
    SCROLL PROGRESS — thin teal bar at the top edge that fills as you scroll
    ------------------------------------------------------------------------- */
 function initScrollProgress() {
@@ -1580,7 +1603,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
-    initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
+    initPageIntro, initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
     initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
     initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,

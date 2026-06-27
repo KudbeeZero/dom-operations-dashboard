@@ -1534,6 +1534,64 @@ function initPageIntro() {
 }
 
 /* -------------------------------------------------------------------------
+   ABOUT ENTRANCE — GSAP timeline: icon pops → headline wipes → copy fades → CTA slides
+   Runs before initScrollReveals in the inits[] array so it can claim .reveal.
+   ------------------------------------------------------------------------- */
+function initAboutEntrance() {
+  const block = document.querySelector('.about-block');
+  if (!block) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    block.classList.remove('reveal');
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+  block.classList.remove('reveal');   // claim from IO system
+
+  const icon     = block.querySelector('.about-icon');
+  const headline = block.querySelector('.about-headline');
+  const copy     = block.querySelector('.about-copy');
+  const cta      = block.querySelector('.about-cta');
+
+  const tl = gsap.timeline({ scrollTrigger: { trigger: block, start: 'top 82%' } });
+  if (icon)     tl.from(icon,     { scale: 0.35, opacity: 0, duration: 0.6,  ease: 'back.out(2.4)' });
+  if (headline) tl.from(headline, { clipPath: 'inset(0 100% 0 0)', duration: 0.72, ease: 'power3.inOut' }, '-=0.2');
+  if (copy)     tl.from(copy,     { y: 18, opacity: 0, duration: 0.55, ease: 'power2.out' }, '-=0.3');
+  if (cta)      tl.from(cta,      { y: 14, opacity: 0, duration: 0.45, ease: 'power2.out' }, '-=0.2');
+}
+
+/* -------------------------------------------------------------------------
+   CONTACT FIELD STAGGER — IO-based staggered reveal on .contact-form .field
+   ------------------------------------------------------------------------- */
+function initContactReveal() {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || !('IntersectionObserver' in window)) return;
+  const form = document.getElementById('contactForm');
+  if (!form) return;
+  const fields = form.querySelectorAll('.field');
+  if (!fields.length) return;
+
+  fields.forEach((f, i) => f.style.setProperty('--reveal-delay', (i * 110) + 'ms'));
+
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      e.target.classList.add('is-visible');
+    });
+  }, { threshold: 0.15 });
+
+  fields.forEach((f) => {
+    f.classList.add('reveal');
+    if (f.getBoundingClientRect().top < window.innerHeight) {
+      f.classList.add('is-instant', 'is-visible');
+    } else {
+      io.observe(f);
+    }
+  });
+}
+
+/* -------------------------------------------------------------------------
    SECTION AMBIENT — IO-triggered teal haze at the top of each .section.
    A .section-ambient div is prepended to each section and fades in via
    the .active class as the section enters the viewport.
@@ -1705,11 +1763,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // take down the rest of the page's interactivity.
   const inits = [
     initPageIntro, initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
-    initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
+    initAboutEntrance, initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
     initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,
     initScrollProgress, initMagneticButtons, initHeadingReveal, initActiveNav,
     initButtonRipple, initHeroCursorGlow, initScrollToTop, initSectionAmbient,
+    initContactReveal,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

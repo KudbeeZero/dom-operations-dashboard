@@ -3664,6 +3664,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSpotlightHover, initScrollInkBlot, initWordPopIn,             // Sprint 86
     initCardShadowDepth, initScrollColorBand, initPulseBadge,         // Sprint 87
     initGlitchTextHover, initScrollZoomSection, initBtnLiquidFill,    // Sprint 88
+    initAuroraBgSection, initUnderlineMorph, initScrollScaleText,     // Sprint 89
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5754,4 +5755,49 @@ function initBtnLiquidFill() {
     btn.dataset.liquidFill = '1';
     btn.classList.add('btn-liquid-fill');
   });
+}
+
+/* Sprint 89 — aurora bg section, underline morph, scroll scale text ---------- */
+
+function initAuroraBgSection() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.querySelector('.hero, .hero-section, #hero');
+  if (!hero) return;
+  if (hero.dataset.aurora) return;
+  hero.dataset.aurora = '1';
+  const aurora = document.createElement('div');
+  aurora.className = 'aurora-bg';
+  aurora.setAttribute('aria-hidden', 'true');
+  aurora.innerHTML = '<div class="aurora-blob aurora-blob--1"></div>' +
+    '<div class="aurora-blob aurora-blob--2"></div>' +
+    '<div class="aurora-blob aurora-blob--3"></div>';
+  hero.insertAdjacentElement('afterbegin', aurora);
+}
+
+function initUnderlineMorph() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const links = document.querySelectorAll('a:not(.btn):not(.cta-btn):not(.nav-link):not([data-no-underline])');
+  if (!links.length) return;
+  links.forEach((link) => {
+    if (link.dataset.underlineMorph) return;
+    if (link.closest('nav')) return;
+    link.dataset.underlineMorph = '1';
+    link.classList.add('underline-morph-link');
+  });
+}
+
+function initScrollScaleText() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(max-width: 767px)').matches) return;
+  const hero = document.querySelector('.hero-title, h1');
+  if (!hero) return;
+  window.addEventListener('scroll', () => {
+    const pct = Math.min(window.scrollY / (window.innerHeight * 0.6), 1);
+    const scale = 1 + pct * 0.12;
+    const opacity = Math.max(1 - pct * 1.4, 0);
+    hero.style.transform = `scale(${scale.toFixed(3)})`;
+    hero.style.opacity = opacity.toFixed(2);
+    hero.style.transformOrigin = 'center top';
+  }, { passive: true });
 }

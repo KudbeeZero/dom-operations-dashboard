@@ -6438,3 +6438,45 @@ svg path.draw-path, svg .draw-path {
     linear-gradient(90deg, rgba(0,212,200,1) 1px, transparent 1px);
   background-size: 60px 60px;
 }
+
+/* Sprint 115 — scroll slide-up fade, hover card glow border, text reveal mask v2 */
+
+@keyframes slide-up-fade-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.scroll-slide-up-fade { opacity: 0; transform: translateY(22px); }
+.scroll-slide-up-fade--active {
+  animation: slide-up-fade-in 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: calc(var(--sufi) * 55ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-slide-up-fade { opacity: 1; transform: none; }
+  .scroll-slide-up-fade--active { animation: none; }
+}
+
+.hover-card-glow-border {
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-card-glow-border:hover {
+  border-color: rgba(0,212,200,0.4);
+  box-shadow: 0 0 0 1px rgba(0,212,200,0.2), inset 0 0 20px rgba(0,212,200,0.04), 0 8px 32px rgba(0,0,0,0.2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-card-glow-border { transition: none; }
+}
+
+@keyframes reveal-mask-v2-in {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0% 0); }
+}
+.text-reveal-mask-v2 { clip-path: inset(0 0 100% 0); }
+.text-reveal-mask-v2--active {
+  animation: reveal-mask-v2-in 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-reveal-mask-v2 { clip-path: none; }
+  .text-reveal-mask-v2--active { animation: none; }
+}

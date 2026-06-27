@@ -3684,6 +3684,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollZoomFade, initHoverBorderGlowPulse, initTypewriterCursor,     // Sprint 106
     initScrollWaveReveal, initHoverFloatingLabel, initBtnMagneticPull,      // Sprint 107
     initScrollBounceIn, initHoverTextOutline, initSectionNoiseLayer,        // Sprint 108
+    initScrollPendulumSwing, initHoverNeonBadge, initBgStarfield,           // Sprint 109
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7109,4 +7110,90 @@ function initSectionNoiseLayer() {
     target.style.position = target.style.position || 'relative';
     target.insertAdjacentElement('afterbegin', noise);
   }
+}
+
+/* Sprint 109 — scroll pendulum swing, hover neon badge, bg starfield */
+
+function initScrollPendulumSwing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-pendulum]');
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.pendulum) return;
+    el.dataset.pendulum = '1';
+    el.classList.add('scroll-pendulum');
+    el.style.setProperty('--sp-dir', i % 2 === 0 ? '1' : '-1');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-pendulum--active');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initHoverNeonBadge() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const badges = document.querySelectorAll(
+    '.badge, .tag, .label, .chip, [data-neon-badge]'
+  );
+  if (!badges.length) return;
+  badges.forEach((el) => {
+    if (el.dataset.neonBadge) return;
+    el.dataset.neonBadge = '1';
+    el.classList.add('hover-neon-badge');
+  });
+}
+
+function initBgStarfield() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-starfield')) return;
+  const hero = document.querySelector('.hero, [data-hero]');
+  if (!hero) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-starfield';
+  canvas.setAttribute('aria-hidden', 'true');
+  hero.style.position = hero.style.position || 'relative';
+  hero.style.overflow = hero.style.overflow || 'hidden';
+  hero.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const stars = [];
+  const NUM = 120;
+
+  const resize = () => {
+    canvas.width = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+  };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  for (let i = 0; i < NUM; i++) {
+    stars.push({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.2 + 0.3,
+      speed: Math.random() * 0.0002 + 0.0001,
+      opacity: Math.random() * 0.6 + 0.2,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+
+  let frame = 0;
+  const tick = () => {
+    frame++;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach((s) => {
+      const twinkle = s.opacity * (0.6 + 0.4 * Math.sin(frame * s.speed * 60 + s.phase));
+      ctx.globalAlpha = twinkle;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  };
+  tick();
 }

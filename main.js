@@ -1415,6 +1415,49 @@ function initCountUp() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   KINETIC TEXT — word-by-word staggered reveal on .kinetic-section entry
+   ------------------------------------------------------------------------- */
+function initKineticText() {
+  const section = document.querySelector('.kinetic-section');
+  const words   = section ? section.querySelectorAll('.k-word') : [];
+  if (!words.length) return;
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) {
+    words.forEach((w) => w.classList.add('k-visible'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    if (!entries[0].isIntersecting) return;
+    obs.disconnect();
+    words.forEach((word, i) => {
+      setTimeout(() => word.classList.add('k-visible'), i * 100);
+    });
+  }, { threshold: 0.45 });
+
+  observer.observe(section);
+}
+
+/* -------------------------------------------------------------------------
+   FAQ SMOOTH OPEN — animate content fade-down on <details> open
+   ------------------------------------------------------------------------- */
+function initFaqAnimation() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  document.querySelectorAll('.faq-item').forEach((item) => {
+    item.addEventListener('toggle', () => {
+      if (!item.open) return;
+      const p = item.querySelector('p');
+      if (!p) return;
+      p.classList.remove('faq-anim');
+      void p.offsetWidth;                 // force reflow to restart animation
+      p.classList.add('faq-anim');
+    });
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -1423,7 +1466,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
     initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
-    initCardTilt, initCountUp,
+    initCardTilt, initCountUp, initKineticText, initFaqAnimation,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

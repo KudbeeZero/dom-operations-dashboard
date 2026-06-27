@@ -3726,19 +3726,23 @@ document.addEventListener('DOMContentLoaded', () => {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
   }
 
-  // Safety net: sections accumulate scroll-curtain-lift, scroll-blur-panel, and
-  // other scroll-reveal classes from 145+ sprints. CSS `animation` is non-additive
-  // — only the last --active animation in the cascade runs; the others' hidden
-  // pre-states (opacity:0, blur, clip-path) never clear. Sections also have
-  // overflow:hidden which prevents child IO observers from firing.
-  // Strategy:
-  //   1. On scroll: immediately reveal hidden elements in/near the viewport.
-  //   2. Sweep: every 600ms reveal hidden elements that are now above the fold
-  //      (user has scrolled past them) — catches elements missed by timing.
-  //   3. Flush: at 3s and 6s after load, reveal ALL remaining hidden elements
-  //      regardless of position so nothing stays stuck forever.
+  // Safety net: base CSS classes like .scroll-zoom-fade set opacity:0/blur/clip-path
+  // directly (not just in keyframes), and 145 sprints stacked these on every section,
+  // heading, and card. Only one CSS animation wins the cascade; others leave their
+  // pre-reveal hidden state stuck. sections also have overflow:hidden which prevents
+  // child IO observers from triggering reveals.
+  //
+  // Two-phase fix preserving all hover effects:
+  //   Phase 1 — inline !important styles force visibility immediately (beats base CSS).
+  //   Phase 2 — 2 rAFs later, strip the scroll-reveal classes so the element's natural
+  //   CSS is visible and hover transitions/transforms/glows work unobstructed.
   (function revealSafetyNet() {
-    const SCROLL_RE = /^(scroll-|fade-up-reveal$|clip-slide$|elastic-scale$|word-wave$|stagger-chars$|text-stroke-fill$)/;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Matches both animation-based (scroll-*) and transition-based reveal classes
+    // (-reveal, -reveal-elem, -reveal-el suffixes) so cards using CSS transitions
+    // are detected by scan() and stripped in Phase 2.
+    const SCROLL_RE = /^scroll-|-reveal(-elem|-el)?$|^(clip-slide|elastic-scale|word-wave|stagger-chars|text-stroke-fill)$/;
+    const done = new WeakSet();
 
     function isHidden(cs) {
       return parseFloat(cs.opacity) < 0.5
@@ -3748,22 +3752,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function bypass(el) {
-      el.classList.add('reveal-bypass');
+      if (done.has(el)) return;
+      done.add(el);
+      // Phase 1: inline !important beats base-class hidden states and running animations
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('clip-path', 'none', 'important');
+      el.style.setProperty('filter', 'none', 'important');
+      el.style.setProperty('transform', 'none', 'important');
+      el.style.setProperty('visibility', 'visible', 'important');
+      el.style.setProperty('animation', 'none', 'important');
+      // Phase 2: strip scroll-reveal classes so element is naturally visible
+      // and hover effects (transitions, transforms, glow filters) work again.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const scrollBases = new Set([...el.classList].filter(c => SCROLL_RE.test(c) && !c.includes('--')));
+        [...el.classList].forEach(c => {
+          if (scrollBases.has(c)) { el.classList.remove(c); return; }
+          const base = c.replace(/--(active|in|visible)$/, '');
+          if (scrollBases.has(base)) el.classList.remove(c);
+        });
+        el.style.removeProperty('opacity');
+        el.style.removeProperty('clip-path');
+        el.style.removeProperty('filter');
+        el.style.removeProperty('transform');
+        el.style.removeProperty('visibility');
+        el.style.removeProperty('animation');
+      }));
     }
 
-    // Scan with optional viewport gate. inViewOnly=true → only near-viewport elements.
     function scan(inViewOnly) {
       const vh = window.innerHeight;
-      const scrollY = window.scrollY;
       document.querySelectorAll('[class]').forEach((el) => {
-        if (el.classList.contains('reveal-bypass')) return;
+        if (done.has(el)) return;
         const has = [...el.classList].some((c) => SCROLL_RE.test(c) && !c.includes('--'));
         if (!has) return;
         if (inViewOnly) {
           const r = el.getBoundingClientRect();
           if (r.width < 1 || r.height < 1) return;
-          // Include element if it overlaps the viewport or is above it (already scrolled past)
-          if (r.top > vh + 120) return;
+          if (r.top > vh + 120 || r.bottom < -120) return;
         }
         if (isHidden(getComputedStyle(el))) bypass(el);
       });
@@ -3776,11 +3801,8 @@ document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(() => { scan(true); ticking = false; });
     }, { passive: true });
 
-    // Initial viewport check
     setTimeout(() => scan(true), 400);
-    // Sweep: catch elements above fold as user scrolls
     const sweepId = setInterval(() => scan(true), 600);
-    // Flush: force-reveal everything still stuck regardless of scroll position
     setTimeout(() => { scan(false); clearInterval(sweepId); }, 3000);
     setTimeout(() => scan(false), 6000);
   }());

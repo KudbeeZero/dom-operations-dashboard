@@ -159,15 +159,23 @@ function initHeroCanvas() {
       ctx.restore();
     }
 
-    requestAnimationFrame(frame);
+    if (rafActive) requestAnimationFrame(frame);
   }
 
+  let rafActive = true;
   resize();
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(resize, 150);
   }, { passive: true });
+
+  // Pause the RAF loop when the hero canvas is off-screen to save GPU/CPU.
+  const canvasIO = new IntersectionObserver(entries => {
+    rafActive = entries[0].isIntersecting;
+    if (rafActive) requestAnimationFrame(frame);
+  }, { threshold: 0 });
+  canvasIO.observe(canvas);
   requestAnimationFrame(frame);
 }
 
@@ -1871,7 +1879,16 @@ function initHeroTrustCycle() {
       el.classList.remove('trust-fade');
     }, 350);
   };
-  setInterval(rotate, 4200);
+  let trustTimer = null;
+  const ioTrust = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      if (!trustTimer) trustTimer = setInterval(rotate, 4200);
+    } else {
+      clearInterval(trustTimer);
+      trustTimer = null;
+    }
+  }, { threshold: 0 });
+  ioTrust.observe(el);
 }
 
 /* -------------------------------------------------------------------------
@@ -1975,7 +1992,16 @@ function initShowcaseAutoplay() {
     if (resumeAfterMs) resumeTimer = setTimeout(() => { paused = false; }, resumeAfterMs);
   };
 
-  setInterval(advance, 5200);
+  let autoplayTimer = null;
+  const ioAutoplay = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      if (!autoplayTimer) autoplayTimer = setInterval(advance, 5200);
+    } else {
+      clearInterval(autoplayTimer);
+      autoplayTimer = null;
+    }
+  }, { threshold: 0 });
+  ioAutoplay.observe(slider);
 
   slider.addEventListener('pointerenter', () => pause(0));
   slider.addEventListener('pointerleave', () => { paused = false; });
@@ -2423,8 +2449,8 @@ function initFloatingCTA() {
   );
   document.body.appendChild(btn);
 
-  let heroGone = false, atContact = false;
-  const update = () => btn.classList.toggle('float-cta-visible', heroGone && !atContact);
+  let heroGone = false, atContact = false, atFooter = false;
+  const update = () => btn.classList.toggle('float-cta-visible', heroGone && !atContact && !atFooter);
 
   new IntersectionObserver(
     (e) => { heroGone = !e[0].isIntersecting; update(); },
@@ -2435,6 +2461,14 @@ function initFloatingCTA() {
     (e) => { atContact = e[0].isIntersecting; update(); },
     { threshold: 0.25 }
   ).observe(contact);
+
+  const footer = document.querySelector('footer');
+  if (footer) {
+    new IntersectionObserver(
+      (e) => { atFooter = e[0].isIntersecting; update(); },
+      { threshold: 0.05 }
+    ).observe(footer);
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -3726,19 +3760,30 @@ document.addEventListener('DOMContentLoaded', () => {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
   }
 
-  // Safety net: sections accumulate scroll-curtain-lift, scroll-blur-panel, and
-  // other scroll-reveal classes from 145+ sprints. CSS `animation` is non-additive
-  // — only the last --active animation in the cascade runs; the others' hidden
-  // pre-states (opacity:0, blur, clip-path) never clear. Sections also have
-  // overflow:hidden which prevents child IO observers from firing.
-  // Strategy:
-  //   1. On scroll: immediately reveal hidden elements in/near the viewport.
-  //   2. Sweep: every 600ms reveal hidden elements that are now above the fold
-  //      (user has scrolled past them) — catches elements missed by timing.
-  //   3. Flush: at 3s and 6s after load, reveal ALL remaining hidden elements
-  //      regardless of position so nothing stays stuck forever.
+  // Safety net: base CSS classes like .scroll-zoom-fade set opacity:0/blur/clip-path
+  // directly (not just in keyframes), and 145 sprints stacked these on every section,
+  // heading, and card. Only one CSS animation wins the cascade; others leave their
+  // pre-reveal hidden state stuck. sections also have overflow:hidden which prevents
+  // child IO observers from triggering reveals.
+  //
+  // Two-phase fix preserving all hover effects:
+  //   Phase 1 — inline !important styles force visibility immediately (beats base CSS).
+  //   Phase 2 — 2 rAFs later, strip the scroll-reveal classes so the element's natural
+  //   CSS is visible and hover transitions/transforms/glows work unobstructed.
   (function revealSafetyNet() {
-    const SCROLL_RE = /^(scroll-|fade-up-reveal$|clip-slide$|elastic-scale$|word-wave$|stagger-chars$|text-stroke-fill$)/;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Matches both animation-based (scroll-*) and transition-based reveal classes
+    // (-reveal, -reveal-elem, -reveal-el suffixes) so cards using CSS transitions
+    // are detected by scan() and stripped in Phase 2.
+    // img-clip-hidden included so the footer logo (clipped 100%) is unclipped by bypass().
+    const SCROLL_RE = /^scroll-|-reveal(-elem|-el)?$|^(clip-slide|elastic-scale|word-wave|stagger-chars|text-stroke-fill|img-clip-hidden)$/;
+    const done = new WeakSet();
+
+    // Pre-cache reveal candidates once — avoids querySelectorAll('[class]') on
+    // every scroll event and every 600ms interval tick. Pruned as elements resolve.
+    let candidates = Array.from(document.querySelectorAll('[class]')).filter(
+      el => [...el.classList].some(c => SCROLL_RE.test(c) && !c.includes('--'))
+    );
 
     function isHidden(cs) {
       return parseFloat(cs.opacity) < 0.5
@@ -3748,41 +3793,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function bypass(el) {
-      el.classList.add('reveal-bypass');
+      if (done.has(el)) return;
+      done.add(el);
+      // Phase 1: inline !important beats base-class hidden states and running animations
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('clip-path', 'none', 'important');
+      el.style.setProperty('filter', 'none', 'important');
+      el.style.setProperty('transform', 'none', 'important');
+      el.style.setProperty('visibility', 'visible', 'important');
+      el.style.setProperty('animation', 'none', 'important');
+      // Phase 2: strip scroll-reveal classes so element is naturally visible
+      // and hover effects (transitions, transforms, glow filters) work again.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const scrollBases = new Set([...el.classList].filter(c => SCROLL_RE.test(c) && !c.includes('--')));
+        [...el.classList].forEach(c => {
+          if (scrollBases.has(c)) { el.classList.remove(c); return; }
+          const base = c.replace(/--(active|in|visible)$/, '');
+          if (scrollBases.has(base)) el.classList.remove(c);
+        });
+        el.style.removeProperty('opacity');
+        el.style.removeProperty('clip-path');
+        el.style.removeProperty('filter');
+        el.style.removeProperty('transform');
+        el.style.removeProperty('visibility');
+        el.style.removeProperty('animation');
+      }));
     }
 
-    // Scan with optional viewport gate. inViewOnly=true → only near-viewport elements.
     function scan(inViewOnly) {
       const vh = window.innerHeight;
-      const scrollY = window.scrollY;
-      document.querySelectorAll('[class]').forEach((el) => {
-        if (el.classList.contains('reveal-bypass')) return;
-        const has = [...el.classList].some((c) => SCROLL_RE.test(c) && !c.includes('--'));
-        if (!has) return;
+      // Iterate pre-cached candidates; prune bypassed ones so the list shrinks over time.
+      candidates = candidates.filter(el => {
+        if (done.has(el)) return false;
         if (inViewOnly) {
           const r = el.getBoundingClientRect();
-          if (r.width < 1 || r.height < 1) return;
-          // Include element if it overlaps the viewport or is above it (already scrolled past)
-          if (r.top > vh + 120) return;
+          if (r.width < 1 || r.height < 1) return true;
+          if (r.top > vh + 120 || r.bottom < -120) return true;
         }
         if (isHidden(getComputedStyle(el))) bypass(el);
+        return !done.has(el);
       });
     }
 
     let ticking = false;
-    window.addEventListener('scroll', () => {
+    const onScroll = () => {
+      if (!candidates.length) { window.removeEventListener('scroll', onScroll); return; }
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => { scan(true); ticking = false; });
-    }, { passive: true });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    // Initial viewport check
     setTimeout(() => scan(true), 400);
-    // Sweep: catch elements above fold as user scrolls
     const sweepId = setInterval(() => scan(true), 600);
-    // Flush: force-reveal everything still stuck regardless of scroll position
     setTimeout(() => { scan(false); clearInterval(sweepId); }, 3000);
-    setTimeout(() => scan(false), 6000);
+    setTimeout(() => {
+      scan(false);
+      window.removeEventListener('scroll', onScroll); // all done — stop listening
+    }, 6000);
   }());
 });
 

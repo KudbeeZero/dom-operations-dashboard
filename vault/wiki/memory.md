@@ -428,3 +428,47 @@
 - Pseudo-element conflict resolution: inject child div when ::before/::after already taken
 - IO-pause pattern for continuous animations: toggle animation-play-state via IO callback
 - prefers-reduced-motion guard at top of every init function
+
+## Sprint 147 — Reveal Safety Net: Two-Phase Hover-Preserve Fix — 2026-06-27
+- Context: 145+ sprints stacked scroll-reveal CSS base classes on every element.
+  Only one CSS animation wins the cascade; others leave their hidden pre-state
+  (opacity:0, blur, clip-path) stuck. The previous fix (PR #146) used a
+  `.reveal-bypass` CSS class with `transition:none !important; transform:none !important`
+  which permanently killed all hover effects (bento card scale/3D tilt, glow filters).
+- Branch: claude/sprint-147-reveal-hover-card-fix (off main). PR #147 (DRAFT).
+- Fix — two-phase inline-style approach in revealSafetyNet() IIFE:
+  Phase 1: el.style.setProperty(..., 'important') overrides hidden states immediately,
+  beats every scroll-reveal base class in the cascade.
+  Phase 2: 2 rAFs later, strip the reveal classes so the element's natural CSS is
+  visible and hover transitions/transforms/glows work unobstructed.
+- SCROLL_RE expanded from ^(scroll-|...) to also match /-reveal(-elem|-el)?$| so
+  bento cards using CSS transitions (.scale-reveal-elem, .rotate-reveal-elem,
+  .card-flip-reveal, .radial-reveal-el) are detected by scan() AND stripped in Phase 2.
+- style.css: removed the old .reveal-bypass block (replaced with comment).
+- Playwright verified: 10/10 h2s, 6/6 bento cards, 12/12 sections visible at 7s.
+  cardTransition = 'filter 0.2s' confirms hover glow effects are intact.
+- CI: Cloudflare Pages ✅ green on PR #147.
+- DECISION: WeakSet (not CSS class) tracks bypassed elements for O(1) lookup.
+- DECISION: prefers-reduced-motion guard returns early — bypasses don't fire for
+  users who prefer reduced motion (they rely on base CSS visibility instead).
+
+## Sprint 147 Addendum — Performance + Footer Fixes — 2026-06-27
+- Performance audit revealed: 32 scroll listeners, revealSafetyNet doing full-DOM
+  querySelectorAll on every tick, hero canvas 60fps RAF running while off-screen,
+  trust cycle + showcase autoplay setIntervals always running.
+- FIXED: revealSafetyNet pre-caches candidates once at startup; prunes list as
+  elements resolve; scroll listener self-removes when candidates list is empty.
+- FIXED: initHeroCanvas — added IO observer to pause RAF when hero off-screen.
+- FIXED: initHeroTrustCycle and initShowcaseAutoplay — IO-gated setIntervals
+  that pause when their sections are off-screen, resume on re-entry.
+- Footer fixes (three separate issues):
+  1. Footer logo invisible: img-clip-hidden class sets clip-path:inset(100%) but
+     didn't match SCROLL_RE so revealSafetyNet never unclipped it. Fixed by
+     adding img-clip-hidden to SCROLL_RE pattern.
+  2. Float CTA visible in footer: initFloatingCTA had two IO observers (hero,
+     contact) but scrolling past contact made atContact=false → button reappeared.
+     Fixed by adding third IO observer on <footer> with atFooter flag.
+  3. Footer text contrast: rgba(240,237,232,0.45) was near-invisible on #000508
+     (deep-3) background. Raised footer-copy to 0.78 opacity, disclaimer to 0.60.
+- All three perf + footer commits pushed to claude/sprint-147-reveal-hover-card-fix.
+- Cloudflare Pages ✅ preview: https://9eecd4dc.dom-operations-dashboard.pages.dev

@@ -1591,7 +1591,8 @@ button { font: inherit; cursor: pointer; }
 .footer--reef .footer-tag,
 .footer--reef .footer-disclaimer,
 .footer--reef .footer-copy { text-shadow: 0 2px 12px rgba(0,5,8,0.8); }
-.footer--reef .footer-copy { color: rgba(240,237,232,0.45); }
+.footer--reef .footer-copy { color: rgba(240,237,232,0.78); }
+.footer--reef .footer-disclaimer { color: rgba(240,237,232,0.6); }
 
 @media (prefers-reduced-motion: reduce) {
   .reef-rays span { animation: none; }
@@ -8044,18 +8045,6 @@ svg path.draw-path, svg .draw-path {
   background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, transparent 100%);
 }
 
-/* ==========================================================================
-   REVEAL BYPASS — forcibly un-buries in-viewport elements that have
-   accumulated multiple stacked scroll-reveal pre-states (opacity:0, blur,
-   clip-path, transform). !important beats CSS animation fill-modes.
-   Applied by the JS safety net 300ms after load.
-   ========================================================================== */
-.reveal-bypass {
-  opacity: 1 !important;
-  filter: none !important;
-  clip-path: none !important;
-  transform: none !important;
-  visibility: visible !important;
-  animation: none !important;
-  transition: none !important;
-}
+/* Reveal bypass: temporary inline-style phase handled in JS.
+   This class is no longer applied — inline el.style.setProperty is used instead
+   so the class can be cleaned up and hover effects are fully preserved. */

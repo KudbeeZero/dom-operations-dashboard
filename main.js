@@ -2860,6 +2860,47 @@ function initSectionDecoNumbers() {
   });
 }
 
+/* Sprint 39 — hero tagline typewriter, bento border trace, form field glow -- */
+
+function initHeroTaglineTypewriter() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector('.hero-trust');
+  if (!el) return;
+  const text = el.textContent;
+  el.textContent = '';
+  el.setAttribute('aria-label', text);
+  el.classList.add('hero-trust-typing');
+  let i = 0;
+  const type = () => {
+    if (i >= text.length) { el.classList.remove('hero-trust-typing'); return; }
+    el.textContent += text[i++];
+    setTimeout(type, i === 1 ? 2600 : 38);
+  };
+  setTimeout(type, 2600);
+}
+
+function initBentoBorderTrace() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.bento-card').forEach((card) => {
+    const trace = document.createElement('div');
+    trace.className = 'bento-border-trace';
+    trace.setAttribute('aria-hidden', 'true');
+    card.appendChild(trace);
+  });
+}
+
+function initFormFieldGlow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const fields = document.querySelectorAll('.contact-form input, .contact-form textarea');
+  if (!fields.length) return;
+  fields.forEach((field) => {
+    field.classList.add('field-glow');
+    field.addEventListener('focus', () => field.classList.add('field-glow-active'), { passive: true });
+    field.addEventListener('blur', () => field.classList.remove('field-glow-active'), { passive: true });
+  });
+}
+
 /* Sprint 34 — price-diff stagger, hero-price flash, QR hover glow ---------- */
 
 function initPriceDiffStagger() {
@@ -2928,6 +2969,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroSubMorph, initContactPulseRing, initBadgeLevitate,
     initFooterBrandGlow, initStepRevealSequence, initHeroOrbitDot,
     initFaqIconSpin, initPriceHoverMorph, initSectionDecoNumbers,
+    initHeroTaglineTypewriter, initBentoBorderTrace, initFormFieldGlow,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

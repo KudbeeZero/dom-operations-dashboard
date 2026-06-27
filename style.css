@@ -3629,3 +3629,40 @@ body::after {
   letter-spacing: 0.16em;
 }
 @media (prefers-reduced-motion: reduce) { .kicker-hover-glow { transition: none; } }
+
+/* Sprint 52 — custom scrollbar, card focus ring, section counter ------------ */
+
+/* Styled teal scrollbar (webkit + firefox scrollbar-color) */
+.custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(0,212,200,0.45) #0a0a0f; }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #0a0a0f; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,212,200,0.45); border-radius: 3px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,212,200,0.8); }
+
+/* Enhanced keyboard focus ring */
+.focus-ring-enhanced:focus-visible {
+  outline: 2px solid rgba(0,212,200,0.85);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(0,212,200,0.15);
+}
+
+/* Section counter — bottom-left fixed */
+.section-counter {
+  position: fixed;
+  bottom: 28px; left: 24px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  color: rgba(0,212,200,0.38);
+  pointer-events: none;
+  z-index: 999;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes counter-pop {
+  0%   { transform: scale(1); color: rgba(0,212,200,0.85); }
+  55%  { transform: scale(1.18); }
+  100% { transform: scale(1); color: rgba(0,212,200,0.38); }
+}
+.section-counter.counter-pop { animation: counter-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@media (max-width: 767px) { .section-counter { display: none; } }
+@media (prefers-reduced-motion: reduce) { .section-counter { animation: none !important; } }

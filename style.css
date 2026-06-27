@@ -4813,3 +4813,32 @@ svg path.draw-path, svg .draw-path {
 }
 .tooltip-popover--visible { opacity: 1; }
 @media (pointer: coarse) { .tooltip-popover { display: none; } }
+
+/* Sprint 77 — scroll elevation, feature icon pulse, glow hover text --------- */
+
+/* Scroll elevation — cards get deeper shadow as page scrolls (JS-driven box-shadow) */
+.bento-card, .pricing-card, .service-card {
+  transition: box-shadow 0.2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bento-card, .pricing-card, .service-card { box-shadow: none !important; }
+}
+
+/* Feature icon pulse — infinite scale loop with staggered delay per icon */
+@keyframes feature-icon-pulse-anim {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.12); }
+}
+.feature-icon-pulse {
+  animation: feature-icon-pulse-anim 2.5s ease-in-out calc(var(--fip, 0) * 0.3s) infinite;
+}
+@media (prefers-reduced-motion: reduce) { .feature-icon-pulse { animation: none; } }
+
+/* Glow hover text — text-shadow glow on hover */
+.glow-hover-text-elem {
+  transition: text-shadow 0.3s ease;
+}
+.glow-hover-text-elem:hover {
+  text-shadow: 0 0 8px rgba(0,212,200,0.7), 0 0 20px rgba(0,212,200,0.35);
+}
+@media (pointer: coarse) { .glow-hover-text-elem:hover { text-shadow: none; } }

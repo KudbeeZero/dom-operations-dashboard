@@ -3652,6 +3652,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroScanline, initClipRevealSlide, initHighlightTextMark,      // Sprint 74
     initSpringClickEffect, initScrollTextParallax, initGlobalFocusGlow, // Sprint 75
     initSVGPathDraw, initPerspectiveReveal, initTooltipHover,          // Sprint 76
+    initScrollElevation, initFeatureIconPulse, initGlowHoverText,      // Sprint 77
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5013,5 +5014,40 @@ function initTooltipHover() {
     el.addEventListener('mouseleave', () => {
       tip.classList.remove('tooltip-popover--visible');
     });
+  });
+}
+
+/* Sprint 77 — scroll elevation, feature icon pulse, glow hover text --------- */
+
+function initScrollElevation() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cards = document.querySelectorAll('.bento-card, .pricing-card, .service-card');
+  if (!cards.length) return;
+  const update = () => {
+    const pct = Math.min(window.scrollY / 800, 1);
+    const blur = (4 + pct * 8).toFixed(1);
+    const spread = (0 + pct * 4).toFixed(1);
+    const alpha = (0.1 + pct * 0.15).toFixed(2);
+    const shadow = `0 ${(4 + pct * 12).toFixed(0)}px ${blur}px ${spread}px rgba(0,0,0,${alpha})`;
+    cards.forEach((c) => { c.style.boxShadow = shadow; });
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+function initFeatureIconPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const icons = document.querySelectorAll('.feature-icon, .step-icon, .bento-icon, .service-icon, .process-icon');
+  if (!icons.length) return;
+  icons.forEach((icon, i) => {
+    icon.style.setProperty('--fip', i);
+    icon.classList.add('feature-icon-pulse');
+  });
+}
+
+function initGlowHoverText() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  document.querySelectorAll('.glow-hover-text, .section-kicker, .hero-badge').forEach((el) => {
+    el.classList.add('glow-hover-text-elem');
   });
 }

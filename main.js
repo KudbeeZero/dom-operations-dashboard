@@ -2437,6 +2437,77 @@ function initFloatingCTA() {
   ).observe(contact);
 }
 
+/* -------------------------------------------------------------------------
+   Sprint 30-A: Step number pop — GSAP elastic entrance on process step nums
+   ------------------------------------------------------------------------- */
+function initStepNumPop() {
+  const nums = document.querySelectorAll('.step-num');
+  if (!nums.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  nums.forEach((num, i) => {
+    gsap.from(num, {
+      scale: 0, opacity: 0, rotation: 20,
+      duration: 0.85, ease: 'elastic.out(1, 0.45)',
+      delay: i * 0.14,
+      scrollTrigger: { trigger: num.closest('.step') || num, start: 'top 82%' },
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 30-B: Grain overlay — SVG noise texture adds film-grain depth
+   ------------------------------------------------------------------------- */
+function initGrainOverlay() {
+  const grain = document.createElement('div');
+  grain.id = 'grainOverlay';
+  grain.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(grain);
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 30-C: Submit confetti — teal particle burst on form success
+   ------------------------------------------------------------------------- */
+function initSubmitConfetti() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const confirmEl = document.getElementById('formConfirm');
+  const submitBtn = document.querySelector('.form-submit');
+  if (!confirmEl || !submitBtn) return;
+
+  let fired = false;
+  const COLORS = ['#00d4c8', '#a0f0ed', '#ffffff', '#00a89e', '#5ff0e8'];
+
+  const launch = () => {
+    if (fired) return;
+    fired = true;
+    const rect = submitBtn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('span');
+      p.className = 'confetti-piece';
+      p.setAttribute('aria-hidden', 'true');
+      const angle = (i / 30) * Math.PI * 2;
+      const speed = 80 + (i * 37) % 120;
+      p.style.cssText = [
+        `left:${cx}px`, `top:${cy}px`,
+        `--dx:${Math.cos(angle) * speed}px`,
+        `--dy:${Math.sin(angle) * speed - 100}px`,
+        `--color:${COLORS[i % COLORS.length]}`,
+        `--rot:${(i * 43) % 720}deg`,
+        `--delay:${(i * 0.022).toFixed(3)}s`,
+      ].join(';');
+      document.body.appendChild(p);
+      p.addEventListener('animationend', () => p.remove(), { once: true });
+    }
+  };
+
+  new MutationObserver(() => {
+    if (!confirmEl.hidden) launch();
+  }).observe(confirmEl, { attributes: true, attributeFilter: ['hidden'] });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -2458,6 +2529,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavShrink, initPriceCardSpotlight, initSectionKickerReveal,
     initCursorTrail, initBentoIconBounce, initSectionProgressDots,
     initScrollSkew, initSectionTitleMask, initFloatingCTA,
+    initStepNumPop, initGrainOverlay, initSubmitConfetti,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

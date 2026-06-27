@@ -3645,6 +3645,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMosaicImgReveal, initHeroWordCycle, initCardPeelCorner,        // Sprint 67
     initHoverCharRepel, initScaleReveal, initAttentionPulse,           // Sprint 68
     initBlobMorphHero, initScrollTimelineBar, initRainbowTextHue,      // Sprint 69
+    initDepthParallaxLayers, initTextStrokeReveal, initSectionHoverGlow, // Sprint 70
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4626,4 +4627,58 @@ function initRainbowTextHue() {
   };
   window.addEventListener('scroll', update, { passive: true });
   update();
+}
+
+/* Sprint 70 — depth parallax layers, text stroke reveal, section hover glow */
+
+function initDepthParallaxLayers() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const layers = Array.from(document.querySelectorAll('[data-depth]'));
+  if (!layers.length) return;
+  const update = () => {
+    const sy = window.scrollY;
+    layers.forEach((el) => {
+      const depth = parseFloat(el.dataset.depth) || 0.1;
+      el.style.transform = `translateY(${(sy * depth).toFixed(1)}px)`;
+    });
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+function initTextStrokeReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section h2, .ba-section h2').forEach((el) => {
+    if (el.dataset.strokeReveal || el.dataset.charWave) return;
+    el.dataset.strokeReveal = '1';
+    el.classList.add('text-stroke-reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('text-stroke-reveal--in');
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+function initSectionHoverGlow() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section, .ba-section').forEach((section) => {
+    const glow = document.createElement('div');
+    glow.className = 'section-hover-glow';
+    glow.setAttribute('aria-hidden', 'true');
+    const pos = getComputedStyle(section).position;
+    if (pos === 'static') section.style.position = 'relative';
+    section.insertBefore(glow, section.firstChild);
+    section.addEventListener('mousemove', (e) => {
+      const r = section.getBoundingClientRect();
+      glow.style.setProperty('--gx', `${e.clientX - r.left}px`);
+      glow.style.setProperty('--gy', `${e.clientY - r.top}px`);
+      glow.style.opacity = '1';
+    });
+    section.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+  });
 }

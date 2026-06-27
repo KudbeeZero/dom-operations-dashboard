@@ -3697,6 +3697,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollShutterReveal, initHoverMagneticText, initBgAuroraV2,         // Sprint 119
     initScrollPrismSplit, initHoverDepthShadow, initBgNebula,               // Sprint 120
     initScrollLensZoom, initHoverSpotlight, initBgVhsNoise,                 // Sprint 121
+    initScrollTypewriterV2, initHoverColorShift, initBgPlasma,              // Sprint 122
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7889,4 +7890,85 @@ function initBgVhsNoise() {
   el.className = 'bg-vhs-noise';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 122 — scroll typewriter v2, hover color shift, bg plasma */
+
+function initScrollTypewriterV2() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-typewriter-v2]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.typewriterV2Init) return;
+    el.dataset.typewriterV2Init = '1';
+    const text = el.textContent;
+    el.textContent = '';
+    el.classList.add('scroll-typewriter-v2');
+    let started = false;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting || started) return;
+        started = true;
+        io.unobserve(el);
+        let i = 0;
+        const tick = () => {
+          if (i <= text.length) {
+            el.textContent = text.slice(0, i);
+            i++;
+            requestAnimationFrame(() => setTimeout(tick, 38));
+          }
+        };
+        tick();
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+}
+
+function initHoverColorShift() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.btn, .section-title, [data-color-shift]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.colorShift) return;
+    el.dataset.colorShift = '1';
+    el.classList.add('hover-color-shift');
+  });
+}
+
+function initBgPlasma() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-plasma')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-plasma';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const draw = () => {
+    const w = canvas.width, h = canvas.height;
+    const img = ctx.createImageData(w, h);
+    const d = img.data;
+    for (let y = 0; y < h; y += 4) {
+      for (let x = 0; x < w; x += 4) {
+        const v = Math.sin(x / 80 + t) + Math.sin(y / 60 + t * 0.7) + Math.sin((x + y) / 100 + t * 0.5);
+        const r = Math.floor((Math.sin(v * Math.PI) + 1) * 4);
+        const g = Math.floor((Math.sin(v * Math.PI + 2) + 1) * 6);
+        const b = Math.floor((Math.sin(v * Math.PI + 4) + 1) * 8);
+        for (let dy = 0; dy < 4 && y + dy < h; dy++) {
+          for (let dx = 0; dx < 4 && x + dx < w; dx++) {
+            const idx = ((y + dy) * w + (x + dx)) * 4;
+            d[idx] = r; d[idx + 1] = g; d[idx + 2] = b; d[idx + 3] = 255;
+          }
+        }
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    t += 0.008;
+    requestAnimationFrame(draw);
+  };
+  draw();
 }

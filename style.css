@@ -6794,3 +6794,44 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-vhs-noise { animation: none; opacity: 0.02; }
 }
+
+/* Sprint 122 — scroll typewriter v2, hover color shift, bg plasma */
+
+.scroll-typewriter-v2 {
+  display: inline-block;
+  border-right: 2px solid rgba(0, 212, 200, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  animation: tw2-blink 0.75s step-end infinite;
+}
+@keyframes tw2-blink {
+  0%, 100% { border-color: rgba(0,212,200,0.8); }
+  50%       { border-color: transparent; }
+}
+
+@keyframes color-shift-wave {
+  0%   { filter: hue-rotate(0deg) brightness(1); }
+  50%  { filter: hue-rotate(30deg) brightness(1.15); }
+  100% { filter: hue-rotate(0deg) brightness(1); }
+}
+.hover-color-shift {
+  transition: filter 0.3s ease;
+}
+.hover-color-shift:hover {
+  animation: color-shift-wave 1.5s ease infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-color-shift:hover { animation: none; filter: brightness(1.1); }
+}
+
+.bg-plasma {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -6;
+  opacity: 0.04;
+  mix-blend-mode: screen;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-plasma { display: none; }
+}

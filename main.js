@@ -3680,6 +3680,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollSkewEntry, initImageParallaxLayer, initHoverUnderlineExpand,  // Sprint 102
     initScrollRotateIn, initHoverShadowLift, initTextGradientShift,         // Sprint 103
     initScrollFlipReveal, initHoverIconSpin, initBgAuroraDrift,             // Sprint 104
+    initScrollStaggerGrid, initHoverCardShimmer, initSectionCountUp,        // Sprint 105
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6838,4 +6839,86 @@ function initBgAuroraDrift() {
   aurora.className = 'bg-aurora-drift';
   aurora.setAttribute('aria-hidden', 'true');
   hero.insertAdjacentElement('afterbegin', aurora);
+}
+
+/* Sprint 105 — scroll stagger grid, hover card shimmer, section count-up */
+
+function initScrollStaggerGrid() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const grids = document.querySelectorAll(
+    '.grid, .cards-grid, .services-grid, [data-stagger-grid]'
+  );
+  if (!grids.length) return;
+  grids.forEach((grid) => {
+    if (grid.dataset.staggerGrid) return;
+    grid.dataset.staggerGrid = '1';
+    const children = Array.from(grid.children);
+    children.forEach((child, i) => {
+      if (child.dataset.staggerItem) return;
+      child.dataset.staggerItem = '1';
+      child.classList.add('stagger-grid-item');
+      child.style.setProperty('--sgi', String(i));
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(grid);
+        grid.classList.add('stagger-grid--active');
+      });
+    }, { threshold: 0.1 });
+    io.observe(grid);
+  });
+}
+
+function initHoverCardShimmer() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const cards = document.querySelectorAll('.card, .service-card, .ba-card, [data-shimmer]');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.cardShimmer) return;
+    card.dataset.cardShimmer = '1';
+    const shimmer = document.createElement('div');
+    shimmer.className = 'hover-card-shimmer-layer';
+    shimmer.setAttribute('aria-hidden', 'true');
+    card.style.position = card.style.position || 'relative';
+    card.style.overflow = card.style.overflow || 'hidden';
+    card.appendChild(shimmer);
+    card.addEventListener('mouseenter', () => {
+      shimmer.classList.add('hover-card-shimmer-layer--active');
+      shimmer.addEventListener('animationend', () => {
+        shimmer.classList.remove('hover-card-shimmer-layer--active');
+      }, { once: true });
+    }, { passive: true });
+  });
+}
+
+function initSectionCountUp() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const nums = document.querySelectorAll('[data-count-up], .stat-number, .counter');
+  if (!nums.length) return;
+  nums.forEach((el) => {
+    if (el.dataset.countUpDone) return;
+    const target = parseFloat(el.dataset.countUp || el.textContent.replace(/[^0-9.]/g, ''));
+    if (isNaN(target)) return;
+    el.dataset.countUpDone = '1';
+    const suffix = el.textContent.replace(/[0-9.]/g, '').trim();
+    const duration = 1200;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        const start = performance.now();
+        const tick = (now) => {
+          const t = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          const val = target * ease;
+          el.textContent = (Number.isInteger(target) ? Math.round(val) : val.toFixed(1)) + suffix;
+          if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
 }

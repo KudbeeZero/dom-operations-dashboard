@@ -6069,3 +6069,42 @@ svg path.draw-path, svg .draw-path {
   transition: transform 0.2s cubic-bezier(0.22,1,0.36,1);
   will-change: transform;
 }
+
+/* Sprint 108 — scroll bounce-in, hover text outline, section noise layer */
+
+@keyframes bounce-in-anim {
+  0%   { opacity: 0; transform: scale(0.4) translateY(20px); }
+  55%  { opacity: 1; transform: scale(1.08) translateY(-4px); }
+  75%  { transform: scale(0.96) translateY(2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+.scroll-bounce-in { opacity: 0; }
+.scroll-bounce-in--active {
+  animation: bounce-in-anim 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: calc(var(--sbi) * 50ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-bounce-in { opacity: 1; }
+  .scroll-bounce-in--active { animation: none; }
+}
+
+.hover-text-outline {
+  transition: -webkit-text-stroke 0.3s ease, color 0.3s ease;
+}
+.hover-text-outline:hover {
+  color: transparent;
+  -webkit-text-stroke: 1.5px #00d4c8;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-text-outline { transition: none; }
+}
+
+.section-noise-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}

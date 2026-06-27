@@ -373,3 +373,58 @@
 - STANDING: SMS (sms:7736477598) is the primary conversion CTA across site; form is backup.
 - TESTIMONIALS: no real client quotes exist yet — placeholder structure not added to avoid
   fake social proof. Owner should add 2-3 real quotes once available.
+
+## /loop Visual Upgrade Sprints 43–50 — 2026-06-27
+- Owner directive: take site to next level with animated/interactive sections; dynamic loop
+  creating + merging PRs continuously so owner can review merged work.
+- Pattern: 3 new animation/interaction functions per sprint → commit → push → PR → squash merge.
+- All functions are isolated in the try/catch inits[] array; one failure can't take down the page.
+- Cloudflare Pages auto-deploys on every merge to main; confirmed ✅ on each sprint.
+
+### Sprint 43 (PR #43)
+- initSectionGlowHalo: teal radial halo at top of each .section/.ba-section on IO entry (one-shot)
+- initStepIconHover: .step-num glow+scale on mouseenter (pointer:fine, animationend cleanup)
+- initCtaPulseRing: hero CTA emits 2 expanding rings every 5s starting at 3.5s delay
+
+### Sprint 44 (PR #44)
+- initHeadlineGlitch: hero .hero-headline RGB-split chromatic glitch at 2.2s, repeats every 14s
+- initQROrbitRings: two elliptical orbit rings injected in .qr-card, IO-paused offscreen
+- initSectionH2Underline: teal gradient underline draws left-to-right on section h2 IO entry
+
+### Sprint 45 (PR #45)
+- initClickSpark: global click emits 5 teal spark particles using CSS custom property angles
+- initSliderHandleGlow: .ba-handle gets continuous 2.2s glow-pulse ring
+- initScrollVignette: dark radial vignette appears on fast scroll (dy > 8px), fades at 180ms
+
+### Sprint 46 (PR #46)
+- initFloatingWords: CLEAN/FAST/CLEAR/POLISHED/READY ghost words rise through hero bg at ~5% opacity
+- initMorphBlob: CSS border-radius morphing teal blob decoration injected in about section
+- initServiceTagHover: .format-tag/.bento-tag lift + teal fill on hover (pointer:fine)
+
+### Sprint 47 (PR #47)
+- initBentoCardShine: injected .card-shine sweeps diagonal shimmer on .bento-card mouseenter
+- initNavDotIndicator: 5px teal dot slides under hovered nav links, transitions smoothly
+- initPricingGridGlow: pricing section container emits teal box-shadow pulse on IO entry
+
+### Sprint 48 (PR #48)
+- initPricingCardParticles: hover pricing cards → 4 teal sparks at 90° (pointer:fine)
+- initAboutSectionPulse: about section emits 2.2s teal box-shadow pulse on IO entry
+- initFooterLinkGlow: footer links get teal color + text-shadow on hover (pointer:fine)
+
+### Sprint 49 (PR #49)
+- initContactItemSparkle: hover .contact-item/.contact-row → 3 teal sparkles (pointer:fine)
+- initQRScanline: injected scan-line sweeps .qr-card top-to-bottom on IO entry (0.5 threshold)
+- initScrollEchoLines: faint teal horizontal echo line at viewport midpoint on fast scroll (dy > 60px)
+
+### Sprint 50 (PR #50)
+- initAuroraBg: 3 blurred radial bands (teal/purple/cyan) drift slowly in hero section background
+- initProcessChainBounce: process steps bounce sequentially (domino, 180ms stagger) on IO entry
+- initSecondaryBtnRipple: .btn-secondary/.btn-outline get expanding ring on mouseenter (pointer:fine)
+
+### Technical patterns established this session
+- CSS custom properties via style.setProperty() for animation params (--angle, --dist, --dur, etc.)
+- IntersectionObserver one-shot pattern: obs.unobserve(e.target) on first entry
+- animationend self-cleanup: element.addEventListener('animationend', () => el.remove(), {once:true})
+- Pseudo-element conflict resolution: inject child div when ::before/::after already taken
+- IO-pause pattern for continuous animations: toggle animation-play-state via IO callback
+- prefers-reduced-motion guard at top of every init function

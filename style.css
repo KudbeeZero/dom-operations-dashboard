@@ -5559,3 +5559,53 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .btn-elastic-bounce--active { animation: none; }
 }
+
+/* Sprint 97 — morphing blob, scroll parallax cards, text split reveal */
+
+@keyframes blob-morph {
+  0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(0deg) scale(1); }
+  25%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: rotate(45deg) scale(1.05); }
+  50%  { border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%; transform: rotate(90deg) scale(0.97); }
+  75%  { border-radius: 70% 30% 50% 50% / 40% 30% 70% 60%; transform: rotate(135deg) scale(1.03); }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(180deg) scale(1); }
+}
+.morphing-blob {
+  position: absolute;
+  top: -10%;
+  right: -15%;
+  width: clamp(280px, 50vw, 600px);
+  height: clamp(280px, 50vw, 600px);
+  background: radial-gradient(ellipse at 40% 40%, rgba(0,212,200,0.12) 0%, rgba(123,92,250,0.08) 60%, transparent 80%);
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: blob-morph 18s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(24px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .morphing-blob { animation: none; }
+}
+
+.card[data-parallax-card],
+.service-card[data-parallax-card],
+.ba-card[data-parallax-card] {
+  will-change: transform;
+  transition: transform 0.05s linear;
+}
+
+@keyframes split-char-in {
+  from { opacity: 0; transform: translateY(0.4em) rotate(var(--sr, 4deg)); }
+  to   { opacity: 1; transform: translateY(0) rotate(0deg); }
+}
+.split-char {
+  display: inline-block;
+  opacity: 0;
+}
+.split-reveal--active .split-char {
+  animation: split-char-in 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: calc(var(--sci) * 28ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .split-char { opacity: 1; }
+  .split-reveal--active .split-char { animation: none; }
+}

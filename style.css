@@ -7275,3 +7275,43 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-lava-lamp__blob { animation: none; }
 }
+
+/* Sprint 131 — scroll reveal counter, hover underline wave, bg static burst */
+
+[data-count-to] {
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
+
+@keyframes underline-wave-in {
+  0%   { background-size: 0% 2px; }
+  100% { background-size: 100% 2px; }
+}
+@keyframes underline-wave-out {
+  0%   { background-size: 100% 2px; }
+  100% { background-size: 0% 2px; }
+}
+.hover-underline-wave {
+  background-image: linear-gradient(90deg, #00d4c8, #7b5cfa, #00d4c8);
+  background-size: 0% 2px;
+  background-position: left bottom;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s cubic-bezier(0.22,1,0.36,1);
+  padding-bottom: 2px;
+}
+.hover-underline-wave:hover {
+  background-size: 100% 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-underline-wave { transition: none; }
+}
+
+.bg-static-burst {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-static-burst { display: none; }
+}

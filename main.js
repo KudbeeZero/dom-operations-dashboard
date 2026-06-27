@@ -159,15 +159,23 @@ function initHeroCanvas() {
       ctx.restore();
     }
 
-    requestAnimationFrame(frame);
+    if (rafActive) requestAnimationFrame(frame);
   }
 
+  let rafActive = true;
   resize();
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(resize, 150);
   }, { passive: true });
+
+  // Pause the RAF loop when the hero canvas is off-screen to save GPU/CPU.
+  const canvasIO = new IntersectionObserver(entries => {
+    rafActive = entries[0].isIntersecting;
+    if (rafActive) requestAnimationFrame(frame);
+  }, { threshold: 0 });
+  canvasIO.observe(canvas);
   requestAnimationFrame(frame);
 }
 
@@ -1871,7 +1879,16 @@ function initHeroTrustCycle() {
       el.classList.remove('trust-fade');
     }, 350);
   };
-  setInterval(rotate, 4200);
+  let trustTimer = null;
+  const ioTrust = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      if (!trustTimer) trustTimer = setInterval(rotate, 4200);
+    } else {
+      clearInterval(trustTimer);
+      trustTimer = null;
+    }
+  }, { threshold: 0 });
+  ioTrust.observe(el);
 }
 
 /* -------------------------------------------------------------------------
@@ -1975,7 +1992,16 @@ function initShowcaseAutoplay() {
     if (resumeAfterMs) resumeTimer = setTimeout(() => { paused = false; }, resumeAfterMs);
   };
 
-  setInterval(advance, 5200);
+  let autoplayTimer = null;
+  const ioAutoplay = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      if (!autoplayTimer) autoplayTimer = setInterval(advance, 5200);
+    } else {
+      clearInterval(autoplayTimer);
+      autoplayTimer = null;
+    }
+  }, { threshold: 0 });
+  ioAutoplay.observe(slider);
 
   slider.addEventListener('pointerenter', () => pause(0));
   slider.addEventListener('pointerleave', () => { paused = false; });
@@ -3744,6 +3770,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const SCROLL_RE = /^scroll-|-reveal(-elem|-el)?$|^(clip-slide|elastic-scale|word-wave|stagger-chars|text-stroke-fill)$/;
     const done = new WeakSet();
 
+    // Pre-cache reveal candidates once — avoids querySelectorAll('[class]') on
+    // every scroll event and every 600ms interval tick. Pruned as elements resolve.
+    let candidates = Array.from(document.querySelectorAll('[class]')).filter(
+      el => [...el.classList].some(c => SCROLL_RE.test(c) && !c.includes('--'))
+    );
+
     function isHidden(cs) {
       return parseFloat(cs.opacity) < 0.5
         || cs.visibility === 'hidden'
@@ -3781,30 +3813,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function scan(inViewOnly) {
       const vh = window.innerHeight;
-      document.querySelectorAll('[class]').forEach((el) => {
-        if (done.has(el)) return;
-        const has = [...el.classList].some((c) => SCROLL_RE.test(c) && !c.includes('--'));
-        if (!has) return;
+      // Iterate pre-cached candidates; prune bypassed ones so the list shrinks over time.
+      candidates = candidates.filter(el => {
+        if (done.has(el)) return false;
         if (inViewOnly) {
           const r = el.getBoundingClientRect();
-          if (r.width < 1 || r.height < 1) return;
-          if (r.top > vh + 120 || r.bottom < -120) return;
+          if (r.width < 1 || r.height < 1) return true;
+          if (r.top > vh + 120 || r.bottom < -120) return true;
         }
         if (isHidden(getComputedStyle(el))) bypass(el);
+        return !done.has(el);
       });
     }
 
     let ticking = false;
-    window.addEventListener('scroll', () => {
+    const onScroll = () => {
+      if (!candidates.length) { window.removeEventListener('scroll', onScroll); return; }
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => { scan(true); ticking = false; });
-    }, { passive: true });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     setTimeout(() => scan(true), 400);
     const sweepId = setInterval(() => scan(true), 600);
     setTimeout(() => { scan(false); clearInterval(sweepId); }, 3000);
-    setTimeout(() => scan(false), 6000);
+    setTimeout(() => {
+      scan(false);
+      window.removeEventListener('scroll', onScroll); // all done — stop listening
+    }, 6000);
   }());
 });
 

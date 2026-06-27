@@ -6535,3 +6535,54 @@ svg path.draw-path, svg .draw-path {
   background-image: radial-gradient(circle, rgba(0,212,200,1) 1px, transparent 1px);
   background-size: 28px 28px;
 }
+
+/* Sprint 117 — scroll orbit reveal, hover ink splatter, bg scan line */
+
+@keyframes orbit-reveal-in {
+  0%   { opacity: 0; transform: rotate(calc(var(--orbit-i, 0) * 15deg)) translateX(60px) scale(0.7); }
+  60%  { opacity: 1; transform: rotate(0deg) translateX(4px) scale(1.02); }
+  100% { transform: rotate(0deg) translateX(0) scale(1); }
+}
+.scroll-orbit-reveal { opacity: 0; }
+.scroll-orbit-reveal--active {
+  animation: orbit-reveal-in 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation-delay: calc(var(--orbit-i, 0) * 80ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-orbit-reveal { opacity: 1; }
+  .scroll-orbit-reveal--active { animation: none; }
+}
+
+@keyframes ink-splatter-expand {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.55; }
+  80%  { transform: translate(-50%, -50%) scale(3.5); opacity: 0.15; }
+  100% { transform: translate(-50%, -50%) scale(4.5); opacity: 0; }
+}
+.ink-splatter-dot {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(0, 212, 200, 0.45);
+  pointer-events: none;
+  animation: ink-splatter-expand 0.55s ease-out forwards;
+}
+
+@keyframes scan-line-move {
+  0%   { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+.bg-scan-line {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,200,0.35), transparent);
+  z-index: -2;
+  pointer-events: none;
+  animation: scan-line-move 6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-scan-line { animation: none; display: none; }
+}

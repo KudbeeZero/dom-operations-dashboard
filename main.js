@@ -3662,6 +3662,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFloatingLabelInput, initFadeUpReveal, initCursorTrail,        // Sprint 84
     initTextScrambleHover, initBtnBorderDraw, initScrollBandReveal,   // Sprint 85
     initSpotlightHover, initScrollInkBlot, initWordPopIn,             // Sprint 86
+    initCardShadowDepth, initScrollColorBand, initPulseBadge,         // Sprint 87
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5649,5 +5650,59 @@ function initWordPopIn() {
       });
     }, { threshold: 0.3 });
     io.observe(el);
+  });
+}
+
+/* Sprint 87 — card shadow depth on hover, scroll color band, pulse badge ----- */
+
+function initCardShadowDepth() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cards = document.querySelectorAll(
+    '.bento-card, .pricing-card, .feature-card, .testimonial-card, .service-card'
+  );
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.shadowDepth) return;
+    card.dataset.shadowDepth = '1';
+    card.style.transition = (card.style.transition ? card.style.transition + ', ' : '') +
+      'box-shadow 0.35s ease, transform 0.35s ease';
+    card.addEventListener('mouseenter', () => {
+      card.style.boxShadow = '0 24px 48px -8px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,212,200,0.15)';
+      card.style.transform = (card.style.transform || '') + ' translateY(-4px)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.boxShadow = '';
+      card.style.transform = (card.style.transform || '').replace(' translateY(-4px)', '').trim();
+    });
+  });
+}
+
+function initScrollColorBand() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const band = document.createElement('div');
+  band.className = 'scroll-color-band';
+  band.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(band);
+  const update = () => {
+    const pct = Math.min(
+      window.scrollY / (document.documentElement.scrollHeight - window.innerHeight), 1
+    );
+    band.style.transform = `scaleX(${pct.toFixed(3)})`;
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+function initPulseBadge() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const badges = document.querySelectorAll(
+    '.badge, .hero-badge, .status-badge, .new-badge, [data-badge]'
+  );
+  if (!badges.length) return;
+  badges.forEach((badge) => {
+    if (badge.dataset.pulseBadge) return;
+    badge.dataset.pulseBadge = '1';
+    badge.classList.add('pulse-badge-el');
   });
 }

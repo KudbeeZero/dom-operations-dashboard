@@ -6641,3 +6641,46 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-firefly-wrap { display: none; }
 }
+
+/* Sprint 119 — scroll shutter reveal, hover magnetic text, bg aurora v2 */
+
+@keyframes shutter-reveal-in {
+  0%   { clip-path: inset(0 100% 0 0); opacity: 0.3; }
+  60%  { clip-path: inset(0 0% 0 0); opacity: 1; }
+  80%  { clip-path: inset(0 0 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+.scroll-shutter-reveal { clip-path: inset(0 100% 0 0); }
+.scroll-shutter-reveal--active {
+  animation: shutter-reveal-in 0.75s cubic-bezier(0.77,0,0.18,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-shutter-reveal { clip-path: none; }
+  .scroll-shutter-reveal--active { animation: none; }
+}
+
+@keyframes aurora-v2-drift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.bg-aurora-v2 {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -4;
+  opacity: 0.07;
+  background: linear-gradient(
+    135deg,
+    rgba(0,212,200,0.9) 0%,
+    rgba(123,92,250,0.8) 30%,
+    rgba(255,107,157,0.6) 60%,
+    rgba(0,212,200,0.9) 100%
+  );
+  background-size: 400% 400%;
+  animation: aurora-v2-drift 18s ease infinite;
+  filter: blur(60px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-aurora-v2 { animation: none; }
+}

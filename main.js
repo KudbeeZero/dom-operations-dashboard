@@ -3635,6 +3635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroGradientRing, initKeyboardNav, initDynamicThemeColor,     // Sprint 57
     initPageLeaveGreeting, initScrollColorShift, initInputTypingIndicator, // Sprint 58
     initLivePreviewPanel, initScrollNextHint, initHoverCardLightBeam,     // Sprint 59
+    initHeroTextShadowMouse, initScrollMomentumDot, initCtaWaveHover,    // Sprint 60
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4042,5 +4043,55 @@ function initHoverCardLightBeam() {
       card.style.setProperty('--bx', `${((e.clientX - r.left) / r.width * 100).toFixed(1)}%`);
       card.style.setProperty('--by', `${((e.clientY - r.top) / r.height * 100).toFixed(1)}%`);
     });
+  });
+}
+
+/* Sprint 60 — hero text-shadow mouse parallax, momentum dot, CTA wave hover -- */
+
+function initHeroTextShadowMouse() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const headline = document.querySelector('.hero h1, .hero-title, .hero-headline');
+  if (!headline) return;
+  const cx = () => window.innerWidth / 2;
+  const cy = () => window.innerHeight / 2;
+  window.addEventListener('mousemove', (e) => {
+    const dx = ((e.clientX - cx()) / cx()) * 7;
+    const dy = ((e.clientY - cy()) / cy()) * 5;
+    headline.style.textShadow = [
+      `${-dx}px ${-dy}px 18px rgba(0,212,200,0.22)`,
+      `${dx * 0.4}px ${dy * 0.4}px 36px rgba(127,90,240,0.12)`,
+    ].join(', ');
+  }, { passive: true });
+}
+
+function initScrollMomentumDot() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const dot = document.createElement('div');
+  dot.className = 'scroll-momentum-dot';
+  dot.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(dot);
+  let lastY = window.scrollY;
+  let hideTimer = 0;
+  window.addEventListener('scroll', () => {
+    const speed = Math.abs(window.scrollY - lastY);
+    lastY = window.scrollY;
+    const scale = Math.min(1 + speed * 0.05, 2.8).toFixed(2);
+    dot.style.transform = `scale(${scale})`;
+    dot.classList.add('scroll-momentum-dot--active');
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => {
+      dot.classList.remove('scroll-momentum-dot--active');
+      dot.style.transform = 'scale(1)';
+    }, 200);
+  }, { passive: true });
+}
+
+function initCtaWaveHover() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.btn-primary, .btn-cta, .hero-cta .btn, .cta-btn').forEach((btn) => {
+    if (!btn.classList.contains('cta-wave')) {
+      btn.classList.add('cta-wave');
+    }
   });
 }

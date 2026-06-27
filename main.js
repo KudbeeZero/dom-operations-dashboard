@@ -2901,6 +2901,54 @@ function initFormFieldGlow() {
   });
 }
 
+/* Sprint 40 — hero orb drift, pricing urgency badge, form shake validation -- */
+
+function initHeroOrbDrift() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const orb = document.querySelector('.teal-orb');
+  if (!orb) return;
+  orb.classList.add('orb-drift');
+}
+
+function initPricingUrgency() {
+  if (!('IntersectionObserver' in window)) return;
+  const heading = document.querySelector('#pricing .section-title');
+  if (!heading) return;
+  const badge = document.createElement('span');
+  badge.className = 'pricing-urgency';
+  badge.setAttribute('aria-label', 'Same-day slots fill quickly');
+  badge.textContent = '⚡ Same-day slots fill up';
+  heading.insertAdjacentElement('afterend', badge);
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      setTimeout(() => badge.classList.add('urgency-visible'), 400);
+    });
+  }, { threshold: 0.5 });
+  io.observe(heading);
+}
+
+function initFormShakeValidation() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const form = document.getElementById('contactForm');
+  if (!form) return;
+  const shake = (field) => {
+    field.classList.remove('field-shake');
+    void field.offsetWidth;
+    field.classList.add('field-shake');
+    field.addEventListener('animationend', () => field.classList.remove('field-shake'), { once: true });
+  };
+  new MutationObserver((mutations) => {
+    mutations.forEach((m) => {
+      if (m.type === 'attributes' && m.attributeName === 'class') {
+        const el = m.target;
+        if (el.classList.contains('invalid') && !el.classList.contains('field-shake')) shake(el);
+      }
+    });
+  }).observe(form, { attributes: true, subtree: true, attributeFilter: ['class'] });
+}
+
 /* Sprint 34 — price-diff stagger, hero-price flash, QR hover glow ---------- */
 
 function initPriceDiffStagger() {
@@ -2970,6 +3018,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFooterBrandGlow, initStepRevealSequence, initHeroOrbitDot,
     initFaqIconSpin, initPriceHoverMorph, initSectionDecoNumbers,
     initHeroTaglineTypewriter, initBentoBorderTrace, initFormFieldGlow,
+    initHeroOrbDrift, initPricingUrgency, initFormShakeValidation,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

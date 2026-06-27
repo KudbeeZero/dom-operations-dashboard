@@ -3658,6 +3658,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTypingEffect, initScrollProgressCounter, initAmbientGlow,      // Sprint 80
     initStaggerListReveal, initHoverShimmer, initScrollSnapDots,       // Sprint 81
     initParallaxHeroText, initCardFlipReveal, initScrollHueShift,     // Sprint 82
+    initNoiseTextureOverlay, initBtnRipple, initHeroScrollBlur,       // Sprint 83
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5384,4 +5385,52 @@ function initScrollHueShift() {
   };
   window.addEventListener('scroll', update, { passive: true });
   update();
+}
+
+/* Sprint 83 — noise texture overlay, button ripple, hero scroll blur --------- */
+
+function initNoiseTextureOverlay() {
+  if (document.querySelector('.noise-overlay')) return;
+  const el = document.createElement('div');
+  el.className = 'noise-overlay';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(el);
+}
+
+function initBtnRipple() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btns = document.querySelectorAll('.btn, .cta-btn, .hero-cta');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.ripple) return;
+    btn.dataset.ripple = '1';
+    btn.style.position = btn.style.position || 'relative';
+    btn.style.overflow = 'hidden';
+    btn.addEventListener('click', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const size = Math.max(rect.width, rect.height) * 2.2;
+      const ripple = document.createElement('span');
+      ripple.className = 'btn-ripple-wave';
+      ripple.style.cssText = `width:${size}px;height:${size}px;left:${x - size / 2}px;top:${y - size / 2}px`;
+      btn.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+    });
+  });
+}
+
+function initHeroScrollBlur() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(max-width: 767px)').matches) return;
+  const hero = document.querySelector('.hero, .hero-section, #hero, [data-hero]');
+  if (!hero) return;
+  const heroH = hero.offsetHeight || window.innerHeight;
+  window.addEventListener('scroll', () => {
+    const ratio = Math.min(window.scrollY / heroH, 1);
+    const blur = (ratio * 6).toFixed(1);
+    const opacity = (1 - ratio * 0.4).toFixed(2);
+    hero.style.filter = `blur(${blur}px)`;
+    hero.style.opacity = opacity;
+  }, { passive: true });
 }

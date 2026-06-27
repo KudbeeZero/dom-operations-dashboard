@@ -3665,6 +3665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCardShadowDepth, initScrollColorBand, initPulseBadge,         // Sprint 87
     initGlitchTextHover, initScrollZoomSection, initBtnLiquidFill,    // Sprint 88
     initAuroraBgSection, initUnderlineMorph, initScrollScaleText,     // Sprint 89
+    initCardStackHover, initParticleBurst, initSectionEdgeGlow,       // Sprint 90
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5800,4 +5801,83 @@ function initScrollScaleText() {
     hero.style.opacity = opacity.toFixed(2);
     hero.style.transformOrigin = 'center top';
   }, { passive: true });
+}
+
+/* Sprint 90 — card stack hover, particle burst click, section edge glow ------ */
+
+function initCardStackHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const grids = document.querySelectorAll(
+    '.bento-grid, .cards-grid, .features-grid, .pricing-grid, .services-grid'
+  );
+  if (!grids.length) return;
+  grids.forEach((grid) => {
+    if (grid.dataset.stackHover) return;
+    grid.dataset.stackHover = '1';
+    const cards = Array.from(grid.children);
+    if (cards.length < 2) return;
+    cards.forEach((card, i) => {
+      card.addEventListener('mouseenter', () => {
+        cards.forEach((c, j) => {
+          if (c === card) {
+            c.style.zIndex = '10';
+            c.style.transform = 'scale(1.03)';
+          } else {
+            const dist = Math.abs(j - i);
+            c.style.opacity = String(Math.max(0.55, 1 - dist * 0.15));
+            c.style.transform = `scale(${(1 - dist * 0.015).toFixed(3)})`;
+          }
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        cards.forEach((c) => {
+          c.style.zIndex = '';
+          c.style.transform = '';
+          c.style.opacity = '';
+        });
+      });
+    });
+  });
+}
+
+function initParticleBurst() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btns = document.querySelectorAll('.btn, .cta-btn, .hero-cta');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.particleBurst) return;
+    btn.dataset.particleBurst = '1';
+    btn.addEventListener('click', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const ox = e.clientX - rect.left;
+      const oy = e.clientY - rect.top;
+      for (let i = 0; i < 10; i++) {
+        const p = document.createElement('span');
+        p.className = 'particle-burst-dot';
+        const angle = (i / 10) * Math.PI * 2;
+        const dist = 28 + Math.random() * 22;
+        p.style.cssText = `left:${ox}px;top:${oy}px;--pbx:${(Math.cos(angle) * dist).toFixed(1)}px;--pby:${(Math.sin(angle) * dist).toFixed(1)}px`;
+        btn.appendChild(p);
+        p.addEventListener('animationend', () => p.remove(), { once: true });
+      }
+    });
+  });
+}
+
+function initSectionEdgeGlow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section, .bento-section');
+  if (!sections.length) return;
+  sections.forEach((section) => {
+    if (section.dataset.edgeGlow) return;
+    section.dataset.edgeGlow = '1';
+    section.classList.add('section-edge-glow');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        section.classList.toggle('section-edge-glow--active', e.isIntersecting);
+      });
+    }, { threshold: 0.3 });
+    io.observe(section);
+  });
 }

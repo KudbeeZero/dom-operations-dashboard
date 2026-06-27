@@ -5305,3 +5305,32 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .underline-morph-link { background-image: none; text-decoration: underline; }
 }
+
+/* Sprint 90 — card stack hover, particle burst click, section edge glow ------ */
+
+@keyframes particle-burst-anim {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  100% { transform: translate(var(--pbx, 0), var(--pby, 0)) scale(0); opacity: 0; }
+}
+.particle-burst-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0,212,200,0.85);
+  pointer-events: none;
+  animation: particle-burst-anim 0.5s ease-out forwards;
+  margin: -3px 0 0 -3px;
+}
+@media (prefers-reduced-motion: reduce) { .particle-burst-dot { display: none; } }
+
+.section-edge-glow {
+  transition: box-shadow 0.5s ease;
+}
+.section-edge-glow--active {
+  box-shadow: 0 0 0 1px rgba(0,212,200,0.12), inset 0 0 60px -20px rgba(0,212,200,0.06);
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-edge-glow { transition: none; }
+  .section-edge-glow--active { box-shadow: none; }
+}

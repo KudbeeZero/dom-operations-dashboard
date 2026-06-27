@@ -3679,6 +3679,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollFadeBlur, initHoverColorPop, initBtnGlowPulse,               // Sprint 101
     initScrollSkewEntry, initImageParallaxLayer, initHoverUnderlineExpand,  // Sprint 102
     initScrollRotateIn, initHoverShadowLift, initTextGradientShift,         // Sprint 103
+    initScrollFlipReveal, initHoverIconSpin, initBgAuroraDrift,             // Sprint 104
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6783,4 +6784,58 @@ function initTextGradientShift() {
     el.dataset.gradientShift = '1';
     el.classList.add('text-gradient-shift');
   });
+}
+
+/* Sprint 104 — scroll flip reveal, hover icon spin, bg aurora drift */
+
+function initScrollFlipReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-flip-reveal]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.flipReveal2) return;
+    el.dataset.flipReveal2 = '1';
+    el.classList.add('scroll-flip-reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-flip-reveal--active');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initHoverIconSpin() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const icons = document.querySelectorAll(
+    '.card svg, .service-card svg, .nav svg, [data-icon-spin]'
+  );
+  if (!icons.length) return;
+  icons.forEach((el) => {
+    if (el.dataset.iconSpin) return;
+    el.dataset.iconSpin = '1';
+    el.classList.add('hover-icon-spin');
+    el.closest('.card, .service-card, a, button')?.addEventListener('mouseenter', () => {
+      el.classList.add('hover-icon-spin--active');
+    }, { passive: true });
+    el.closest('.card, .service-card, a, button')?.addEventListener('mouseleave', () => {
+      el.classList.remove('hover-icon-spin--active');
+    }, { passive: true });
+  });
+}
+
+function initBgAuroraDrift() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-aurora-drift')) return;
+  const hero = document.querySelector('.hero, [data-hero]');
+  if (!hero) return;
+  hero.style.position = hero.style.position || 'relative';
+  hero.style.overflow = hero.style.overflow || 'hidden';
+  const aurora = document.createElement('div');
+  aurora.className = 'bg-aurora-drift';
+  aurora.setAttribute('aria-hidden', 'true');
+  hero.insertAdjacentElement('afterbegin', aurora);
 }

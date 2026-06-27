@@ -4060,3 +4060,40 @@ footer, .footer, .site-footer { position: relative; }
 }
 .cta-wave:hover::after { transform: scaleX(1) translateY(0); }
 @media (prefers-reduced-motion: reduce) { .cta-wave::after { transition: none; } }
+
+/* Sprint 61 — hero subtitle underline, section dimmer, price ping pulse ------- */
+
+/* Hero subtitle teal underline draws L→R on scroll entry */
+.hero-subtitle--underlined {
+  background-image: linear-gradient(rgba(0,212,200,0.28) 0%, rgba(0,212,200,0.28) 100%);
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  background-size: 0% 2px;
+  animation: subtitle-line-in 0.9s cubic-bezier(0.22,1,0.36,1) 0.25s forwards;
+}
+@keyframes subtitle-line-in { to { background-size: 100% 2px; } }
+@media (prefers-reduced-motion: reduce) {
+  .hero-subtitle--underlined { animation: none; background-size: 100% 2px; }
+}
+
+/* Section dimmer — non-active sections reduce to 82% opacity */
+.section-dimmable { transition: opacity 0.55s ease; opacity: 0.82; }
+.section-dimmable--active { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .section-dimmable { transition: none; opacity: 1; } }
+
+/* Pricing amount periodic pulse ring */
+.price-ping { position: relative; }
+.price-ping::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 1.5px solid rgba(0,212,200,0);
+  border-radius: 6px;
+  pointer-events: none;
+}
+.price-ping--active::before { animation: price-ring-out 0.75s ease forwards; }
+@keyframes price-ring-out {
+  0%   { border-color: rgba(0,212,200,0.7); transform: scale(1); }
+  100% { border-color: rgba(0,212,200,0); transform: scale(1.45); }
+}
+@media (prefers-reduced-motion: reduce) { .price-ping--active::before { animation: none; } }

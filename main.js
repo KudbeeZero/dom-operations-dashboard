@@ -350,13 +350,13 @@ function initContactForm() {
 }
 
 /* -------------------------------------------------------------------------
-   4. QR CODE — teal/dark, points at the live site
+   4. QR CODE — teal/dark, opens SMS to Dominick's number
    ------------------------------------------------------------------------- */
 function initQRCode() {
   const target = document.getElementById('qrcode');
   if (!target || typeof QRCode === 'undefined') return;
   new QRCode(target, {
-    text: 'https://igotadom.online',
+    text: 'sms:7736477598',
     width: 128, height: 128,
     colorDark: '#00d4c8',
     colorLight: '#131316',

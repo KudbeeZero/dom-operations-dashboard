@@ -1388,6 +1388,38 @@ button { font: inherit; cursor: pointer; }
   to   { opacity: 1; transform: none; }
 }
 
+/* "What happens next" steps list in contact section */
+.contact-next {
+  list-style: none;
+  counter-reset: next-step;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+  padding: 0;
+}
+.contact-next li {
+  counter-increment: next-step;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.contact-next li::before {
+  content: counter(next-step);
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--teal);
+  color: var(--teal);
+  font-size: 0.75em;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .qr-block {
   margin-top: var(--space-8);
   padding: var(--space-8);
@@ -1399,6 +1431,9 @@ button { font: inherit; cursor: pointer; }
 }
 .qr-img { background: var(--surface-2); padding: var(--space-3); border-radius: var(--radius-md); }
 .qr-img img, .qr-img canvas { border-radius: var(--radius-sm); }
+.qr-label { font-size: var(--text-sm); color: var(--text); font-weight: 600; margin-top: var(--space-2); }
+.qr-sub { font-size: var(--text-xs); color: var(--text-muted); }
+.qr-sms-btn { margin-top: var(--space-2); font-size: var(--text-sm); letter-spacing: 0.03em; }
 .qr-block p { font-size: var(--text-sm); color: var(--text-muted); }
 
 /* --------------------------------------------------------------------------

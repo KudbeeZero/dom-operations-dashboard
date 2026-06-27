@@ -2763,3 +2763,50 @@ body::after {
   transform-origin: center bottom;
 }
 @media (prefers-reduced-motion: reduce) { .phone-ring { animation: none; } }
+
+/* Hero price flash — teal glow + scale pop on $25 */
+@keyframes hero-price-flash {
+  0%   { color: inherit; transform: scale(1); text-shadow: none; }
+  25%  { color: var(--teal); transform: scale(1.18); text-shadow: 0 0 20px rgba(0,212,200,0.85), 0 0 48px rgba(0,212,200,0.4); }
+  55%  { color: var(--teal); transform: scale(1.10); }
+  100% { color: inherit; transform: scale(1); text-shadow: none; }
+}
+.hero-price-flash {
+  display: inline-block;
+  animation: hero-price-flash 0.9s cubic-bezier(0.22, 0.1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) { .hero-price-flash { animation: none; } }
+
+/* QR hover glow + in-view scan-line */
+.qr-glow-ready {
+  transition: box-shadow 0.35s ease, transform 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+.qr-glow-ready:hover {
+  box-shadow: 0 0 0 1px rgba(0,212,200,0.35), 0 0 40px rgba(0,212,200,0.28), 0 8px 40px rgba(0,0,0,0.45);
+  transform: translateY(-3px) scale(1.015);
+}
+.qr-glow-ready::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,212,200,0.9) 40%, rgba(255,255,255,0.6) 50%, rgba(0,212,200,0.9) 60%, transparent 100%);
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+.qr-in-view.qr-glow-ready::after {
+  animation: qr-scan 2.8s ease-in-out 1.2s infinite;
+}
+@keyframes qr-scan {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translateY(calc(100% + 3px)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qr-glow-ready::after { display: none; }
+  .qr-glow-ready:hover { transform: none; }
+}

@@ -2667,6 +2667,44 @@ function initFormatTagEntrance() {
   });
 }
 
+/* Sprint 34 — price-diff stagger, hero-price flash, QR hover glow ---------- */
+
+function initPriceDiffStagger() {
+  const row = document.querySelector('.price-diff-row');
+  if (!row) return;
+  const items = row.querySelectorAll('.price-diff-item');
+  if (!items.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from(items, {
+    x: 40, opacity: 0, duration: 0.55, ease: 'power3.out', stagger: 0.12,
+    scrollTrigger: { trigger: row, start: 'top 88%' },
+  });
+}
+
+function initHeroPriceFlash() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector('.hero-price strong');
+  if (!el) return;
+  setTimeout(() => {
+    el.classList.add('hero-price-flash');
+    el.addEventListener('animationend', () => el.classList.remove('hero-price-flash'), { once: true });
+  }, 1800);
+}
+
+function initQRHoverGlow() {
+  const block = document.querySelector('.qr-block');
+  if (!block) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  block.classList.add('qr-glow-ready');
+  if (!('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => block.classList.toggle('qr-in-view', e.isIntersecting));
+  }, { threshold: 0.4 });
+  io.observe(block);
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -2692,6 +2730,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFeaturedCardPulse, initBentoTitleScramble, initFaqBarReveal,
     initProcessLineDraw, initHeroEyebrowPulse, initFormatTagEntrance,
     initAboutIconSpin, initStepBadgePop, initPhoneRingWiggle,
+    initPriceDiffStagger, initHeroPriceFlash, initQRHoverGlow,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

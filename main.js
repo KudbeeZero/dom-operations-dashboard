@@ -3710,6 +3710,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollSpringPop, initHoverGradientText, initBgWarpGrid,              // Sprint 132
     initScrollCascadeFade, initHoverIconBounce, initBgHexGrid,               // Sprint 133
     initScrollZoomBlurIn, initHoverTextScramble, initBgPulseRing,            // Sprint 134
+    initScrollFlipX, initHoverBorderGlowSweep, initBgRainDrops,             // Sprint 135
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8794,4 +8795,83 @@ function initBgPulseRing() {
     wrap.appendChild(ring);
   }
   document.body.insertAdjacentElement('afterbegin', wrap);
+}
+
+/* Sprint 135 — scroll flip x, hover border glow sweep, bg rain drops */
+
+function initScrollFlipX() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-flip-x]');
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.flipX) return;
+    el.dataset.flipX = '1';
+    el.classList.add('scroll-flip-x');
+    el.style.setProperty('--fx-i', i);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-flip-x--active');
+      });
+    }, { threshold: 0.25 });
+    io.observe(el);
+  });
+}
+
+function initHoverBorderGlowSweep() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-border-glow-sweep]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.borderGlowSweep) return;
+    el.dataset.borderGlowSweep = '1';
+    el.classList.add('hover-border-glow-sweep');
+    el.addEventListener('mousemove', (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+      el.style.setProperty('--bgs-x', x + '%');
+      el.style.setProperty('--bgs-y', y + '%');
+    }, { passive: true });
+  });
+}
+
+function initBgRainDrops() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-rain-drops')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-rain-drops';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const drops = Array.from({ length: 40 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    len: 10 + Math.random() * 20,
+    speed: 1.5 + Math.random() * 2.5,
+    alpha: 0.04 + Math.random() * 0.06,
+  }));
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drops.forEach((d) => {
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - 1, d.y + d.len);
+      ctx.strokeStyle = `rgba(0,212,200,${d.alpha})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      d.y += d.speed;
+      if (d.y > canvas.height) {
+        d.y = -d.len;
+        d.x = Math.random() * canvas.width;
+      }
+    });
+    requestAnimationFrame(draw);
+  };
+  draw();
 }

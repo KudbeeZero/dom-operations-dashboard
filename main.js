@@ -3633,6 +3633,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSectionLineAccent, initFooterWave, initMouseGlowFollower,     // Sprint 55
     initPageClickRipple, initImageClipReveal, initPricingCountdown,   // Sprint 56
     initHeroGradientRing, initKeyboardNav, initDynamicThemeColor,     // Sprint 57
+    initPageLeaveGreeting, initScrollColorShift, initInputTypingIndicator, // Sprint 58
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -3942,4 +3943,49 @@ function initDynamicThemeColor() {
     io.observe(section);
   });
   meta.setAttribute('content', palette[0]);
+}
+
+/* Sprint 58 — page leave greeting, scroll color shift, input typing tip ------- */
+
+function initPageLeaveGreeting() {
+  const original = document.title;
+  document.addEventListener('visibilitychange', () => {
+    document.title = document.hidden ? `👋 We'll be here — ${original}` : original;
+  });
+}
+
+function initScrollColorShift() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'scroll-color-overlay';
+  overlay.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(overlay);
+  let raf = 0;
+  const update = () => {
+    const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) || 0;
+    overlay.style.setProperty('--sc-hue', Math.round(pct * 120));
+  };
+  window.addEventListener('scroll', () => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(update);
+  }, { passive: true });
+  update();
+}
+
+function initInputTypingIndicator() {
+  const form = document.querySelector('.contact-form, form');
+  if (!form) return;
+  form.querySelectorAll('input[type="text"], input[type="email"], textarea').forEach((input) => {
+    const tip = document.createElement('span');
+    tip.className = 'input-tip';
+    tip.setAttribute('aria-live', 'polite');
+    input.insertAdjacentElement('afterend', tip);
+    input.addEventListener('input', () => {
+      const len = input.value.trim().length;
+      if (len === 0)  { tip.textContent = ''; tip.dataset.state = ''; }
+      else if (len < 3)  { tip.textContent = 'Keep going…'; tip.dataset.state = 'weak'; }
+      else if (len < 10) { tip.textContent = 'Almost there'; tip.dataset.state = 'ok'; }
+      else               { tip.textContent = 'Looking good ✓'; tip.dataset.state = 'good'; }
+    });
+  });
 }

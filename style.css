@@ -3920,3 +3920,33 @@ footer, .footer, .site-footer { position: relative; }
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
 .section-nav-toast--in { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Sprint 58 — page leave greeting (no CSS), scroll color shift, input tip ---- */
+
+/* Scroll-position-driven ambient hue shift */
+.scroll-color-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    hsla(calc(174 + var(--sc-hue, 0)), 70%, 55%, 0.025) 0%,
+    transparent 65%
+  );
+}
+@media (prefers-reduced-motion: reduce) { .scroll-color-overlay { display: none; } }
+
+/* Input typing progress hint */
+.input-tip {
+  display: block;
+  font-size: 0.68rem;
+  min-height: 1.1em;
+  margin-top: 0.2rem;
+  transition: color 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+.input-tip:not(:empty) { opacity: 0.8; }
+.input-tip[data-state="weak"]  { color: rgba(255,185,0,0.75); }
+.input-tip[data-state="ok"]    { color: rgba(0,180,216,0.85); }
+.input-tip[data-state="good"]  { color: rgba(0,212,200,0.95); }

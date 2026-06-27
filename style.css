@@ -4353,3 +4353,51 @@ nav a, .nav a, .nav-link {
 @media (prefers-reduced-motion: reduce) {
   .prog-word { opacity: 1; transform: none; }
 }
+
+/* Sprint 67 — mosaic image reveal, hero word cycle, card peel corner ------- */
+
+/* Mosaic reveal — 4×4 grid cells fade out to unveil image on scroll */
+.mosaic-wrap {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+.mosaic-cell {
+  position: absolute;
+  background: var(--color-bg, #0d0d0d);
+  z-index: 2;
+  opacity: 1;
+  transition: opacity 0.35s ease calc(var(--mi) * 0.03s);
+}
+.mosaic-wrap--reveal .mosaic-cell { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .mosaic-cell { display: none; } }
+
+/* Hero word cycle — typewriter cursor blink on cycling word element */
+[data-word-cycle], .hero-word-cycle {
+  display: inline-block;
+  min-width: 5ch;
+  color: var(--color-accent, #00d4c8);
+  border-right: 2px solid var(--color-accent, #00d4c8);
+  animation: word-cursor-blink 0.7s step-end infinite;
+}
+@keyframes word-cursor-blink {
+  0%, 100% { border-color: var(--color-accent, #00d4c8); }
+  50%       { border-color: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-word-cycle], .hero-word-cycle { animation: none; border-right: none; }
+}
+
+/* Card peel corner — dog-ear corner triangle on hover */
+.card-peel { position: relative; overflow: hidden; }
+.card-peel::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  border-style: solid;
+  border-width: 0 0 0 0;
+  border-color: transparent transparent rgba(0,212,200,0.3) transparent;
+  transition: border-width 0.25s cubic-bezier(0.22,1,0.36,1);
+}
+.card-peel:hover::after { border-width: 0 0 28px 28px; }
+@media (pointer: coarse) { .card-peel::after { display: none; } }

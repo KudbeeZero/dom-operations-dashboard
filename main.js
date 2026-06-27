@@ -3642,6 +3642,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBlobCursorBlend, initSectionWatermark, initNavMorphPill,       // Sprint 64
     initBorderBeamBtn, initScrollRippleSection, initStatGlowReveal,    // Sprint 65
     initCharWaveReveal, initBtnFillHover, initProgressiveTextReveal,   // Sprint 66
+    initMosaicImgReveal, initHeroWordCycle, initCardPeelCorner,        // Sprint 67
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4432,5 +4433,76 @@ function initProgressiveTextReveal() {
       });
     }, { threshold: 0.2 });
     io.observe(p);
+  });
+}
+
+/* Sprint 67 — mosaic image reveal, hero word cycle, card peel corner ------- */
+
+function initMosaicImgReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section img, .ba-section img, .about-img, .showcase-img').forEach((img) => {
+    if (img.dataset.mosaic) return;
+    img.dataset.mosaic = '1';
+    const wrap = document.createElement('div');
+    wrap.className = 'mosaic-wrap';
+    img.parentNode.insertBefore(wrap, img);
+    wrap.appendChild(img);
+    const cols = 4, rows = 4;
+    for (let i = 0; i < cols * rows; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'mosaic-cell';
+      cell.style.cssText = `left:${(i % cols) * 25}%;top:${Math.floor(i / cols) * 25}%;width:25%;height:25%;--mi:${i};`;
+      wrap.appendChild(cell);
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(img);
+        wrap.classList.add('mosaic-wrap--reveal');
+      });
+    }, { threshold: 0.2 });
+    io.observe(img);
+  });
+}
+
+function initHeroWordCycle() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const target = document.querySelector('[data-word-cycle], .hero-word-cycle');
+  if (!target) return;
+  const words = (target.dataset.words || 'Fast,Local,Trusted,Proven').split(',');
+  let idx = 0;
+  const type = (word) => {
+    target.textContent = '';
+    let ci = 0;
+    const addChar = () => {
+      if (ci < word.length) {
+        target.textContent += word[ci++];
+        setTimeout(addChar, 80);
+      } else {
+        setTimeout(() => del(word), 1800);
+      }
+    };
+    addChar();
+  };
+  const del = (word) => {
+    let len = word.length;
+    const removeChar = () => {
+      if (len > 0) {
+        target.textContent = word.slice(0, --len);
+        setTimeout(removeChar, 50);
+      } else {
+        idx = (idx + 1) % words.length;
+        setTimeout(() => type(words[idx]), 300);
+      }
+    };
+    removeChar();
+  };
+  type(words[idx]);
+}
+
+function initCardPeelCorner() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  document.querySelectorAll('.bento-card, .pricing-card, .service-card').forEach((card) => {
+    card.classList.add('card-peel');
   });
 }

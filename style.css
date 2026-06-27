@@ -3666,3 +3666,34 @@ body::after {
 .section-counter.counter-pop { animation: counter-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
 @media (max-width: 767px) { .section-counter { display: none; } }
 @media (prefers-reduced-motion: reduce) { .section-counter { animation: none !important; } }
+
+/* Sprint 53 — neon flicker, card stack depth, scroll progress ring ----------- */
+
+@keyframes neon-flicker {
+  0%   { text-shadow: none; opacity: 0.4; }
+  5%   { text-shadow: 0 0 8px rgba(0,212,200,0.9), 0 0 20px rgba(0,212,200,0.5); opacity: 1; }
+  10%  { text-shadow: none; opacity: 0.5; }
+  15%  { text-shadow: 0 0 8px rgba(0,212,200,0.9), 0 0 20px rgba(0,212,200,0.5); opacity: 1; }
+  25%  { text-shadow: none; opacity: 0.6; }
+  30%  { text-shadow: 0 0 8px rgba(0,212,200,0.9), 0 0 20px rgba(0,212,200,0.5); opacity: 1; }
+  50%  { text-shadow: 0 0 12px rgba(0,212,200,1), 0 0 30px rgba(0,212,200,0.6); opacity: 1; }
+  100% { text-shadow: 0 0 6px rgba(0,212,200,0.45), 0 0 14px rgba(0,212,200,0.2); opacity: 1; }
+}
+.neon-flicker { animation: neon-flicker 1.2s ease forwards; }
+@media (prefers-reduced-motion: reduce) { .neon-flicker { animation: none !important; } }
+
+/* Pricing card 3D stack depth: sibling cards recede when one is hovered */
+.pricing-card {
+  transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),
+              opacity 0.35s ease,
+              filter 0.35s ease,
+              box-shadow 0.35s ease;
+}
+.pricing-card.stack-back {
+  transform: scale(0.95) translateZ(-40px);
+  opacity: 0.65;
+  filter: brightness(0.82);
+}
+
+/* Scroll progress ring — positioned inside the scroll-to-top button via JS */
+/* (No additional CSS needed — SVG is injected with inline styles) */

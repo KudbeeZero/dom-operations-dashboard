@@ -7924,3 +7924,64 @@ svg path.draw-path, svg .draw-path {
     rgba(0, 0, 0, 0.35) 100%
   );
 }
+
+/* ============================================================
+   Sprint 144 — clip-path slide reveal, image shimmer hover, gradient drift bg
+   ============================================================ */
+
+/* --- Clip-path Slide Reveal --- */
+.clip-slide {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.clip-slide--in {
+  clip-path: inset(0 0% 0 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .clip-slide { clip-path: none; }
+}
+
+/* --- Image Shimmer Hover --- */
+.img-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+:hover > .img-shimmer {
+  opacity: 1;
+  animation: img-shimmer-sweep 0.6s ease forwards;
+}
+@keyframes img-shimmer-sweep {
+  from { background-position: -100% 0; }
+  to   { background-position: 200% 0; }
+}
+
+/* --- Gradient Drift Background --- */
+.bg-gradient-drift {
+  position: fixed;
+  inset: 0;
+  z-index: -11;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 40% at 15% 85%, rgba(0, 80, 200, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 55% at 85% 15%, rgba(0, 212, 200, 0.06) 0%, transparent 60%);
+  animation: gradient-drift-shift 20s ease-in-out infinite alternate;
+}
+@keyframes gradient-drift-shift {
+  0%   { transform: scale(1) translateX(0); }
+  100% { transform: scale(1.08) translateX(2%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-gradient-drift { animation: none; }
+}

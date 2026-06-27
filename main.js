@@ -3719,6 +3719,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollBlurSharp, initHover3DDepthTilt, initBgNoiseTexture,         // Sprint 141
     initScrollStaggerChars, initHoverGlowOrb, initBgScanlineOverlay,       // Sprint 142
     initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
+    initScrollClipSlide, initHoverImageShimmer, initBgGradientDrift,       // Sprint 144
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -9349,6 +9350,53 @@ function initBgRadialVignette() {
   if (document.querySelector('.bg-radial-vignette')) return;
   const el = document.createElement('div');
   el.className = 'bg-radial-vignette';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 144 — clip-path slide reveal, shimmer hover on images, gradient drift bg */
+
+function initScrollClipSlide() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-clip-slide]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.clipSlideInit) return;
+    el.dataset.clipSlideInit = '1';
+    el.classList.add('clip-slide');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('clip-slide--in');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initHoverImageShimmer() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const imgs = document.querySelectorAll('img, [data-shimmer-img]');
+  if (!imgs.length) return;
+  imgs.forEach((img) => {
+    if (img.dataset.shimmerInit) return;
+    img.dataset.shimmerInit = '1';
+    const wrap = img.parentElement;
+    if (!wrap) return;
+    wrap.style.position = 'relative';
+    wrap.style.overflow = 'hidden';
+    const shim = document.createElement('span');
+    shim.className = 'img-shimmer';
+    shim.setAttribute('aria-hidden', 'true');
+    wrap.appendChild(shim);
+  });
+}
+
+function initBgGradientDrift() {
+  if (document.querySelector('.bg-gradient-drift')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-gradient-drift';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
 }

@@ -3676,6 +3676,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCursorSpotlight, initScrollClipReveal, initHoverBorderTrace,        // Sprint 98
     initScrollRevealScale, initHoverTilt3D, initNeonLineDraw,               // Sprint 99
     initCinematicScrollWipe, initHeroParticleBurst, initCascadeReveal,      // Sprint 100
+    initScrollFadeBlur, initHoverColorPop, initBtnGlowPulse,               // Sprint 101
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6609,5 +6610,57 @@ function initCascadeReveal() {
       });
     }, { threshold: 0.1 });
     io.observe(group);
+  });
+}
+
+/* Sprint 101 — scroll fade-blur, hover color pop, btn glow pulse */
+
+function initScrollFadeBlur() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('p, li, blockquote, .caption, [data-fade-blur]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.fadeBlur) return;
+    el.dataset.fadeBlur = '1';
+    el.classList.add('scroll-fade-blur');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-fade-blur--active');
+      });
+    }, { threshold: 0.25 });
+    io.observe(el);
+  });
+}
+
+function initHoverColorPop() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const icons = document.querySelectorAll(
+    'svg, img[alt], .icon, [data-color-pop]'
+  );
+  if (!icons.length) return;
+  icons.forEach((el) => {
+    if (el.dataset.colorPop) return;
+    el.dataset.colorPop = '1';
+    el.classList.add('hover-color-pop');
+    el.addEventListener('mouseenter', () => {
+      el.classList.add('hover-color-pop--active');
+    }, { passive: true });
+    el.addEventListener('mouseleave', () => {
+      el.classList.remove('hover-color-pop--active');
+    }, { passive: true });
+  });
+}
+
+function initBtnGlowPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btns = document.querySelectorAll('.btn, .cta-btn, [data-glow-pulse]');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.glowPulse) return;
+    btn.dataset.glowPulse = '1';
+    btn.classList.add('btn-glow-pulse');
   });
 }

@@ -2531,3 +2531,51 @@ body::after {
     transparent 52%
   );
 }
+
+/* Nav shrink — compact mode on scroll */
+.nav-inner { transition: padding 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+#nav.nav-compact .nav-inner {
+  padding-top:    max(var(--space-2), env(safe-area-inset-top));
+  padding-bottom: var(--space-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-inner { transition: none; }
+}
+
+/* Price card cursor spotlight */
+.price-card {
+  --mx: 50%;
+  --my: 50%;
+}
+.price-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    300px circle at var(--mx) var(--my),
+    rgba(0, 212, 200, 0.11),
+    transparent 62%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.price-card:hover::after { opacity: 1; }
+
+/* Section kicker character reveal */
+.section-kicker.kicker-split .kicker-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity   0.38s ease     calc(var(--ki, 0) * 0.04s + 0.1s),
+    transform 0.38s ease-out calc(var(--ki, 0) * 0.04s + 0.1s);
+}
+.section-kicker.kicker-go .kicker-char {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-kicker.kicker-split .kicker-char { opacity: 1; transform: none; transition: none; }
+}

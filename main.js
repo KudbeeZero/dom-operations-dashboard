@@ -2020,6 +2020,96 @@ function initKineticFloat() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   NAV CTA PING — sonar pulse ring fires from the primary SMS CTA buttons
+   (nav + mobile bar) after 5 s, then every 9 s. A <span> is appended,
+   animates outward, and self-removes on animationend.
+   ------------------------------------------------------------------------- */
+function initNavCTAPing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const targets = [
+    document.querySelector('.nav-cta'),
+    document.querySelector('.mobile-bar-btn.mobile-bar-text'),
+  ].filter(Boolean);
+
+  if (!targets.length) return;
+
+  const firePing = (el) => {
+    const ping = document.createElement('span');
+    ping.className = 'cta-ping';
+    ping.setAttribute('aria-hidden', 'true');
+    el.appendChild(ping);
+    ping.addEventListener('animationend', () => ping.remove(), { once: true });
+  };
+
+  setTimeout(() => {
+    targets.forEach(firePing);
+    setInterval(() => targets.forEach(firePing), 9000);
+  }, 5200);
+}
+
+/* -------------------------------------------------------------------------
+   SLIDER TAB INDICATOR — a sliding teal underline follows the active tab
+   in the showcase section; syncs with autoplay via MutationObserver.
+   ------------------------------------------------------------------------- */
+function initSliderTabIndicator() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.querySelector('.showcase-tabs');
+  if (!container) return;
+
+  const indicator = document.createElement('div');
+  indicator.className = 'tab-slide-indicator';
+  indicator.setAttribute('aria-hidden', 'true');
+  container.appendChild(indicator);
+
+  const move = (tab) => {
+    const cr = container.getBoundingClientRect();
+    const tr = tab.getBoundingClientRect();
+    indicator.style.left  = (tr.left - cr.left) + 'px';
+    indicator.style.width = tr.width + 'px';
+  };
+
+  const activeTab = container.querySelector('.showcase-tab.is-active');
+  if (activeTab) {
+    indicator.style.transition = 'none';
+    move(activeTab);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      indicator.style.transition = '';
+    }));
+  }
+
+  container.addEventListener('click', (e) => {
+    const tab = e.target.closest('.showcase-tab');
+    if (tab) move(tab);
+  });
+
+  new MutationObserver(() => {
+    const active = container.querySelector('.showcase-tab.is-active');
+    if (active) move(active);
+  }).observe(container, { attributes: true, subtree: true, attributeFilter: ['class'] });
+}
+
+/* -------------------------------------------------------------------------
+   FORM COMPLETION GLOW — submit button gets a progressive teal glow as the
+   user fills in required fields; full glow = all fields have content.
+   ------------------------------------------------------------------------- */
+function initFormCompletionGlow() {
+  const form = document.getElementById('contactForm');
+  if (!form) return;
+  const submit   = form.querySelector('[type="submit"]');
+  const required = Array.from(form.querySelectorAll('[required]'));
+  if (!submit || !required.length) return;
+
+  const update = () => {
+    const filled = required.filter(el => el.value.trim().length > 0).length;
+    submit.classList.toggle('form-partial', filled > 0 && filled < required.length);
+    submit.classList.toggle('form-ready',   filled === required.length);
+  };
+
+  required.forEach(el => el.addEventListener('input', update));
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -2036,6 +2126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initContactReveal, initContactSteps,
     initHeroTrustCycle, initTrustBarEntrance, initFooterEntrance,
     initShowcaseAutoplay, initKineticFloat,
+    initNavCTAPing, initSliderTabIndicator, initFormCompletionGlow,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

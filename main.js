@@ -3674,6 +3674,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHoverGlowTrail, initScrollLetterSpacingMorph, initBtnElasticBounce, // Sprint 96
     initMorphingBlob, initScrollParallaxCards, initTextSplitReveal,         // Sprint 97
     initCursorSpotlight, initScrollClipReveal, initHoverBorderTrace,        // Sprint 98
+    initScrollRevealScale, initHoverTilt3D, initNeonLineDraw,               // Sprint 99
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6415,5 +6416,73 @@ function initHoverBorderTrace() {
     el.addEventListener('mouseleave', () => {
       el.classList.remove('border-trace--active');
     }, { passive: true });
+  });
+}
+
+/* Sprint 99 — scroll reveal scale, hover tilt 3D, neon line draw */
+
+function initScrollRevealScale() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.section-title, .hero-title, h2, h3, p, .card, .service-card, [data-reveal-scale]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.revealScale) return;
+    el.dataset.revealScale = '1';
+    el.classList.add('scroll-reveal-scale');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-reveal-scale--active');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initHoverTilt3D() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const cards = document.querySelectorAll('.card, .service-card, .ba-card, [data-tilt]');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.tilt3d) return;
+    card.dataset.tilt3d = '1';
+    card.classList.add('hover-tilt-3d');
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width  - 0.5;
+      const py = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.transform = `perspective(600px) rotateX(${-py * 12}deg) rotateY(${px * 12}deg) scale(1.02)`;
+    }, { passive: true });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    }, { passive: true });
+  });
+}
+
+function initNeonLineDraw() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.neon-line-draw')) return;
+  const sections = document.querySelectorAll('.section, .ba-section');
+  if (!sections.length) return;
+  sections.forEach((section, i) => {
+    if (i % 3 !== 0) return;
+    if (section.dataset.neonLine) return;
+    section.dataset.neonLine = '1';
+    const line = document.createElement('div');
+    line.className = 'neon-line-draw';
+    line.setAttribute('aria-hidden', 'true');
+    section.appendChild(line);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(section);
+        line.classList.add('neon-line-draw--active');
+      });
+    }, { threshold: 0.3 });
+    io.observe(section);
   });
 }

@@ -3669,6 +3669,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTextRevealMask, initHoverBorderGlow, initScrollOpacityFade,   // Sprint 91
     initHeroGridLines, initBtnConfetti, initScrollSlideFromSide,      // Sprint 92
     initHoverColorShift, initScrollDepthBlur, initBtnShake,           // Sprint 93
+    initFloatingActionBtn, initDotPatternBg, initHoverScaleIcon,      // Sprint 94
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6061,6 +6062,58 @@ function initBtnShake() {
       void btn.offsetWidth;
       btn.classList.add('btn-shake-anim');
       btn.addEventListener('animationend', () => btn.classList.remove('btn-shake-anim'), { once: true });
+    });
+  });
+}
+
+/* Sprint 94 — floating action btn, dot pattern bg, hover scale icon ---------- */
+
+function initFloatingActionBtn() {
+  if (document.querySelector('.fab-scroll-top')) return;
+  const fab = document.createElement('button');
+  fab.className = 'fab-scroll-top';
+  fab.setAttribute('aria-label', 'Scroll to top');
+  fab.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 15V5M5 10l5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  document.body.appendChild(fab);
+  const toggle = () => {
+    fab.classList.toggle('fab-scroll-top--visible', window.scrollY > 400);
+  };
+  window.addEventListener('scroll', toggle, { passive: true });
+  fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  toggle();
+}
+
+function initDotPatternBg() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll(
+    '.section:nth-child(odd), .ba-section:nth-child(odd), .bento-section:nth-child(even)'
+  );
+  if (!sections.length) return;
+  sections.forEach((section) => {
+    if (section.dataset.dotPattern) return;
+    section.dataset.dotPattern = '1';
+    section.classList.add('dot-pattern-section');
+  });
+}
+
+function initHoverScaleIcon() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const icons = document.querySelectorAll(
+    '.feature-icon, .step-icon, .bento-icon, .service-icon, .process-icon, .icon, svg.icon'
+  );
+  if (!icons.length) return;
+  icons.forEach((icon) => {
+    if (icon.dataset.hoverScale) return;
+    icon.dataset.hoverScale = '1';
+    const parent = icon.closest('a, button, .bento-card, .feature-card, .step-card, .service-card');
+    if (!parent) return;
+    parent.addEventListener('mouseenter', () => {
+      icon.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      icon.style.transform = 'scale(1.2) rotate(-5deg)';
+    });
+    parent.addEventListener('mouseleave', () => {
+      icon.style.transform = 'scale(1) rotate(0deg)';
     });
   });
 }

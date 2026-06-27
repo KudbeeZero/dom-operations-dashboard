@@ -343,3 +343,33 @@
 - LIVE domain pending: https://igotadom.online requires Cloudflare custom-domain
   setup (nameservers Namecheap → Cloudflare, then add custom domain in Pages project).
   Until then the site is live at https://dom-operations-dashboard.pages.dev.
+
+## /loop Website Upgrade — 10 Waves — 2026-06-27
+- Domain igotadom.online went live (Cloudflare Pages + CNAME + nameserver transfer).
+- Contact form wired to Formspree https://formspree.io/f/mqevpwzd (real submissions).
+- QR code changed from website URL → sms:7736477598 (more useful when already on site).
+- Wave 1: 4-tab before/after showcase (Resume, Screenshot, Notes, Email) with EXAMPLES array
+  in initBeforeAfter(); richer service bento cards with "you send / you get" lines.
+- Wave 2: Trust bar (same day / $25 / 1 person / fix it free) + richer How It Works
+  (step-formats chips, timing badges, step-badge for guarantee).
+- Wave 3: FAQ section (6 native <details> accordions, no JS); FAQ link added to nav.
+- Wave 4: "I'm Dominick" personal about-strip between FAQ and contact.
+  (circular D icon, teal ring, SMS CTA, glass card, mobile stacked).
+- Wave 5: Work ticker marquee (CSS-only, 12 work types, infinite scroll, pauses on hover,
+  reduced-motion gets scrollable row). Between trust bar and showcase.
+- Wave 6: Premium showcase — ba-doc-after gets white paper (#fafbfc) + shadow.
+  EXAMPLES expanded to 7-8 lines each. New classes: ba-section-label, ba-bullet, ba-meta, ba-note.
+- Wave 7: Pricing section — Quick Fix CTA → sms: (lowest-friction entry); price nudge below
+  cards; differentiator row (not a chatbot / not a platform / one person).
+- Wave 8: Contact upgrade — 3-step "What happens next" numbered list; contact intro copy
+  rewritten; QR label → "Scan to text Dominick"; SMS button below QR.
+- Wave 9: Services bento — "Most Popular" gold badge on anchor card; turnaround time badges
+  on all 6 cards (⚡ Usually back within 2–4 hrs, etc.).
+- Wave 10: "Examples" link added to desktop + mobile nav → #showcase; "or email" references
+  removed (no email published); anchor card copy deduped vs badge.
+- All 10 waves pushed directly to main; Cloudflare Pages auto-deployed each.
+- DECISION: nav has 5 links (Examples / What I Do / Pricing / FAQ / Contact) — dropped
+  "How It Works" to prevent overflow; process section still reachable by scroll.
+- STANDING: SMS (sms:7736477598) is the primary conversion CTA across site; form is backup.
+- TESTIMONIALS: no real client quotes exist yet — placeholder structure not added to avoid
+  fake social proof. Owner should add 2-3 real quotes once available.

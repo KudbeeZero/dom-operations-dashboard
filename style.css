@@ -1964,3 +1964,55 @@ button { font: inherit; cursor: pointer; }
 .price-card.featured:hover {
   box-shadow: 0 0 60px rgba(201,168,76,0.18), 0 20px 40px rgba(0,0,0,0.25);
 }
+
+/* ==========================================================================
+   Sprint 14 — Kinetic statement section + FAQ reveal animation
+   ========================================================================== */
+
+/* --- Kinetic full-width statement ------------------------------------ */
+.kinetic-section {
+  padding: var(--space-24) 0;
+  text-align: center;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.kinetic-text {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 1rem + 7vw, 7rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-bottom: var(--space-12);
+}
+.k-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
+}
+/* JS adds .k-visible once IO triggers; reduced-motion fallback below */
+.k-word.k-visible { opacity: 1; transform: none; }
+.k-accent { color: var(--teal); }
+.k-dim    { color: var(--text-muted); }
+.k-break  { display: block; height: 0.12em; }
+.kinetic-cta { margin-inline: auto; }
+
+/* Reduced motion: show words immediately, no transition */
+@media (prefers-reduced-motion: reduce) {
+  .k-word { opacity: 1; transform: none; transition: none; }
+}
+
+/* --- FAQ smooth open animation (JS-driven; CSS provides the base) ---- */
+.faq-item > p {
+  transform-origin: top left;
+}
+.faq-anim {
+  animation: faq-open 0.3s var(--ease-out) both;
+}
+@keyframes faq-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}

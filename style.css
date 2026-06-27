@@ -7201,3 +7201,77 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-circuit-trace { display: none; }
 }
+
+/* Sprint 130 — scroll tilt card, hover border beam, bg lava lamp */
+
+@keyframes tilt-card-in {
+  0%   { opacity: 0; transform: perspective(600px) rotateY(calc(var(--tc-i, 1) * 25deg)) translateZ(-60px); }
+  65%  { opacity: 1; transform: perspective(600px) rotateY(calc(var(--tc-i, 1) * -2deg)) translateZ(4px); }
+  100% { transform: perspective(600px) rotateY(0deg) translateZ(0); }
+}
+.scroll-tilt-card { opacity: 0; }
+.scroll-tilt-card--active {
+  animation: tilt-card-in 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-tilt-card { opacity: 1; }
+  .scroll-tilt-card--active { animation: none; }
+}
+
+@keyframes border-beam-travel {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+.hover-border-beam {
+  position: relative;
+}
+.hover-border-beam::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0,212,200,0.8) 30%,
+    rgba(255,255,255,1) 50%,
+    rgba(123,92,250,0.8) 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 1px;
+}
+.hover-border-beam:hover::before {
+  opacity: 1;
+  animation: border-beam-travel 1.5s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-border-beam:hover::before { animation: none; opacity: 0.6; }
+}
+
+@keyframes lava-blob-float {
+  0%, 100% { border-radius: 60% 40% 70% 30% / 50% 60% 40% 70%; transform: translate(0, 0) scale(1); }
+  33%       { border-radius: 40% 60% 30% 70% / 70% 30% 60% 40%; transform: translate(30px, -40px) scale(1.1); }
+  66%       { border-radius: 70% 30% 50% 50% / 40% 70% 30% 60%; transform: translate(-20px, 25px) scale(0.9); }
+}
+.bg-lava-lamp {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -5;
+  overflow: hidden;
+}
+.bg-lava-lamp__blob {
+  position: absolute;
+  opacity: 0.05;
+  filter: blur(70px);
+  animation: lava-blob-float linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-lava-lamp__blob { animation: none; }
+}

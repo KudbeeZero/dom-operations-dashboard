@@ -2329,3 +2329,28 @@ body::after {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: none; }
 }
+
+/* ==========================================================================
+   Sprint 21 — About entrance · Contact field stagger · FAQ open indicator
+   ========================================================================== */
+
+/* about-headline clip-path is driven by GSAP; hint the GPU */
+.about-headline { will-change: clip-path; }
+
+/* --- FAQ open: teal left border grows from top to bottom -------------- */
+.faq-item { position: relative; }
+.faq-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--teal);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.32s var(--ease-out);
+  border-radius: 0 2px 2px 0;
+}
+.faq-item[open]::before { transform: scaleY(1); }
+@media (prefers-reduced-motion: reduce) {
+  .faq-item[open]::before { transform: scaleY(1); transition: none; }
+}

@@ -3629,6 +3629,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initParallaxBentoCards, initTimeOfDayTint, initKickerHoverGlow,
     initCustomScrollbar, initCardFocusRing, initSectionCounter,
     initNeonFlickerText, initCardStackDepth, initScrollProgressRing,  // Sprint 53
+    initWordRevealWave, initCardGlintSweep, initStaggerListReveal,    // Sprint 54
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -3703,4 +3704,62 @@ function initScrollProgressRing() {
   };
   window.addEventListener('scroll', update, { passive: true });
   update();
+}
+
+/* Sprint 54 — word reveal wave, card glint sweep, stagger list reveal --------- */
+
+function initWordRevealWave() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const paras = document.querySelectorAll('.section-body p, .hero-subtitle, .about-body p');
+  if (!paras.length) return;
+  paras.forEach((p) => {
+    const words = p.textContent.trim().split(/\s+/);
+    if (words.length < 3) return;
+    p.innerHTML = words.map((w, i) =>
+      `<span class="word-wave" style="--wi:${i}">${w}</span>`
+    ).join(' ');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(p);
+        p.querySelectorAll('.word-wave').forEach((span) => span.classList.add('word-wave--in'));
+      });
+    }, { threshold: 0.3 });
+    io.observe(p);
+  });
+}
+
+function initCardGlintSweep() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  document.querySelectorAll('.bento-card, .pricing-card').forEach((card) => {
+    const glint = document.createElement('div');
+    glint.className = 'card-glint';
+    glint.setAttribute('aria-hidden', 'true');
+    card.appendChild(glint);
+    card.addEventListener('mouseenter', () => {
+      glint.classList.remove('card-glint--active');
+      void glint.offsetWidth;
+      glint.classList.add('card-glint--active');
+    });
+    glint.addEventListener('animationend', () => glint.classList.remove('card-glint--active'));
+  });
+}
+
+function initStaggerListReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const lists = document.querySelectorAll('.contact-list, .format-tags, .service-list');
+  if (!lists.length) return;
+  lists.forEach((list) => {
+    const items = list.querySelectorAll('li, .format-tag, .service-tag');
+    if (!items.length) return;
+    items.forEach((item, i) => item.style.setProperty('--li', i));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(list);
+        items.forEach((item) => item.classList.add('stagger-slide-in'));
+      });
+    }, { threshold: 0.25 });
+    io.observe(list);
+  });
 }

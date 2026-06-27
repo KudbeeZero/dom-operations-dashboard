@@ -3675,6 +3675,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMorphingBlob, initScrollParallaxCards, initTextSplitReveal,         // Sprint 97
     initCursorSpotlight, initScrollClipReveal, initHoverBorderTrace,        // Sprint 98
     initScrollRevealScale, initHoverTilt3D, initNeonLineDraw,               // Sprint 99
+    initCinematicScrollWipe, initHeroParticleBurst, initCascadeReveal,      // Sprint 100
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6484,5 +6485,129 @@ function initNeonLineDraw() {
       });
     }, { threshold: 0.3 });
     io.observe(section);
+  });
+}
+
+/* Sprint 100 — MILESTONE — cinematic scroll wipe, hero particle burst, cascade reveal */
+
+function initCinematicScrollWipe() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section');
+  if (!sections.length) return;
+  sections.forEach((section) => {
+    if (section.dataset.cinematicWipe) return;
+    section.dataset.cinematicWipe = '1';
+    const curtain = document.createElement('div');
+    curtain.className = 'cinematic-wipe-curtain';
+    curtain.setAttribute('aria-hidden', 'true');
+    section.style.position = section.style.position || 'relative';
+    section.style.overflow = section.style.overflow || 'hidden';
+    section.insertAdjacentElement('afterbegin', curtain);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(section);
+        curtain.classList.add('cinematic-wipe-curtain--out');
+        curtain.addEventListener('animationend', () => curtain.remove(), { once: true });
+      });
+    }, { threshold: 0.1 });
+    io.observe(section);
+  });
+}
+
+function initHeroParticleBurst() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.hero-burst-canvas')) return;
+  const hero = document.querySelector('.hero, [data-hero]');
+  if (!hero) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'hero-burst-canvas';
+  canvas.setAttribute('aria-hidden', 'true');
+  hero.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => {
+    canvas.width = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+  };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const COLORS = ['#00d4c8', '#7b5cfa', '#ffffff', '#00ffd5'];
+  const particles = [];
+  const NUM = 60;
+
+  for (let i = 0; i < NUM; i++) {
+    particles.push({
+      x: canvas.width * 0.5,
+      y: canvas.height * 0.5,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      r: Math.random() * 2 + 0.5,
+      life: Math.random() * 0.6 + 0.4,
+      decay: Math.random() * 0.008 + 0.004,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    });
+  }
+
+  let rafId;
+  const tick = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = 0;
+    particles.forEach((p) => {
+      if (p.life <= 0) return;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life -= p.decay;
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      alive++;
+    });
+    ctx.globalAlpha = 1;
+    if (alive > 0) rafId = requestAnimationFrame(tick);
+  };
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(hero);
+      particles.forEach((p) => {
+        p.x = canvas.width * 0.5;
+        p.y = canvas.height * 0.5;
+        p.life = Math.random() * 0.6 + 0.4;
+      });
+      cancelAnimationFrame(rafId);
+      tick();
+    });
+  }, { threshold: 0.3 });
+  io.observe(hero);
+}
+
+function initCascadeReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const groups = document.querySelectorAll('.section, .ba-section, [data-cascade]');
+  if (!groups.length) return;
+  groups.forEach((group) => {
+    if (group.dataset.cascadeReveal) return;
+    group.dataset.cascadeReveal = '1';
+    const children = Array.from(group.children).filter((c) => !c.classList.contains('cinematic-wipe-curtain') && !c.classList.contains('morphing-blob'));
+    if (!children.length) return;
+    children.forEach((child, i) => {
+      if (child.dataset.cascadeChild) return;
+      child.dataset.cascadeChild = '1';
+      child.classList.add('cascade-child');
+      child.style.setProperty('--cci', String(i));
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(group);
+        group.classList.add('cascade-reveal--active');
+      });
+    }, { threshold: 0.1 });
+    io.observe(group);
   });
 }

@@ -4434,3 +4434,67 @@ nav a, .nav a, .nav-link {
   animation: attention-pulse-anim 0.55s cubic-bezier(0.22,1,0.36,1) calc(var(--api, 0) * 0.08s) both;
 }
 @media (prefers-reduced-motion: reduce) { .attention-pulse { animation: none; } }
+
+/* Sprint 69 — blob morph hero, scroll timeline bar, rainbow text hue ------- */
+
+/* Continuously morphing blob background in hero */
+.hero-blob-morph {
+  position: absolute;
+  top: -10%; left: -5%;
+  width: 60%; height: 80%;
+  background: radial-gradient(ellipse, rgba(127,90,240,0.12) 0%, rgba(0,212,200,0.06) 50%, transparent 70%);
+  filter: blur(40px);
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: blob-morph 8s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+  will-change: border-radius;
+}
+@keyframes blob-morph {
+  0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50%  { border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%; }
+  75%  { border-radius: 67% 33% 47% 53% / 37% 20% 80% 63%; }
+  100% { border-radius: 40% 60% 60% 40% / 60% 40% 40% 60%; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-blob-morph { display: none; } }
+
+/* Scroll timeline bar — fixed left-side dots per section */
+.scroll-timeline-bar {
+  position: fixed;
+  left: 16px; top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 50;
+  pointer-events: none;
+}
+.scroll-timeline-line {
+  position: absolute;
+  top: 8px; left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: calc(100% - 16px);
+  background: rgba(0,212,200,0.15);
+}
+.scroll-timeline-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(0,212,200,0.25);
+  border: 1px solid rgba(0,212,200,0.3);
+  position: relative;
+  z-index: 1;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.scroll-timeline-dot--active {
+  background: rgba(0,212,200,0.9);
+  transform: scale(1.5);
+}
+@media (max-width: 1023px) { .scroll-timeline-bar { display: none; } }
+
+/* Rainbow text hue — hue-rotate applied via JS, transition for smooth shift */
+.section-kicker, .hero-badge, .badge, [data-rainbow] {
+  transition: filter 0.3s ease;
+}

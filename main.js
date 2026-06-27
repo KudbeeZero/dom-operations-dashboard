@@ -3644,6 +3644,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCharWaveReveal, initBtnFillHover, initProgressiveTextReveal,   // Sprint 66
     initMosaicImgReveal, initHeroWordCycle, initCardPeelCorner,        // Sprint 67
     initHoverCharRepel, initScaleReveal, initAttentionPulse,           // Sprint 68
+    initBlobMorphHero, initScrollTimelineBar, initRainbowTextHue,      // Sprint 69
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4568,4 +4569,61 @@ function initAttentionPulse() {
     }, { threshold: 0.7 });
     io.observe(el);
   });
+}
+
+/* Sprint 69 — blob morph hero, scroll timeline bar, rainbow text hue ------- */
+
+function initBlobMorphHero() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.querySelector('.hero, .hero-section, [data-section="hero"]');
+  if (!hero) return;
+  const blob = document.createElement('div');
+  blob.className = 'hero-blob-morph';
+  blob.setAttribute('aria-hidden', 'true');
+  const pos = getComputedStyle(hero).position;
+  if (pos === 'static') hero.style.position = 'relative';
+  hero.insertBefore(blob, hero.firstChild);
+}
+
+function initScrollTimelineBar() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(max-width: 1023px)').matches) return;
+  const sections = Array.from(document.querySelectorAll('.section, .ba-section'));
+  if (sections.length < 2) return;
+  const bar = document.createElement('nav');
+  bar.className = 'scroll-timeline-bar';
+  bar.setAttribute('aria-hidden', 'true');
+  const line = document.createElement('div');
+  line.className = 'scroll-timeline-line';
+  bar.appendChild(line);
+  const dots = sections.map(() => {
+    const dot = document.createElement('div');
+    dot.className = 'scroll-timeline-dot';
+    bar.appendChild(dot);
+    return dot;
+  });
+  document.body.appendChild(bar);
+  const update = () => {
+    const mid = window.scrollY + window.innerHeight / 2;
+    sections.forEach((sec, i) => {
+      const top = sec.getBoundingClientRect().top + window.scrollY;
+      const bot = top + sec.offsetHeight;
+      dots[i].classList.toggle('scroll-timeline-dot--active', mid >= top && mid < bot);
+    });
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+function initRainbowTextHue() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll('.section-kicker, .hero-badge, .badge, [data-rainbow]');
+  if (!targets.length) return;
+  const update = () => {
+    const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) || 0;
+    const hue = Math.round(pct * 120);
+    targets.forEach((el) => { el.style.filter = `hue-rotate(${hue}deg)`; });
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 }

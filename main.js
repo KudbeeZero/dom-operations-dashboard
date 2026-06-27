@@ -3671,6 +3671,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHoverColorShift, initScrollDepthBlur, initBtnShake,           // Sprint 93
     initFloatingActionBtn, initDotPatternBg, initHoverScaleIcon,      // Sprint 94
     initSectionDividerWave, initScrollProgressRing, initTextHighlightSweep, // Sprint 95
+    initHoverGlowTrail, initScrollLetterSpacingMorph, initBtnElasticBounce, // Sprint 96
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6176,5 +6177,93 @@ function initTextHighlightSweep() {
       });
     }, { threshold: 0.6 });
     io.observe(el);
+  });
+}
+
+/* Sprint 96 — hover glow trail, scroll letter-spacing morph, btn elastic bounce */
+
+function initHoverGlowTrail() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const targets = document.querySelectorAll(
+    '.card, .service-card, .ba-card, .hero, [data-glow-trail]'
+  );
+  if (!targets.length) return;
+  targets.forEach((el) => {
+    if (el.dataset.glowTrail) return;
+    el.dataset.glowTrail = '1';
+    const glow = document.createElement('div');
+    glow.className = 'hover-glow-trail';
+    glow.setAttribute('aria-hidden', 'true');
+    el.style.position = el.style.position || 'relative';
+    el.style.overflow = el.style.overflow || 'hidden';
+    el.appendChild(glow);
+    let raf = 0;
+    let cx = 0, cy = 0, tx = 0, ty = 0;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const tick = () => {
+      cx = lerp(cx, tx, 0.12);
+      cy = lerp(cy, ty, 0.12);
+      glow.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+      raf = requestAnimationFrame(tick);
+    };
+    el.addEventListener('mouseenter', () => {
+      glow.style.opacity = '1';
+      raf = requestAnimationFrame(tick);
+    }, { passive: true });
+    el.addEventListener('mouseleave', () => {
+      glow.style.opacity = '0';
+      cancelAnimationFrame(raf);
+    }, { passive: true });
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      tx = e.clientX - r.left;
+      ty = e.clientY - r.top;
+    }, { passive: true });
+  });
+}
+
+function initScrollLetterSpacingMorph() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const headings = document.querySelectorAll('h1, h2, h3, .section-title, .hero-title');
+  if (!headings.length) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      const el = e.target;
+      if (e.isIntersecting) {
+        el.classList.add('ls-morph--in');
+        el.classList.remove('ls-morph--out');
+      } else if (el.classList.contains('ls-morph--in')) {
+        el.classList.add('ls-morph--out');
+        el.classList.remove('ls-morph--in');
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-10% 0px' });
+  headings.forEach((h) => {
+    if (h.dataset.lsMorph) return;
+    h.dataset.lsMorph = '1';
+    h.classList.add('ls-morph');
+    io.observe(h);
+  });
+}
+
+function initBtnElasticBounce() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btns = document.querySelectorAll(
+    '.btn, button, .cta-btn, [data-elastic-bounce], input[type="submit"]'
+  );
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.elasticBounce) return;
+    btn.dataset.elasticBounce = '1';
+    btn.classList.add('btn-elastic-bounce');
+    btn.addEventListener('mouseenter', () => {
+      btn.classList.remove('btn-elastic-bounce--active');
+      void btn.offsetWidth;
+      btn.classList.add('btn-elastic-bounce--active');
+    }, { passive: true });
+    btn.addEventListener('animationend', () => {
+      btn.classList.remove('btn-elastic-bounce--active');
+    }, { passive: true });
   });
 }

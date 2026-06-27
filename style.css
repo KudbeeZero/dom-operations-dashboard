@@ -847,6 +847,82 @@ button { font: inherit; cursor: pointer; }
   margin-top: var(--space-3);
 }
 .step p { color: var(--text-muted); margin-top: var(--space-2); }
+.step-link { color: var(--teal); text-decoration: underline; text-underline-offset: 3px; }
+.step-formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  justify-content: center;
+  margin-top: var(--space-3);
+}
+.step-formats span {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+}
+.step-badge {
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f0c060;
+  background: rgba(240,192,96,0.1);
+  border: 1px solid rgba(240,192,96,0.25);
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+}
+.step-badge--green { color: var(--teal); background: var(--teal-dim); border-color: rgba(0,212,200,0.3); }
+
+/* --------------------------------------------------------------------------
+   TRUST BAR
+   -------------------------------------------------------------------------- */
+.trust-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: var(--space-6) var(--space-8);
+  background: rgba(255,255,255,0.025);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: var(--space-3) var(--space-8);
+  text-align: center;
+}
+.trust-stat {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 0.8rem + 1vw, 1.4rem);
+  font-weight: 700;
+  color: var(--teal);
+  line-height: 1;
+}
+.trust-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.trust-divider {
+  width: 1px;
+  height: 2.5rem;
+  background: var(--border-strong);
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .trust-bar { gap: var(--space-1); padding: var(--space-4); }
+  .trust-item { padding: var(--space-2) var(--space-4); }
+  .trust-divider { display: none; }
+}
 
 /* --------------------------------------------------------------------------
    UNDERWATER WORLD — "the deep dive" (CSS atmosphere + canvas bubbles)

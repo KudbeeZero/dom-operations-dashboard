@@ -1338,6 +1338,83 @@ function initHeroParallax() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   CARD TILT — smooth lerp-based 3D perspective tilt on bento service cards
+   (fine pointer / desktop only; respects prefers-reduced-motion)
+   ------------------------------------------------------------------------- */
+function initCardTilt() {
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  document.querySelectorAll('.bento-card').forEach((card) => {
+    let cx = 0, cy = 0, tx = 0, ty = 0, rafId = null, inside = false;
+
+    const loop = () => {
+      cx += (tx - cx) * 0.1;
+      cy += (ty - cy) * 0.1;
+      if (!inside && Math.abs(cx) < 0.04 && Math.abs(cy) < 0.04) {
+        card.style.transform = '';
+        card.classList.remove('tilt-active');
+        rafId = null;
+        return;
+      }
+      card.style.transform = `perspective(900px) rotateX(${cx}deg) rotateY(${cy}deg) scale(${inside ? 1.025 : 1})`;
+      rafId = requestAnimationFrame(loop);
+    };
+
+    card.addEventListener('mouseenter', () => {
+      inside = true;
+      card.classList.add('tilt-active');
+      if (!rafId) rafId = requestAnimationFrame(loop);
+    });
+
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      tx = ((e.clientY - r.top) / r.height - 0.5) * -14;
+      ty = ((e.clientX - r.left) / r.width - 0.5) * 14;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      inside = false;
+      tx = 0; ty = 0;
+      if (!rafId) rafId = requestAnimationFrame(loop);
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   COUNT-UP — IO-triggered number animation on trust bar stats
+   ------------------------------------------------------------------------- */
+function initCountUp() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const doCount = (el, prefix, end, suffix) => {
+    const t0 = performance.now(), dur = 920;
+    const tick = (now) => {
+      const p = Math.min((now - t0) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);    // ease-out cubic
+      el.textContent = prefix + Math.round(end * eased) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      obs.unobserve(entry.target);
+      const el = entry.target;
+      const m = el.textContent.trim().match(/^([^0-9]*)(\d+)(.*)$/);
+      if (!m || parseInt(m[2]) < 5) return;   // skip non-numeric or tiny values
+      doCount(el, m[1], parseInt(m[2]), m[3]);
+    });
+  }, { threshold: 0.9 });
+
+  document.querySelectorAll('.trust-stat').forEach((el) => {
+    if (/\d/.test(el.textContent)) io.observe(el);
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -1346,6 +1423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
     initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
+    initCardTilt, initCountUp,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

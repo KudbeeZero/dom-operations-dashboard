@@ -90,7 +90,7 @@
       <h1 class="hero-headline">
         <span class="word-chaos">Chaos</span>
         <span class="word-to">to</span>
-        <span class="word-clarity">Clarity.</span>
+        <span class="word-clarity" id="wordClarity">Clarity.</span>
       </h1>
       <p class="hero-sub">
         I turn messy notes, screenshots, menus, and rough drafts into clean,
@@ -360,6 +360,30 @@
         I Got A Dom does not provide legal, tax, financial, or professional
         advice. I organize facts, clean up writing, and create clear drafts.
       </p>
+    </div>
+  </section>
+
+  <!-- ============================== TRANSFORM DEMO ============================== -->
+  <section class="transform-strip" aria-label="Live transformation examples">
+    <div class="container">
+      <header class="section-head reveal">
+        <span class="section-kicker">The Transformation</span>
+        <h2 class="section-title">Watch it happen.</h2>
+      </header>
+      <div class="transform-demo reveal">
+        <div class="transform-panel t-in">
+          <span class="t-label" aria-hidden="true">You send</span>
+          <p class="t-text" id="tIn" aria-live="polite" aria-atomic="true">messy draft full of typos</p>
+        </div>
+        <div class="t-divider" aria-hidden="true">
+          <span class="t-beam"></span>
+          <span class="t-glyph">→</span>
+        </div>
+        <div class="transform-panel t-out">
+          <span class="t-label" aria-hidden="true">You get back</span>
+          <p class="t-text" id="tOut" aria-live="polite" aria-atomic="true">clean, formatted, ready to send</p>
+        </div>
+      </div>
     </div>
   </section>
 

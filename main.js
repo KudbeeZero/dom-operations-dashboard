@@ -3689,6 +3689,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollAccordionReveal, initHoverGlowIconRing, initBgMeshGradient,   // Sprint 111
     initScrollSplitWipe, initHoverCardOutlineDraw, initBgGradientOrbs,      // Sprint 112
     initScrollTypewriterReveal, initHoverFillSweep, initBgRadialPulse,      // Sprint 113
+    initScrollZoomBlurReveal, initHoverTextPop, initBgGridLines,            // Sprint 114
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7433,4 +7434,56 @@ function initBgRadialPulse() {
   pulse.className = 'bg-radial-pulse';
   pulse.setAttribute('aria-hidden', 'true');
   hero.insertAdjacentElement('afterbegin', pulse);
+}
+
+/* Sprint 114 — scroll zoom-blur reveal, hover text pop, bg grid lines */
+
+function initScrollZoomBlurReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    'img, figure, video, [data-zoom-blur-reveal]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.zoomBlurReveal) return;
+    el.dataset.zoomBlurReveal = '1';
+    el.classList.add('scroll-zoom-blur-reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-zoom-blur-reveal--active');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initHoverTextPop() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const els = document.querySelectorAll(
+    '.card h3, .service-card h3, .card h4, [data-text-pop]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.textPop) return;
+    el.dataset.textPop = '1';
+    const parent = el.closest('.card, .service-card') || el;
+    parent.addEventListener('mouseenter', () => {
+      el.classList.add('hover-text-pop--active');
+    }, { passive: true });
+    parent.addEventListener('mouseleave', () => {
+      el.classList.remove('hover-text-pop--active');
+    }, { passive: true });
+  });
+}
+
+function initBgGridLines() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-grid-lines')) return;
+  const grid = document.createElement('div');
+  grid.className = 'bg-grid-lines';
+  grid.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', grid);
 }

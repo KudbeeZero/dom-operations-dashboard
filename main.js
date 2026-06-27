@@ -2564,6 +2564,57 @@ function initSubmitConfetti() {
 }
 
 /* -------------------------------------------------------------------------
+   Sprint 33-A: About icon spin — D badge rotates into view via GSAP
+   ------------------------------------------------------------------------- */
+function initAboutIconSpin() {
+  const icon = document.querySelector('.about-icon');
+  if (!icon) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from(icon, {
+    rotation: -180, scale: 0, opacity: 0,
+    duration: 0.92, ease: 'back.out(1.6)',
+    scrollTrigger: { trigger: icon.closest('.about-block') || icon, start: 'top 82%' },
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 33-B: Step badge pop — GSAP elastic entrance for .step-badge pills
+   ------------------------------------------------------------------------- */
+function initStepBadgePop() {
+  const badges = document.querySelectorAll('.step-badge');
+  if (!badges.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  badges.forEach((badge) => {
+    gsap.from(badge, {
+      scale: 0, opacity: 0, y: 10,
+      duration: 0.68, ease: 'elastic.out(1, 0.48)', delay: 0.28,
+      scrollTrigger: { trigger: badge.closest('.step') || badge, start: 'top 82%' },
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 33-C: Phone ring wiggle — attention animation on phone/SMS links
+   ------------------------------------------------------------------------- */
+function initPhoneRingWiggle() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll('.hero-phone, .step-link');
+  if (!targets.length) return;
+  const fire = (el) => {
+    el.classList.add('phone-ring');
+    el.addEventListener('animationend', () => el.classList.remove('phone-ring'), { once: true });
+  };
+  setTimeout(() => {
+    targets.forEach(fire);
+    setInterval(() => targets.forEach(fire), 9000);
+  }, 4500);
+}
+
+/* -------------------------------------------------------------------------
    Sprint 32-A: Process line draw — scaleX 0→1 left-to-right on scroll
    ------------------------------------------------------------------------- */
 function initProcessLineDraw() {
@@ -2640,6 +2691,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStepNumPop, initGrainOverlay, initSubmitConfetti,
     initFeaturedCardPulse, initBentoTitleScramble, initFaqBarReveal,
     initProcessLineDraw, initHeroEyebrowPulse, initFormatTagEntrance,
+    initAboutIconSpin, initStepBadgePop, initPhoneRingWiggle,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

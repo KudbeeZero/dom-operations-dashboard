@@ -2747,3 +2747,19 @@ body::after {
 }
 .hero-eyebrow.eyebrow-pulse { animation: eyebrow-pulse 1.4s ease-out; }
 @media (prefers-reduced-motion: reduce) { .hero-eyebrow.eyebrow-pulse { animation: none; } }
+
+/* Phone ring wiggle — periodic attention animation on phone/SMS links */
+@keyframes phone-ring {
+  0%, 65%, 100% { transform: rotate(0deg); }
+  10%           { transform: rotate(-12deg); }
+  22%           { transform: rotate(12deg); }
+  34%           { transform: rotate(-8deg); }
+  46%           { transform: rotate(8deg); }
+  58%           { transform: rotate(-2deg); }
+}
+.phone-ring {
+  display: inline-block;
+  animation: phone-ring 0.65s ease-in-out;
+  transform-origin: center bottom;
+}
+@media (prefers-reduced-motion: reduce) { .phone-ring { animation: none; } }

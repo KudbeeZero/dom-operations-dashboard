@@ -3704,6 +3704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollMorphPath, initHoverLiquidBtn, initBgGradientFlow,            // Sprint 126
     initScrollFanCards, initHoverRippleExpand, initBgHoloFoil,              // Sprint 127
     initScrollGlitchEntry, initHoverChromaticAberration, initBgParticleField, // Sprint 128
+    initScrollAccordionStagger, initHoverGlowIconRingV2, initBgCircuitTrace,  // Sprint 129
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8351,6 +8352,94 @@ function initBgParticleField() {
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(0,212,200,${p.alpha})`;
       ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  };
+  draw();
+}
+
+/* Sprint 129 — scroll accordion stagger, hover glow icon ring v2, bg circuit trace */
+
+function initScrollAccordionStagger() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const lists = document.querySelectorAll('ul, ol, [data-accordion-stagger]');
+  if (!lists.length) return;
+  lists.forEach((list) => {
+    if (list.dataset.accordionStagger) return;
+    list.dataset.accordionStagger = '1';
+    const items = Array.from(list.querySelectorAll('li'));
+    if (!items.length) return;
+    items.forEach((li, i) => {
+      li.classList.add('accordion-stagger-item');
+      li.style.setProperty('--asi', i);
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(list);
+        list.classList.add('accordion-stagger--active');
+      });
+    }, { threshold: 0.15 });
+    io.observe(list);
+  });
+}
+
+function initHoverGlowIconRingV2() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const icons = document.querySelectorAll('svg, img[src*="icon"], [data-glow-icon-v2]');
+  if (!icons.length) return;
+  icons.forEach((icon) => {
+    if (icon.dataset.glowIconV2) return;
+    icon.dataset.glowIconV2 = '1';
+    icon.classList.add('hover-glow-icon-v2');
+  });
+}
+
+function initBgCircuitTrace() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-circuit-trace')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-circuit-trace';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const traces = Array.from({ length: 12 }, (_, i) => ({
+    x: (Math.random() * canvas.width) | 0,
+    y: (Math.random() * canvas.height) | 0,
+    len: 60 + Math.random() * 120,
+    dir: Math.random() > 0.5 ? 'h' : 'v',
+    progress: 0,
+    speed: 0.5 + Math.random() * 1,
+    alpha: 0.05 + Math.random() * 0.08,
+    delay: Math.random() * 120,
+  }));
+  let frame = 0;
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    traces.forEach((t) => {
+      if (frame < t.delay) return;
+      t.progress = Math.min(t.progress + t.speed, t.len);
+      ctx.beginPath();
+      if (t.dir === 'h') {
+        ctx.moveTo(t.x, t.y);
+        ctx.lineTo(t.x + t.progress, t.y);
+      } else {
+        ctx.moveTo(t.x, t.y);
+        ctx.lineTo(t.x, t.y + t.progress);
+      }
+      ctx.strokeStyle = `rgba(0,212,200,${t.alpha})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      if (t.progress >= t.len) {
+        t.x = (Math.random() * canvas.width) | 0;
+        t.y = (Math.random() * canvas.height) | 0;
+        t.progress = 0;
+        t.delay = frame + Math.random() * 60;
+      }
     });
     requestAnimationFrame(draw);
   };

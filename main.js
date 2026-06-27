@@ -3648,6 +3648,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDepthParallaxLayers, initTextStrokeReveal, initSectionHoverGlow, // Sprint 70
     initCursorTextLabel, initSplitDualReveal, initScrollFloodFill,      // Sprint 71
     initNeonLinkUnderline, initScrollRevealRotate, initVelocitySkew,   // Sprint 72
+    initGridDiagonalReveal, initCardHoverDepth, initScrollMeter,       // Sprint 73
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4810,4 +4811,54 @@ function initVelocitySkew() {
     requestAnimationFrame(update);
   };
   requestAnimationFrame(update);
+}
+
+/* Sprint 73 — grid diagonal reveal, card hover depth, scroll meter --------- */
+
+function initGridDiagonalReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.bento-grid, .pricing-grid, .services-grid, .process-grid').forEach((grid) => {
+    const items = Array.from(grid.children);
+    if (items.length < 2) return;
+    const cols = Math.round(grid.getBoundingClientRect().width / (items[0].getBoundingClientRect().width || 300)) || 3;
+    items.forEach((item, i) => {
+      const row = Math.floor(i / cols);
+      const col = i % cols;
+      item.style.setProperty('--di', row + col);
+      item.classList.add('grid-diag-reveal');
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(grid);
+        items.forEach((item) => item.classList.add('grid-diag-reveal--in'));
+      });
+    }, { threshold: 0.1 });
+    io.observe(grid);
+  });
+}
+
+function initCardHoverDepth() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  document.querySelectorAll('.bento-card, .pricing-card, .service-card').forEach((card) => {
+    card.classList.add('card-hover-depth');
+  });
+}
+
+function initScrollMeter() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(max-width: 767px)').matches) return;
+  const meter = document.createElement('div');
+  meter.className = 'scroll-meter';
+  meter.setAttribute('aria-hidden', 'true');
+  const fill = document.createElement('div');
+  fill.className = 'scroll-meter-fill';
+  meter.appendChild(fill);
+  document.body.appendChild(meter);
+  const update = () => {
+    const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) || 0;
+    fill.style.height = `${(pct * 100).toFixed(1)}%`;
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 }

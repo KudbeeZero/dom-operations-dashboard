@@ -599,51 +599,93 @@ button { font: inherit; cursor: pointer; }
 .ba-tag-before { left: var(--space-4); background: rgba(255,122,122,0.16); color: #ff9b9b; border: 1px solid rgba(255,122,122,0.3); }
 .ba-tag-after  { right: var(--space-4); background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(0,212,200,0.3); }
 
-/* Document mockup — identical geometry in both panels */
+/* Document mockup — base geometry */
 .ba-doc {
   width: min(440px, 84%);
   display: flex;
   flex-direction: column;
-  gap: clamp(0.5rem, 1.4vw, 0.95rem);
+  gap: clamp(0.3rem, 0.9vw, 0.65rem);
   padding: clamp(1rem, 3vw, 2rem);
+  border-radius: 6px;
 }
 .ba-line {
-  font-size: clamp(0.85rem, 0.6rem + 1vw, 1.15rem);
-  line-height: 1.3;
+  font-size: clamp(0.78rem, 0.55rem + 0.9vw, 1.05rem);
+  line-height: 1.35;
   white-space: nowrap;
 }
 
-/* AFTER — clean, aligned, ivory */
-.ba-doc-after .ba-line { color: var(--text); font-family: var(--font-body); letter-spacing: 0; }
-.ba-doc-after .ba-title-line { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.05rem, 0.7rem + 1.5vw, 1.6rem); }
-.ba-dash { color: var(--text-muted); }
-.ba-skills { display: flex; gap: var(--space-2); }
+/* AFTER — white paper: clean, professional, readable */
+.ba-doc-after {
+  background: #fafbfc;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+}
+.ba-doc-after .ba-line { color: #1c1c2e; font-family: var(--font-body); letter-spacing: 0; }
+.ba-doc-after .ba-title-line {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1rem, 0.65rem + 1.3vw, 1.45rem);
+  color: #0a0a1a;
+  border-bottom: 1.5px solid #d0d0dd;
+  padding-bottom: 0.35em;
+  margin-bottom: 0.1em;
+}
+.ba-dash { color: #6b6b88; }
+.ba-skills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .ba-chip {
-  font-size: 0.78em;
+  font-size: 0.76em;
   padding: 2px 10px;
   border-radius: var(--radius-full);
-  background: var(--teal-dim);
-  color: var(--teal);
-  border: 1px solid rgba(0,212,200,0.25);
+  background: #e5f7f6;
+  color: #0c6b66;
+  border: 1px solid #9dddd9;
+  font-weight: 600;
 }
-.ba-stamp { color: var(--teal); font-weight: 600; display: flex; align-items: center; gap: var(--space-2); }
+.ba-stamp {
+  color: #0c7a74;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 0.2em;
+  padding-top: 0.45em;
+  border-top: 1px solid #e0f5f4;
+}
 .ba-check {
   display: inline-grid; place-items: center;
-  width: 20px; height: 20px;
+  width: 18px; height: 18px;
   border-radius: var(--radius-full);
-  background: var(--teal); color: #0d0d0f;
-  font-size: 0.72em; font-weight: 800;
+  background: #0c7a74;
+  color: #fff;
+  font-size: 0.68em;
+  font-weight: 800;
+  flex-shrink: 0;
 }
+.ba-section-label {
+  font-size: 0.68em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8888aa;
+  margin-top: 0.25em;
+}
+.ba-bullet { padding-left: 1em; color: #3a3a5a; }
+.ba-bullet::before { content: '• '; color: #8888aa; }
+.ba-meta { color: #7777aa; font-size: 0.85em; }
 
-/* BEFORE — messy, mis-cased, red squiggles, off rhythm */
+/* BEFORE — dark warm, messy, off-rhythm */
+.ba-doc-before {
+  background: linear-gradient(135deg, #201510, #2a1c15);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+}
 .ba-doc-before .ba-line { color: #b6aaa2; font-family: 'Comic Sans MS', 'DM Sans', cursive; letter-spacing: 0.02em; }
-.ba-doc-before .ba-title-line { font-weight: 700; font-size: clamp(1.05rem, 0.7rem + 1.5vw, 1.6rem); transform: skewX(-3deg); }
+.ba-doc-before .ba-title-line { font-weight: 700; font-size: clamp(1rem, 0.65rem + 1.3vw, 1.45rem); transform: skewX(-3deg); }
 .ba-bad {
   text-decoration: underline wavy #ff5d5d;
   text-underline-offset: 3px;
 }
 .ba-skills-messy { transform: translateX(8px) rotate(-1deg); color: #a89a90; }
 .ba-stamp-messy { color: #ff8f8f; font-style: italic; transform: rotate(-2deg); opacity: 0.85; }
+.ba-note { color: #c4916e; font-size: 0.85em; font-style: italic; opacity: 0.8; }
 
 /* Divider + handle */
 .ba-divider {

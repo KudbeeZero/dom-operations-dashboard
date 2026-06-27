@@ -3706,6 +3706,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollGlitchEntry, initHoverChromaticAberration, initBgParticleField, // Sprint 128
     initScrollAccordionStagger, initHoverGlowIconRingV2, initBgCircuitTrace,  // Sprint 129
     initScrollTiltCard, initHoverBorderBeam, initBgLavaLamp,                 // Sprint 130
+    initScrollRevealCounter, initHoverUnderlineWave, initBgStaticBurst,      // Sprint 131
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8498,4 +8499,77 @@ function initBgLavaLamp() {
     wrap.appendChild(el);
   });
   document.body.insertAdjacentElement('afterbegin', wrap);
+}
+
+/* Sprint 131 — scroll reveal counter, hover underline wave, bg static burst */
+
+function initScrollRevealCounter() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-count-to]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.countInit) return;
+    el.dataset.countInit = '1';
+    const target = parseInt(el.dataset.countTo, 10);
+    if (isNaN(target)) return;
+    const duration = 1400;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        const start = performance.now();
+        const tick = (now) => {
+          const elapsed = Math.min(now - start, duration);
+          const progress = 1 - Math.pow(1 - elapsed / duration, 3);
+          el.textContent = Math.round(progress * target).toLocaleString();
+          if (elapsed < duration) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+}
+
+function initHoverUnderlineWave() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('a, .nav-link, [data-underline-wave]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.underlineWave) return;
+    el.dataset.underlineWave = '1';
+    el.classList.add('hover-underline-wave');
+  });
+}
+
+function initBgStaticBurst() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-static-burst')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-static-burst';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  let t = 0;
+  const draw = () => {
+    if (t % 4 === 0) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const count = 60;
+      for (let i = 0; i < count; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const r = Math.random() * 2;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,212,200,${0.04 + Math.random() * 0.06})`;
+        ctx.fill();
+      }
+    }
+    t++;
+    requestAnimationFrame(draw);
+  };
+  draw();
 }

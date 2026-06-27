@@ -8043,3 +8043,19 @@ svg path.draw-path, svg .draw-path {
   pointer-events: none;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, transparent 100%);
 }
+
+/* ==========================================================================
+   REVEAL BYPASS — forcibly un-buries in-viewport elements that have
+   accumulated multiple stacked scroll-reveal pre-states (opacity:0, blur,
+   clip-path, transform). !important beats CSS animation fill-modes.
+   Applied by the JS safety net 300ms after load.
+   ========================================================================== */
+.reveal-bypass {
+  opacity: 1 !important;
+  filter: none !important;
+  clip-path: none !important;
+  transform: none !important;
+  visibility: visible !important;
+  animation: none !important;
+  transition: none !important;
+}

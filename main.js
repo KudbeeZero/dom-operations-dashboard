@@ -3700,6 +3700,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTypewriterV2, initHoverColorShift, initBgPlasma,              // Sprint 122
     initScrollCurtainLift, initHoverBorderDash, initBgGridPulse,            // Sprint 123
     initScrollWaveText, initHoverNeonGlow, initBgConstellation,             // Sprint 124
+    initScrollStackReveal, initHoverShimmerBorder, initBgMatrixRain,        // Sprint 125
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8098,6 +8099,73 @@ function initBgConstellation() {
       ctx.arc(a.x * w, a.y * h, 1.2, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0,212,200,0.4)';
       ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  };
+  draw();
+}
+
+/* Sprint 125 — scroll stack reveal, hover shimmer border, bg matrix rain */
+
+function initScrollStackReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const groups = document.querySelectorAll('.cards-grid, .services-grid, [data-stack-reveal]');
+  if (!groups.length) return;
+  groups.forEach((group) => {
+    if (group.dataset.stackReveal) return;
+    group.dataset.stackReveal = '1';
+    const children = Array.from(group.children);
+    children.forEach((child, i) => {
+      child.classList.add('stack-reveal-item');
+      child.style.setProperty('--sri', i);
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(group);
+        group.classList.add('stack-reveal--active');
+      });
+    }, { threshold: 0.1 });
+    io.observe(group);
+  });
+}
+
+function initHoverShimmerBorder() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-shimmer-border]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.shimmerBorder) return;
+    el.dataset.shimmerBorder = '1';
+    el.classList.add('hover-shimmer-border');
+  });
+}
+
+function initBgMatrixRain() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-matrix-rain')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-matrix-rain';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const cols = Math.floor(canvas.width / 18);
+  const drops = Array.from({ length: cols }, () => Math.random() * -50);
+  const chars = '0I10::.∙·';
+  const draw = () => {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '11px monospace';
+    drops.forEach((y, i) => {
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      const alpha = 0.06 + Math.random() * 0.06;
+      ctx.fillStyle = `rgba(0,212,200,${alpha})`;
+      ctx.fillText(ch, i * 18, y * 18);
+      if (y * 18 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      else drops[i] = y + 0.4;
     });
     requestAnimationFrame(draw);
   };

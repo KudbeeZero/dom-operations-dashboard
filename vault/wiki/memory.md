@@ -451,3 +451,24 @@
 - DECISION: WeakSet (not CSS class) tracks bypassed elements for O(1) lookup.
 - DECISION: prefers-reduced-motion guard returns early — bypasses don't fire for
   users who prefer reduced motion (they rely on base CSS visibility instead).
+
+## Sprint 147 Addendum — Performance + Footer Fixes — 2026-06-27
+- Performance audit revealed: 32 scroll listeners, revealSafetyNet doing full-DOM
+  querySelectorAll on every tick, hero canvas 60fps RAF running while off-screen,
+  trust cycle + showcase autoplay setIntervals always running.
+- FIXED: revealSafetyNet pre-caches candidates once at startup; prunes list as
+  elements resolve; scroll listener self-removes when candidates list is empty.
+- FIXED: initHeroCanvas — added IO observer to pause RAF when hero off-screen.
+- FIXED: initHeroTrustCycle and initShowcaseAutoplay — IO-gated setIntervals
+  that pause when their sections are off-screen, resume on re-entry.
+- Footer fixes (three separate issues):
+  1. Footer logo invisible: img-clip-hidden class sets clip-path:inset(100%) but
+     didn't match SCROLL_RE so revealSafetyNet never unclipped it. Fixed by
+     adding img-clip-hidden to SCROLL_RE pattern.
+  2. Float CTA visible in footer: initFloatingCTA had two IO observers (hero,
+     contact) but scrolling past contact made atContact=false → button reappeared.
+     Fixed by adding third IO observer on <footer> with atFooter flag.
+  3. Footer text contrast: rgba(240,237,232,0.45) was near-invisible on #000508
+     (deep-3) background. Raised footer-copy to 0.78 opacity, disclaimer to 0.60.
+- All three perf + footer commits pushed to claude/sprint-147-reveal-hover-card-fix.
+- Cloudflare Pages ✅ preview: https://9eecd4dc.dom-operations-dashboard.pages.dev

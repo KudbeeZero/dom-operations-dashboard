@@ -3663,6 +3663,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTextScrambleHover, initBtnBorderDraw, initScrollBandReveal,   // Sprint 85
     initSpotlightHover, initScrollInkBlot, initWordPopIn,             // Sprint 86
     initCardShadowDepth, initScrollColorBand, initPulseBadge,         // Sprint 87
+    initGlitchTextHover, initScrollZoomSection, initBtnLiquidFill,    // Sprint 88
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5704,5 +5705,53 @@ function initPulseBadge() {
     if (badge.dataset.pulseBadge) return;
     badge.dataset.pulseBadge = '1';
     badge.classList.add('pulse-badge-el');
+  });
+}
+
+/* Sprint 88 — glitch text hover, scroll zoom section, btn liquid fill -------- */
+
+function initGlitchTextHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.hero-title, h2, .section-title, [data-glitch]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.glitchInit) return;
+    el.dataset.glitchInit = '1';
+    el.classList.add('glitch-text-el');
+    el.setAttribute('data-text', el.textContent.trim());
+    el.addEventListener('mouseenter', () => el.classList.add('glitch-text-el--active'));
+    el.addEventListener('mouseleave', () => el.classList.remove('glitch-text-el--active'));
+  });
+}
+
+function initScrollZoomSection() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(max-width: 767px)').matches) return;
+  const sections = document.querySelectorAll('.section, .ba-section');
+  if (!sections.length) return;
+  const update = () => {
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const dist = Math.abs(center - window.innerHeight / 2);
+      const maxDist = window.innerHeight * 0.8;
+      const scale = 0.97 + 0.03 * Math.max(0, 1 - dist / maxDist);
+      section.style.transform = `scale(${scale.toFixed(3)})`;
+      section.style.transformOrigin = 'center center';
+    });
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+function initBtnLiquidFill() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btns = document.querySelectorAll('.btn, .cta-btn, .hero-cta, .primary-btn');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.liquidFill) return;
+    btn.dataset.liquidFill = '1';
+    btn.classList.add('btn-liquid-fill');
   });
 }

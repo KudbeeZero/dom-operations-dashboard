@@ -3656,6 +3656,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initRadialReveal, initLazyImageFade, initScrollFogEffect,          // Sprint 78
     initMagneticButton, initCounterAnimation, initCard3DTilt,          // Sprint 79
     initTypingEffect, initScrollProgressCounter, initAmbientGlow,      // Sprint 80
+    initStaggerListReveal, initHoverShimmer, initScrollSnapDots,       // Sprint 81
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5259,4 +5260,68 @@ function initAmbientGlow() {
   };
   window.addEventListener('mousemove', (e) => { tx = e.clientX; ty = e.clientY; });
   requestAnimationFrame(update);
+}
+
+/* Sprint 81 — stagger list reveal, hover shimmer, scroll snap dots ----------- */
+
+function initStaggerListReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const lists = document.querySelectorAll('ul, ol, .list, .feature-list, .checklist');
+  if (!lists.length) return;
+  lists.forEach((list) => {
+    if (list.dataset.staggerList) return;
+    const items = Array.from(list.children);
+    if (items.length < 2) return;
+    list.dataset.staggerList = '1';
+    items.forEach((item, i) => {
+      item.style.setProperty('--sli', i);
+      item.classList.add('stagger-list-item');
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(list);
+        items.forEach((item) => item.classList.add('stagger-list-item--visible'));
+      });
+    }, { threshold: 0.2 });
+    io.observe(list);
+  });
+}
+
+function initHoverShimmer() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const els = document.querySelectorAll(
+    '.btn, .cta-btn, .hero-cta, .bento-card, .pricing-card, .nav-link'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.shimmer) return;
+    el.dataset.shimmer = '1';
+    el.classList.add('hover-shimmer-el');
+  });
+}
+
+function initScrollSnapDots() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = Array.from(
+    document.querySelectorAll('.section, .ba-section, .bento-section')
+  ).filter((s) => s.id);
+  if (sections.length < 3) return;
+  const nav = document.createElement('nav');
+  nav.className = 'scroll-snap-dots';
+  nav.setAttribute('aria-label', 'Page sections');
+  sections.forEach((section, i) => {
+    const dot = document.createElement('a');
+    dot.className = 'scroll-snap-dot';
+    dot.href = `#${section.id}`;
+    dot.setAttribute('aria-label', `Section ${i + 1}`);
+    nav.appendChild(dot);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        dot.classList.toggle('scroll-snap-dot--active', e.isIntersecting);
+      });
+    }, { threshold: 0.5 });
+    io.observe(section);
+  });
+  document.body.appendChild(nav);
 }

@@ -3193,3 +3193,60 @@ body::after {
   50%       { opacity: 0.85; }
 }
 @media (prefers-reduced-motion: reduce) { .footer-glow-pulse { display: none; } }
+
+/* Sprint 43 — section glow halo, step icon hover, hero CTA pulse ring ------- */
+
+/* Section entry halo — teal radial flash at top of each section */
+.section-halo {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 120px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,212,200,0.22) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+}
+@keyframes halo-fire {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.section-halo.halo-fire { animation: halo-fire 1.6s ease-out forwards; }
+@media (prefers-reduced-motion: reduce) { .section-halo { display: none; } }
+
+/* Step number hover glow */
+@keyframes step-num-glow {
+  0%   { text-shadow: 0 0 40px var(--teal-glow); transform: scale(1); }
+  40%  { text-shadow: 0 0 60px rgba(0,212,200,0.9), 0 0 100px rgba(0,212,200,0.4); transform: scale(1.12); }
+  100% { text-shadow: 0 0 40px var(--teal-glow); transform: scale(1); }
+}
+.step-num.step-num-glow {
+  animation: step-num-glow 0.65s ease-out;
+}
+@media (prefers-reduced-motion: reduce) { .step-num.step-num-glow { animation: none; } }
+
+/* Hero CTA pulse rings */
+.cta-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 5;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,212,200,0.6);
+  animation: cta-ring-expand 1.4s ease-out forwards;
+  animation-delay: calc(var(--ri) * 0.35s);
+  opacity: 0;
+}
+.hero-cta-row { position: relative; }
+.cta-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 60px; height: 36px;
+  transform: translate(-50%, -50%) scale(1);
+}
+@keyframes cta-ring-expand {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .cta-ring { display: none; } }

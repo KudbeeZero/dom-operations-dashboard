@@ -2901,6 +2901,62 @@ function initFormFieldGlow() {
   });
 }
 
+/* Sprint 43 — section glow halo, step icon hover, hero CTA pulse ring -------- */
+
+function initSectionGlowHalo() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  const sections = document.querySelectorAll('.section, .ba-section');
+  if (!sections.length) return;
+  sections.forEach((section) => {
+    const halo = document.createElement('div');
+    halo.className = 'section-halo';
+    halo.setAttribute('aria-hidden', 'true');
+    section.style.position = section.style.position || 'relative';
+    section.insertBefore(halo, section.firstChild);
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        obs.unobserve(e.target);
+        halo.classList.add('halo-fire');
+        halo.addEventListener('animationend', () => halo.classList.remove('halo-fire'), { once: true });
+      });
+    }, { threshold: 0.15 });
+    io.observe(section);
+  });
+}
+
+function initStepIconHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.step-num').forEach((num) => {
+    num.addEventListener('mouseenter', () => {
+      num.classList.remove('step-num-glow');
+      void num.offsetWidth;
+      num.classList.add('step-num-glow');
+      num.addEventListener('animationend', () => num.classList.remove('step-num-glow'), { once: true });
+    });
+  });
+}
+
+function initCtaPulseRing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btn = document.querySelector('.hero-cta-row .btn-primary');
+  if (!btn) return;
+  btn.classList.add('cta-pulse-ready');
+  const fire = () => {
+    for (let i = 0; i < 2; i++) {
+      const ring = document.createElement('span');
+      ring.className = 'cta-ring';
+      ring.setAttribute('aria-hidden', 'true');
+      ring.style.setProperty('--ri', String(i));
+      btn.parentElement.appendChild(ring);
+      ring.addEventListener('animationend', () => ring.remove(), { once: true });
+    }
+  };
+  setTimeout(() => { fire(); setInterval(fire, 5000); }, 3500);
+}
+
 /* Sprint 42 — hero headline color cycle, contact list pop, footer glow pulse  */
 
 function initHeroHeadlineColorCycle() {
@@ -3106,6 +3162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroOrbDrift, initPricingUrgency, initFormShakeValidation,
     initNavProgressLine, initShowcaseTabPop, initPriceLabelPop,
     initHeroHeadlineColorCycle, initContactListPop, initFooterGlowPulse,
+    initSectionGlowHalo, initStepIconHover, initCtaPulseRing,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

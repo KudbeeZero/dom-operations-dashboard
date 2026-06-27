@@ -1233,14 +1233,119 @@ function initClarityScramble() {
   gsap.delayedCall(1.8, () => scramble(el, target, 1100));
 }
 
+/* -------------------------------------------------------------------------
+   PROCESS TIMELINE — GSAP ScrollTrigger: line draws, cards slide L↔R, numbers pop
+   Must run before initScrollReveals so .step elements are removed from IO reveal.
+   ------------------------------------------------------------------------- */
+function initProcessTimeline() {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const steps = document.querySelectorAll('.steps .step');
+  const line  = document.querySelector('#process .step-line');
+  if (!steps.length) return;
+
+  // Claim these from the IO reveal system to avoid double-animation
+  steps.forEach((el) => el.classList.remove('reveal'));
+
+  // Draw the connector line as the section scrolls into view (desktop only; hidden on mobile)
+  if (line) {
+    gsap.set(line, { scaleY: 0, transformOrigin: 'top center' });
+    gsap.to(line, {
+      scaleY: 1,
+      ease: 'power1.inOut',
+      scrollTrigger: {
+        trigger: '#process .steps',
+        start: 'top 70%',
+        end: 'bottom 58%',
+        scrub: 0.7,
+      },
+    });
+  }
+
+  // Each step card slides in from alternating left / right
+  steps.forEach((step, i) => {
+    const fromX = i % 2 === 0 ? -60 : 60;
+
+    gsap.from(step, {
+      x: fromX, opacity: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: step, start: 'top 84%' },
+    });
+
+    // Step number pops in with a spring
+    const num = step.querySelector('.step-num');
+    if (num) {
+      gsap.from(num, {
+        scale: 0.35, opacity: 0,
+        duration: 0.55,
+        ease: 'back.out(2.8)',
+        delay: 0.1,
+        scrollTrigger: { trigger: step, start: 'top 84%' },
+      });
+    }
+
+    // Format chips stagger in after the card lands
+    const chips = step.querySelectorAll('.step-formats span');
+    if (chips.length) {
+      gsap.from(chips, {
+        opacity: 0, y: 10,
+        stagger: 0.07,
+        duration: 0.38,
+        ease: 'power2.out',
+        delay: 0.42,
+        scrollTrigger: { trigger: step, start: 'top 84%' },
+      });
+    }
+  });
+}
+
+/* -------------------------------------------------------------------------
+   CARD SPOTLIGHT — cursor-tracking radial glow on bento cards (fine pointer only)
+   ------------------------------------------------------------------------- */
+function initCardSpotlight() {
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  document.querySelectorAll('.bento-card').forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width) * 100 + '%');
+      card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height) * 100 + '%');
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   HERO PARALLAX — teal orb drifts up as the hero scrolls away
+   ------------------------------------------------------------------------- */
+function initHeroParallax() {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  const orb = document.querySelector('.teal-orb');
+  if (!orb) return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.to(orb, {
+    y: -110,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 1.2,
+    },
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
     initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
-    initBeforeAfter, initScrollReveals, initUnderwater, initReef, initContactForm, initQRCode,
-    initTransformDemo,
+    initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
+    initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

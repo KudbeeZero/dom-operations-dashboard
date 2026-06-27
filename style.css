@@ -3161,3 +3161,35 @@ body::after {
   animation: tab-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @media (prefers-reduced-motion: reduce) { .showcase-tab.tab-pop { animation: none; } }
+
+/* Sprint 42 — hero headline color cycle, contact list pop, footer glow pulse */
+
+/* "Clarity." slow teal→white color pulse after scramble completes */
+@keyframes clarity-cycle {
+  0%, 100% { color: var(--teal); text-shadow: 0 0 30px rgba(0,212,200,0.5); }
+  50%       { color: var(--text); text-shadow: none; }
+}
+.word-clarity.clarity-cycle {
+  animation: clarity-cycle 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .word-clarity.clarity-cycle { animation: none; } }
+
+/* Footer bioluminescent glow pulse */
+.footer-glow-pulse {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 160px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(0,212,200,0.18) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+}
+.footer-glow-active.footer-glow-pulse {
+  animation: footer-bio-pulse 4s ease-in-out infinite;
+}
+@keyframes footer-bio-pulse {
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 0.85; }
+}
+@media (prefers-reduced-motion: reduce) { .footer-glow-pulse { display: none; } }

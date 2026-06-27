@@ -2901,6 +2901,44 @@ function initFormFieldGlow() {
   });
 }
 
+/* Sprint 42 — hero headline color cycle, contact list pop, footer glow pulse  */
+
+function initHeroHeadlineColorCycle() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.getElementById('wordClarity');
+  if (!el) return;
+  setTimeout(() => el.classList.add('clarity-cycle'), 4200);
+}
+
+function initContactListPop() {
+  const list = document.querySelector('.contact-next');
+  if (!list) return;
+  const items = list.querySelectorAll('li');
+  if (!items.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from(items, {
+    x: -28, opacity: 0, duration: 0.5, ease: 'power3.out', stagger: 0.13,
+    scrollTrigger: { trigger: list, start: 'top 85%' },
+  });
+}
+
+function initFooterGlowPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const footer = document.querySelector('.footer--reef');
+  if (!footer) return;
+  const pulse = document.createElement('div');
+  pulse.className = 'footer-glow-pulse';
+  pulse.setAttribute('aria-hidden', 'true');
+  footer.appendChild(pulse);
+  if (!('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => pulse.classList.toggle('footer-glow-active', e.isIntersecting));
+  }, { threshold: 0.2 });
+  io.observe(footer);
+}
+
 /* Sprint 41 — nav progress line, showcase tab pop, price label pop ---------- */
 
 function initNavProgressLine() {
@@ -3067,6 +3105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroTaglineTypewriter, initBentoBorderTrace, initFormFieldGlow,
     initHeroOrbDrift, initPricingUrgency, initFormShakeValidation,
     initNavProgressLine, initShowcaseTabPop, initPriceLabelPop,
+    initHeroHeadlineColorCycle, initContactListPop, initFooterGlowPulse,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

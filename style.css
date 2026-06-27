@@ -5663,3 +5663,48 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .border-trace--active { animation: none; outline: 2px solid #00d4c8; }
 }
+
+/* Sprint 99 — scroll reveal scale, hover tilt 3D, neon line draw */
+
+@keyframes reveal-scale-in {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.92) translateY(16px);
+}
+.scroll-reveal-scale--active {
+  animation: reveal-scale-in 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal-scale { opacity: 1; transform: none; }
+  .scroll-reveal-scale--active { animation: none; }
+}
+
+.hover-tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease;
+  will-change: transform;
+}
+
+@keyframes neon-line-expand {
+  from { width: 0; opacity: 0; }
+  to   { width: 80%; opacity: 1; }
+}
+.neon-line-draw {
+  display: block;
+  height: 2px;
+  width: 0;
+  margin: 2rem auto 0;
+  background: linear-gradient(90deg, transparent, #00d4c8, #7b5cfa, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(0,212,200,0.6), 0 0 20px rgba(123,92,250,0.3);
+  opacity: 0;
+}
+.neon-line-draw--active {
+  animation: neon-line-expand 0.8s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .neon-line-draw--active { animation: none; width: 80%; opacity: 1; }
+}

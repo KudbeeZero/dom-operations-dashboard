@@ -3683,6 +3683,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollStaggerGrid, initHoverCardShimmer, initSectionCountUp,        // Sprint 105
     initScrollZoomFade, initHoverBorderGlowPulse, initTypewriterCursor,     // Sprint 106
     initScrollWaveReveal, initHoverFloatingLabel, initBtnMagneticPull,      // Sprint 107
+    initScrollBounceIn, initHoverTextOutline, initSectionNoiseLayer,        // Sprint 108
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7054,4 +7055,58 @@ function initBtnMagneticPull() {
       btn.style.transform = '';
     }, { passive: true });
   });
+}
+
+/* Sprint 108 — scroll bounce-in, hover text outline, section noise layer */
+
+function initScrollBounceIn() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.btn, .cta-btn, .badge, .tag, [data-bounce-in]'
+  );
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.bounceIn) return;
+    el.dataset.bounceIn = '1';
+    el.classList.add('scroll-bounce-in');
+    el.style.setProperty('--sbi', String(i));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-bounce-in--active');
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+}
+
+function initHoverTextOutline() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const headings = document.querySelectorAll(
+    'h2, h3, .section-title, [data-text-outline]'
+  );
+  if (!headings.length) return;
+  headings.forEach((el) => {
+    if (el.dataset.textOutline) return;
+    el.dataset.textOutline = '1';
+    el.classList.add('hover-text-outline');
+  });
+}
+
+function initSectionNoiseLayer() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.section-noise-layer')) return;
+  const target = document.querySelector('.hero, body');
+  if (!target) return;
+  const noise = document.createElement('div');
+  noise.className = 'section-noise-layer';
+  noise.setAttribute('aria-hidden', 'true');
+  if (target.tagName === 'BODY') {
+    document.body.insertAdjacentElement('afterbegin', noise);
+  } else {
+    target.style.position = target.style.position || 'relative';
+    target.insertAdjacentElement('afterbegin', noise);
+  }
 }

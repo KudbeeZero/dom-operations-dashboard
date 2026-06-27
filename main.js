@@ -2177,6 +2177,67 @@ function initScrollBloom() {
   update();
 }
 
+/* -------------------------------------------------------------------------
+   Sprint 27-A: Nav shrink — adds .nav-compact on scroll for tighter padding
+   ------------------------------------------------------------------------- */
+function initNavShrink() {
+  const nav = document.getElementById('nav');
+  if (!nav) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const onScroll = () => nav.classList.toggle('nav-compact', window.scrollY > 80);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 27-B: Price card spotlight — radial glow follows cursor on desktop
+   ------------------------------------------------------------------------- */
+function initPriceCardSpotlight() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const cards = document.querySelectorAll('.price-card');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 27-C: Section kicker reveal — char-by-char fade+rise on scroll
+   ------------------------------------------------------------------------- */
+function initSectionKickerReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  const kickers = document.querySelectorAll('.section-kicker');
+  if (!kickers.length) return;
+  kickers.forEach((el) => {
+    const label = el.textContent;
+    const chars = label.split('');
+    el.innerHTML = chars.map((ch, i) =>
+      ch === ' '
+        ? ' '
+        : `<span class="kicker-char" aria-hidden="true" style="--ki:${i}">${ch}</span>`
+    ).join('');
+    el.classList.add('kicker-split');
+    el.setAttribute('aria-label', label);
+    if (el.getBoundingClientRect().top < window.innerHeight) {
+      el.classList.add('kicker-go');
+      return;
+    }
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        obs.unobserve(e.target);
+        e.target.classList.add('kicker-go');
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -2195,6 +2256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initShowcaseAutoplay, initKineticFloat,
     initNavCTAPing, initSliderTabIndicator, initFormCompletionGlow,
     initSliderHint, initGlassShimmer, initScrollBloom,
+    initNavShrink, initPriceCardSpotlight, initSectionKickerReveal,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

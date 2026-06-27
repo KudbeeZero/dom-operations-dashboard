@@ -3312,3 +3312,45 @@ body::after {
   animation: h2-underline-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 @media (prefers-reduced-motion: reduce) { .h2-underline { display: none; } }
+
+/* Sprint 45 — click sparks, slider handle glow, scroll vignette ------------ */
+
+/* Global click spark particles */
+.click-spark {
+  position: fixed;
+  left: var(--cx);
+  top: var(--cy);
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(0,212,200,0.9);
+  pointer-events: none;
+  z-index: 9999;
+  animation: click-spark-fly 0.5s ease-out forwards;
+}
+@keyframes click-spark-fly {
+  0%   { transform: translate(-50%,-50%) rotate(var(--sa)) translateY(0); opacity: 1; }
+  100% { transform: translate(-50%,-50%) rotate(var(--sa)) translateY(calc(-1 * var(--sd))); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .click-spark { display: none; } }
+
+/* Before/after slider handle ambient glow */
+@keyframes handle-glow-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(0,212,200,0.55); }
+  60%  { box-shadow: 0 0 0 10px rgba(0,212,200,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,212,200,0); }
+}
+.handle-glow-pulse { animation: handle-glow-pulse 2.2s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .handle-glow-pulse { animation: none; } }
+
+/* Cinematic scroll vignette */
+.scroll-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9990;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.42) 100%);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.scroll-vignette.vig-active { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .scroll-vignette { display: none; } }

@@ -2061,6 +2061,76 @@ body::after {
 }
 
 /* ==========================================================================
+   Sprint 18 — Ticker strip · Active nav · Nav hover underline
+   ========================================================================== */
+
+/* --- Work ticker ------------------------------------------------------- */
+.work-ticker {
+  overflow: hidden;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-3) 0;
+  user-select: none;
+}
+.ticker-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: ticker-scroll 40s linear infinite;
+}
+.work-ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+.ticker-track span {
+  padding: 0 var(--space-6);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.ticker-track span::after {
+  content: '✦';
+  margin-left: var(--space-6);
+  color: var(--teal);
+  font-size: 0.5em;
+  opacity: 0.7;
+  vertical-align: middle;
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+}
+
+/* --- Nav link hover underline + active state --------------------------- */
+.nav-links a {
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 100%; height: 1px;
+  background: var(--teal);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.28s ease, transform-origin 0s 0.28s;
+}
+.nav-links a:hover::after,
+.nav-links a.is-active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+  transition: transform 0.28s ease;
+}
+.nav-links a.is-active { color: var(--text); }
+
+/* ==========================================================================
    Sprint 13 — Polish: 3D tilt + CTA pulse + count-up
    ========================================================================== */
 

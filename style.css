@@ -3354,3 +3354,60 @@ body::after {
 }
 .scroll-vignette.vig-active { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .scroll-vignette { display: none; } }
+
+/* Sprint 46 — floating ghost words, morph blob, service tag hover ----------- */
+
+/* Ambient ghost brand words rising through hero background */
+.float-word {
+  position: absolute;
+  left: var(--fw-x);
+  bottom: -10%;
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: rgba(0,212,200,0.048);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  animation: float-word-rise var(--fw-dur) ease-in var(--fw-delay) infinite;
+}
+@keyframes float-word-rise {
+  0%   { transform: translateY(0); opacity: 0; }
+  8%   { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(-110vh); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .float-word { display: none; } }
+
+/* Morphing blob decoration in about section */
+.morph-blob {
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(0,212,200,0.07) 0%, transparent 70%);
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  pointer-events: none;
+  z-index: 0;
+  animation: morph-blob-shape 10s ease-in-out infinite, morph-blob-drift 14s ease-in-out infinite;
+}
+@keyframes morph-blob-shape {
+  0%,100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50%     { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+}
+@keyframes morph-blob-drift {
+  0%,100% { transform: translate(0, 0) scale(1); }
+  33%     { transform: translate(-18px, 14px) scale(1.05); }
+  66%     { transform: translate(12px, -10px) scale(0.95); }
+}
+@media (prefers-reduced-motion: reduce) { .morph-blob { display: none; } }
+
+/* Service/format tag hover bounce */
+.tag-hover-bounce {
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease, color 0.2s ease;
+}
+.tag-hover-bounce:hover {
+  transform: translateY(-3px) scale(1.06);
+  background: rgba(0,212,200,0.14);
+  color: var(--teal, #00d4c8);
+}
+@media (prefers-reduced-motion: reduce) { .tag-hover-bounce { transition: none; } }

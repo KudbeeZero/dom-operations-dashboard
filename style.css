@@ -7366,3 +7366,46 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-warp-grid { display: none; }
 }
+
+/* Sprint 133 — scroll cascade fade, hover icon bounce, bg hex grid */
+
+@keyframes cascade-child-in {
+  0%   { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.cascade-fade-child { opacity: 0; }
+.cascade-fade--active .cascade-fade-child {
+  animation: cascade-child-in 0.5s ease forwards;
+  animation-delay: calc(var(--cfc-i, 0) * 80ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cascade-fade-child { opacity: 1; }
+  .cascade-fade--active .cascade-fade-child { animation: none; }
+}
+
+@keyframes icon-bounce-up {
+  0%, 100% { transform: translateY(0); }
+  30%       { transform: translateY(-8px) scale(1.1); }
+  60%       { transform: translateY(2px) scale(0.97); }
+  80%       { transform: translateY(-3px); }
+}
+.hover-icon-bounce {
+  display: inline-block;
+  cursor: pointer;
+}
+.hover-icon-bounce:hover {
+  animation: icon-bounce-up 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-icon-bounce:hover { animation: none; transform: scale(1.1); }
+}
+
+.bg-hex-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-hex-grid { display: none; }
+}

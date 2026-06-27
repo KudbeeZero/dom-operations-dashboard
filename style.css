@@ -775,6 +775,33 @@ button { font: inherit; cursor: pointer; }
 .bento-in  { color: #ff9b9b; font-weight: 600; white-space: nowrap; }
 .bento-out { color: var(--teal); font-weight: 600; white-space: nowrap; }
 
+/* "Most Popular" badge on anchor card */
+.bento-badge {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.35);
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
+}
+
+/* Turnaround time pill on each service card */
+.bento-time {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: 0.72rem;
+  color: var(--teal);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.8;
+}
+
 .disclaimer {
   margin-top: var(--space-12);
   font-size: var(--text-sm);

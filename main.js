@@ -3690,6 +3690,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollSplitWipe, initHoverCardOutlineDraw, initBgGradientOrbs,      // Sprint 112
     initScrollTypewriterReveal, initHoverFillSweep, initBgRadialPulse,      // Sprint 113
     initScrollZoomBlurReveal, initHoverTextPop, initBgGridLines,            // Sprint 114
+    initScrollSlideUpFade, initHoverCardGlowBorder, initTextRevealMaskV2,   // Sprint 115
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7486,4 +7487,58 @@ function initBgGridLines() {
   grid.className = 'bg-grid-lines';
   grid.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', grid);
+}
+
+/* Sprint 115 — scroll slide-up fade, hover card glow border, text reveal mask v2 */
+
+function initScrollSlideUpFade() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.card > *, .service-card > *, [data-slide-up-fade]'
+  );
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.slideUpFade) return;
+    el.dataset.slideUpFade = '1';
+    el.classList.add('scroll-slide-up-fade');
+    el.style.setProperty('--sufi', String(i % 6));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-slide-up-fade--active');
+      });
+    }, { threshold: 0.3 });
+    io.observe(el);
+  });
+}
+
+function initHoverCardGlowBorder() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cards = document.querySelectorAll('.card, .service-card, .ba-card, [data-glow-border]');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.glowBorder) return;
+    card.dataset.glowBorder = '1';
+    card.classList.add('hover-card-glow-border');
+  });
+}
+
+function initTextRevealMaskV2() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-reveal-mask], .reveal-mask');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.revealMaskV2) return;
+    el.dataset.revealMaskV2 = '1';
+    el.classList.add('text-reveal-mask-v2');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('text-reveal-mask-v2--active');
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
 }

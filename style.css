@@ -5903,3 +5903,55 @@ svg path.draw-path, svg .draw-path {
     -webkit-text-fill-color: transparent;
   }
 }
+
+/* Sprint 104 — scroll flip reveal, hover icon spin, bg aurora drift */
+
+@keyframes flip-reveal-in {
+  from { opacity: 0; transform: perspective(800px) rotateY(-25deg) translateX(-20px); }
+  to   { opacity: 1; transform: perspective(800px) rotateY(0deg)   translateX(0); }
+}
+.scroll-flip-reveal { opacity: 0; }
+.scroll-flip-reveal--active {
+  animation: flip-reveal-in 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-flip-reveal { opacity: 1; }
+  .scroll-flip-reveal--active { animation: none; }
+}
+
+.hover-icon-spin {
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.hover-icon-spin--active {
+  transform: rotate(360deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-icon-spin { transition: none; }
+  .hover-icon-spin--active { transform: none; }
+}
+
+@keyframes aurora-drift {
+  0%   { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+  33%  { transform: translate(8%, -6%) rotate(60deg) scale(1.1); }
+  66%  { transform: translate(-6%, 8%) rotate(120deg) scale(0.95); }
+  100% { transform: translate(0%, 0%) rotate(180deg) scale(1); }
+}
+.bg-aurora-drift {
+  position: absolute;
+  inset: -30%;
+  background: conic-gradient(
+    from 0deg at 60% 40%,
+    rgba(0,212,200,0.08) 0deg,
+    rgba(123,92,250,0.06) 120deg,
+    rgba(0,255,213,0.04) 240deg,
+    rgba(0,212,200,0.08) 360deg
+  );
+  animation: aurora-drift 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(40px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-aurora-drift { animation: none; }
+}

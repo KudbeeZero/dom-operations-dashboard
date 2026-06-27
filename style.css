@@ -5407,3 +5407,19 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .scroll-slide-side { opacity: 1; transform: none; transition: none; }
 }
+
+/* Sprint 93 — hover color shift card, scroll depth blur, btn shake ----------- */
+
+@keyframes btn-shake-anim {
+  0%,100% { transform: translateX(0); }
+  15%     { transform: translateX(-5px); }
+  30%     { transform: translateX(5px); }
+  45%     { transform: translateX(-4px); }
+  60%     { transform: translateX(4px); }
+  75%     { transform: translateX(-2px); }
+  90%     { transform: translateX(2px); }
+}
+.btn-shake-anim {
+  animation: btn-shake-anim 0.45s ease;
+}
+@media (prefers-reduced-motion: reduce) { .btn-shake-anim { animation: none; } }

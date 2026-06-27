@@ -2475,3 +2475,59 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .form-submit.form-partial, .form-submit.form-ready { box-shadow: none; transform: none; }
 }
+
+/* ── Sprint 26: slider hint, glass shimmer, scroll bloom ─────────────── */
+
+/* BA slider drag hint wiggle */
+@keyframes hint-wiggle {
+  0%   { transform: translateX(0); }
+  18%  { transform: translateX(-14px); }
+  50%  { transform: translateX(14px); }
+  78%  { transform: translateX(-6px); }
+  100% { transform: translateX(0); }
+}
+.ba-handle.hint-wiggle { animation: hint-wiggle 0.72s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+
+/* Glass shimmer — periodic light-reflection sweep */
+.has-shimmer { overflow: hidden; position: relative; }
+.has-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -75%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    108deg,
+    transparent 0%,
+    rgba(255,255,255,0.035) 44%,
+    rgba(255,255,255,0.055) 50%,
+    rgba(255,255,255,0.035) 56%,
+    transparent 100%
+  );
+  animation: glass-shimmer 9s ease-in-out var(--shimmer-delay, 0s) infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes glass-shimmer {
+  0%, 68%, 100% { transform: translateX(0);    opacity: 0; }
+  69%            { opacity: 1; }
+  99%            { transform: translateX(340%); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .has-shimmer::before { display: none; }
+}
+
+/* Scroll bloom — fixed radial teal gradient drifts on scroll */
+#scrollBloom {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse at
+      calc(18% + var(--bloom-pct, 0) * 64%)
+      calc(92% - var(--bloom-pct, 0) * 84%),
+    rgba(0,212,200,0.055) 0%,
+    transparent 52%
+  );
+}

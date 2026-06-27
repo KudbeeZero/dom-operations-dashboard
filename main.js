@@ -2110,6 +2110,73 @@ function initFormCompletionGlow() {
   required.forEach(el => el.addEventListener('input', update));
 }
 
+/* -------------------------------------------------------------------------
+   SLIDER HINT — BA handle wiggles left-right once when the slider first
+   enters the viewport, teaching users to drag it.
+   Fires at most once per page load; skips on reduced-motion.
+   ------------------------------------------------------------------------- */
+function initSliderHint() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const handle = document.getElementById('baHandle');
+  const slider = document.getElementById('baSlider');
+  if (!handle || !slider || !('IntersectionObserver' in window)) return;
+
+  const fire = () => {
+    handle.classList.add('hint-wiggle');
+    handle.addEventListener('animationend', () => handle.classList.remove('hint-wiggle'), { once: true });
+  };
+
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      setTimeout(fire, 700);
+    });
+  }, { threshold: 0.55 });
+  io.observe(slider);
+}
+
+/* -------------------------------------------------------------------------
+   GLASS SHIMMER — staggered periodic light-reflection sweeps across .glass
+   elements, simulating glancing light off frosted glass. Pure CSS via a
+   shared ::before pseudo, driven by per-element --shimmer-delay var.
+   ------------------------------------------------------------------------- */
+function initGlassShimmer() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.glass').forEach((el, i) => {
+    el.classList.add('has-shimmer');
+    el.style.setProperty('--shimmer-delay', (i * 1.6) + 's');
+  });
+}
+
+/* -------------------------------------------------------------------------
+   SCROLL BLOOM — a fixed teal radial gradient drifts from bottom-left to
+   top-right of the viewport as the user scrolls the full page length.
+   Very subtle (≤5.5% opacity) — adds depth without distracting.
+   Uses rAF throttling for smooth, jank-free updates.
+   ------------------------------------------------------------------------- */
+function initScrollBloom() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const bloom = document.createElement('div');
+  bloom.id = 'scrollBloom';
+  bloom.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(bloom);
+
+  let raf = null;
+  const update = () => {
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+    bloom.style.setProperty('--bloom-pct', pct.toFixed(3));
+    raf = null;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!raf) raf = requestAnimationFrame(update);
+  }, { passive: true });
+  update();
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -2127,6 +2194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroTrustCycle, initTrustBarEntrance, initFooterEntrance,
     initShowcaseAutoplay, initKineticFloat,
     initNavCTAPing, initSliderTabIndicator, initFormCompletionGlow,
+    initSliderHint, initGlassShimmer, initScrollBloom,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

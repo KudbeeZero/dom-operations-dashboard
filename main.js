@@ -3702,6 +3702,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollWaveText, initHoverNeonGlow, initBgConstellation,             // Sprint 124
     initScrollStackReveal, initHoverShimmerBorder, initBgMatrixRain,        // Sprint 125
     initScrollMorphPath, initHoverLiquidBtn, initBgGradientFlow,            // Sprint 126
+    initScrollFanCards, initHoverRippleExpand, initBgHoloFoil,              // Sprint 127
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8222,6 +8223,65 @@ function initBgGradientFlow() {
   if (document.querySelector('.bg-gradient-flow')) return;
   const el = document.createElement('div');
   el.className = 'bg-gradient-flow';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 127 — scroll fan cards, hover ripple expand, bg holo foil */
+
+function initScrollFanCards() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const groups = document.querySelectorAll('.cards-grid, .services-grid, [data-fan-cards]');
+  if (!groups.length) return;
+  groups.forEach((group) => {
+    if (group.dataset.fanCards) return;
+    group.dataset.fanCards = '1';
+    const items = Array.from(group.children);
+    const mid = (items.length - 1) / 2;
+    items.forEach((item, i) => {
+      item.classList.add('fan-card-item');
+      item.style.setProperty('--fc-i', i);
+      item.style.setProperty('--fc-rot', ((i - mid) * 4).toFixed(1) + 'deg');
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(group);
+        group.classList.add('fan-cards--active');
+      });
+    }, { threshold: 0.1 });
+    io.observe(group);
+  });
+}
+
+function initHoverRippleExpand() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-ripple-expand]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.rippleExpand) return;
+    el.dataset.rippleExpand = '1';
+    el.style.overflow = 'hidden';
+    el.style.position = el.style.position || 'relative';
+    el.addEventListener('mouseenter', (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple-expand-dot';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      el.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+    }, { passive: true });
+  });
+}
+
+function initBgHoloFoil() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-holo-foil')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-holo-foil';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
 }

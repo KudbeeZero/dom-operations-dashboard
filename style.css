@@ -7064,3 +7064,56 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-gradient-flow { animation: none; background-position: 0% 50%; }
 }
+
+/* Sprint 127 — scroll fan cards, hover ripple expand, bg holo foil */
+
+@keyframes fan-card-unfurl {
+  0%   { opacity: 0; transform: rotate(var(--fc-rot, 0deg)) translateY(60px) scale(0.8); }
+  65%  { opacity: 1; transform: rotate(0deg) translateY(-5px) scale(1.02); }
+  100% { transform: rotate(0deg) translateY(0) scale(1); }
+}
+.fan-card-item { opacity: 0; }
+.fan-cards--active .fan-card-item {
+  animation: fan-card-unfurl 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  animation-delay: calc(var(--fc-i, 0) * 80ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fan-card-item { opacity: 1; }
+  .fan-cards--active .fan-card-item { animation: none; }
+}
+
+@keyframes ripple-expand-grow {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.3; }
+  100% { transform: translate(-50%, -50%) scale(6); opacity: 0; }
+}
+.ripple-expand-dot {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 212, 200, 0.6);
+  pointer-events: none;
+  animation: ripple-expand-grow 0.7s ease-out forwards;
+}
+
+@keyframes holo-foil-shift {
+  0%   { background-position: 0% 50%; filter: hue-rotate(0deg); }
+  50%  { background-position: 100% 50%; filter: hue-rotate(180deg); }
+  100% { background-position: 0% 50%; filter: hue-rotate(360deg); }
+}
+.bg-holo-foil {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -8;
+  opacity: 0.04;
+  background: linear-gradient(
+    135deg,
+    #ff6b9d, #ffd93d, #00d4c8, #7b5cfa, #ff6b9d
+  );
+  background-size: 300% 300%;
+  animation: holo-foil-shift 12s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-holo-foil { animation: none; }
+}

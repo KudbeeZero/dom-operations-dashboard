@@ -3667,6 +3667,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAuroraBgSection, initUnderlineMorph, initScrollScaleText,     // Sprint 89
     initCardStackHover, initParticleBurst, initSectionEdgeGlow,       // Sprint 90
     initTextRevealMask, initHoverBorderGlow, initScrollOpacityFade,   // Sprint 91
+    initHeroGridLines, initBtnConfetti, initScrollSlideFromSide,      // Sprint 92
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5935,6 +5936,70 @@ function initScrollOpacityFade() {
         el.classList.toggle('scroll-opacity-fade--visible', e.isIntersecting);
       });
     }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+/* Sprint 92 — hero grid lines, btn confetti, scroll slide from side ---------- */
+
+function initHeroGridLines() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.querySelector('.hero, .hero-section, #hero');
+  if (!hero || hero.dataset.gridLines) return;
+  hero.dataset.gridLines = '1';
+  const grid = document.createElement('div');
+  grid.className = 'hero-grid-lines';
+  grid.setAttribute('aria-hidden', 'true');
+  hero.insertAdjacentElement('afterbegin', grid);
+}
+
+function initBtnConfetti() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const COLORS = ['#00d4c8', '#7b5cfa', '#ff6b6b', '#ffd166', '#0fa'];
+  const btns = document.querySelectorAll('.btn, .cta-btn, .hero-cta');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.confetti) return;
+    btn.dataset.confetti = '1';
+    btn.addEventListener('click', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const ox = e.clientX - rect.left;
+      const oy = e.clientY - rect.top;
+      for (let i = 0; i < 14; i++) {
+        const c = document.createElement('span');
+        c.className = 'confetti-piece';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 30 + Math.random() * 40;
+        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        const size = 4 + Math.random() * 4;
+        c.style.cssText = `left:${ox}px;top:${oy}px;width:${size}px;height:${size}px;background:${color};--cpx:${(Math.cos(angle) * dist).toFixed(1)}px;--cpy:${(Math.sin(angle) * dist).toFixed(1)}px;--cpr:${Math.floor(Math.random() * 360)}deg`;
+        btn.appendChild(c);
+        c.addEventListener('animationend', () => c.remove(), { once: true });
+      }
+    });
+  });
+}
+
+function initScrollSlideFromSide() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.feature-card, .step-card, .testimonial-card, .process-card, [data-slide-side]'
+  );
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.slideSide) return;
+    el.dataset.slideSide = '1';
+    const fromRight = i % 2 === 1;
+    el.style.setProperty('--ssdir', fromRight ? '1' : '-1');
+    el.style.setProperty('--ssi', i);
+    el.classList.add('scroll-slide-side');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-slide-side--visible');
+      });
+    }, { threshold: 0.15 });
     io.observe(el);
   });
 }

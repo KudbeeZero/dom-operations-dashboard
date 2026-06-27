@@ -7664,3 +7664,58 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-ambient-wave { animation: none; opacity: 0.8; }
 }
+
+/* ============================================================
+   Sprint 139 — count morph, neon border trail hover, grid reveal bg
+   ============================================================ */
+
+/* --- Count Morph (data-count-morph elements) --- */
+[data-count-morph-init] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Neon Border Trail Hover --- */
+.hover-neon-trail {
+  position: relative;
+  overflow: hidden;
+}
+.hover-neon-trail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle 90px at var(--nt-x, 50%) var(--nt-y, 50%),
+    rgba(0, 212, 200, 0.25) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 0;
+}
+.hover-neon-trail:hover::after {
+  opacity: 1;
+}
+
+/* --- Grid Reveal Background --- */
+.bg-grid-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: -9;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0, 212, 200, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 200, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+  animation: grid-reveal-breathe 12s ease-in-out infinite alternate;
+}
+@keyframes grid-reveal-breathe {
+  0%   { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-grid-reveal { animation: none; opacity: 0.6; }
+}

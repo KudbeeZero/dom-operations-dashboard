@@ -7409,3 +7409,43 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-hex-grid { display: none; }
 }
+
+/* Sprint 134 — scroll zoom blur in, hover text scramble, bg pulse ring */
+
+@keyframes zoom-blur-in {
+  0%   { opacity: 0; transform: scale(1.15); filter: blur(10px); }
+  60%  { opacity: 1; transform: scale(0.99); filter: blur(0); }
+  100% { transform: scale(1); }
+}
+.scroll-zoom-blur-in { opacity: 0; }
+.scroll-zoom-blur-in--active {
+  animation: zoom-blur-in 0.8s cubic-bezier(0.25,1,0.5,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-zoom-blur-in { opacity: 1; }
+  .scroll-zoom-blur-in--active { animation: none; }
+}
+
+@keyframes pulse-ring-expand {
+  0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0.4; }
+  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+.bg-pulse-ring {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+  z-index: -4;
+}
+.bg-pulse-ring__ring {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 212, 200, 0.25);
+  animation: pulse-ring-expand 4s ease-out infinite;
+  animation-delay: calc(var(--pr-i, 0) * 1.33s);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-pulse-ring { display: none; }
+}

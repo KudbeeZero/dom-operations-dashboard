@@ -7821,3 +7821,57 @@ svg path.draw-path, svg .draw-path {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size: 256px 256px;
 }
+
+/* ============================================================
+   Sprint 142 — stagger char pop, glow orb hover, scanline overlay bg
+   ============================================================ */
+
+/* --- Staggered Char Pop --- */
+.stagger-chars__ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(18px) scale(0.8);
+  transition:
+    opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--sc-i, 0) * 30ms),
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--sc-i, 0) * 30ms);
+}
+.stagger-chars--in .stagger-chars__ch {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stagger-chars__ch { opacity: 1; transform: none; transition: none; }
+}
+
+/* --- Glow Orb Hover --- */
+.glow-orb {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 212, 200, 0.45) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 0;
+}
+[data-glow-orb]:hover .glow-orb,
+.btn--primary:hover .glow-orb {
+  opacity: 1;
+}
+
+/* --- Scanline Overlay Background --- */
+.bg-scanline-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -6;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.04) 3px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+}

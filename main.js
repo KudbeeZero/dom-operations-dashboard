@@ -3717,6 +3717,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollCountMorph, initHoverNeonBorderTrail, initBgGridReveal,       // Sprint 139
     initScrollMultiParallax, initHoverSpotlightReveal, initBgAuroraPulse,  // Sprint 140
     initScrollBlurSharp, initHover3DDepthTilt, initBgNoiseTexture,         // Sprint 141
+    initScrollStaggerChars, initHoverGlowOrb, initBgScanlineOverlay,       // Sprint 142
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -9247,6 +9248,66 @@ function initBgNoiseTexture() {
   if (document.querySelector('.bg-noise-texture')) return;
   const el = document.createElement('div');
   el.className = 'bg-noise-texture';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 142 — staggered char pop, glow orb hover, scanline bg overlay --------- */
+
+function initScrollStaggerChars() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-stagger-chars]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.staggerCharsInit) return;
+    el.dataset.staggerCharsInit = '1';
+    const text = el.textContent;
+    el.textContent = '';
+    el.classList.add('stagger-chars');
+    [...text].forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.className = 'stagger-chars__ch';
+      span.style.setProperty('--sc-i', i);
+      span.textContent = ch === ' ' ? ' ' : ch;
+      el.appendChild(span);
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('stagger-chars--in');
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+function initHoverGlowOrb() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const targets = document.querySelectorAll('.btn--primary, [data-glow-orb]');
+  if (!targets.length) return;
+  targets.forEach((el) => {
+    if (el.dataset.glowOrb) return;
+    el.dataset.glowOrb = '1';
+    const orb = document.createElement('span');
+    orb.className = 'glow-orb';
+    orb.setAttribute('aria-hidden', 'true');
+    el.style.position = 'relative';
+    el.style.overflow = 'hidden';
+    el.appendChild(orb);
+    el.addEventListener('mousemove', (e) => {
+      const rect = el.getBoundingClientRect();
+      orb.style.left = `${e.clientX - rect.left}px`;
+      orb.style.top = `${e.clientY - rect.top}px`;
+    });
+  });
+}
+
+function initBgScanlineOverlay() {
+  if (document.querySelector('.bg-scanline-overlay')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-scanline-overlay';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
 }

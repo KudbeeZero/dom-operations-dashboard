@@ -855,6 +855,44 @@ button { font: inherit; cursor: pointer; }
 }
 .price-cta { margin-top: auto; justify-content: center; position: relative; z-index: 1; }
 
+/* Pricing bottom nudge + differentiator row */
+.price-bottom {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  text-align: center;
+}
+.price-nudge {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.price-nudge-link {
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 600;
+}
+.price-nudge-link:hover { text-decoration: underline; }
+.price-diff-row {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.price-diff-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.price-diff-icon {
+  font-size: 1em;
+  line-height: 1;
+}
+
 /* --------------------------------------------------------------------------
    HOW IT WORKS
    -------------------------------------------------------------------------- */

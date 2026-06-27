@@ -7601,3 +7601,66 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-ink-wash__blob { animation: none; }
 }
+
+/* ============================================================
+   Sprint 138 — scroll fade-slide, magnetic glow, ambient wave
+   ============================================================ */
+
+/* --- Scroll Fade-Slide --- */
+.scroll-fade-slide {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-fade-slide-dir="right"].scroll-fade-slide {
+  transform: translateX(32px);
+}
+.scroll-fade-slide--in {
+  opacity: 1;
+  transform: translateX(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-fade-slide { opacity: 1; transform: none; }
+}
+
+/* --- Magnetic Glow Hover --- */
+.mag-glow--active {
+  position: relative;
+}
+.mag-glow--active::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle 180px at var(--mg-x, 50%) var(--mg-y, 50%),
+    rgba(0, 212, 200, 0.12) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* --- Ambient Wave Background --- */
+.bg-ambient-wave {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(0, 212, 200, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, rgba(100, 60, 255, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 212, 200, 0.03) 0%, transparent 70%);
+  animation: ambient-wave-shift 18s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+@keyframes ambient-wave-shift {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-ambient-wave { animation: none; opacity: 0.8; }
+}

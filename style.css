@@ -5051,3 +5051,48 @@ svg path.draw-path, svg .draw-path {
   pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) { .btn-ripple-wave { display: none; } }
+
+/* Sprint 84 — floating label input, fade-up reveal, cursor trail ------------- */
+
+.float-label-input {
+  border-bottom: 2px solid rgba(255,255,255,0.2);
+  transition: border-color 0.3s ease;
+  background: transparent;
+}
+.float-label-input:focus,
+.float-label-input--active {
+  border-color: rgba(0,212,200,0.7);
+  outline: none;
+}
+
+.fade-up-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.55s ease calc(var(--fui, 0) * 0.06s),
+              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--fui, 0) * 0.06s);
+}
+.fade-up-reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-up-reveal { opacity: 1; transform: none; transition: none; }
+}
+
+.cursor-trail-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: rgba(0,212,200,0.55);
+  pointer-events: none;
+  z-index: 9997;
+  opacity: calc(1 - var(--cti, 0) * 0.11);
+  transform: scale(calc(1 - var(--cti, 0) * 0.07));
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) { .cursor-trail-dot { display: none; } }

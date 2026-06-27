@@ -7449,3 +7449,52 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-pulse-ring { display: none; }
 }
+
+/* Sprint 135 — scroll flip x, hover border glow sweep, bg rain drops */
+
+@keyframes flip-x-in {
+  0%   { opacity: 0; transform: perspective(600px) rotateX(50deg) translateY(30px); }
+  65%  { opacity: 1; transform: perspective(600px) rotateX(-4deg) translateY(-3px); }
+  100% { transform: perspective(600px) rotateX(0deg) translateY(0); }
+}
+.scroll-flip-x { opacity: 0; }
+.scroll-flip-x--active {
+  animation: flip-x-in 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
+  animation-delay: calc(var(--fx-i, 0) * 80ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-flip-x { opacity: 1; }
+  .scroll-flip-x--active { animation: none; }
+}
+
+.hover-border-glow-sweep {
+  position: relative;
+}
+.hover-border-glow-sweep::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle 80px at var(--bgs-x, 50%) var(--bgs-y, 50%),
+    rgba(0,212,200,0.5),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.hover-border-glow-sweep:hover::after {
+  opacity: 1;
+}
+
+.bg-rain-drops {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-rain-drops { display: none; }
+}

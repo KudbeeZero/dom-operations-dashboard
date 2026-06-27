@@ -2238,6 +2238,118 @@ function initSectionKickerReveal() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   Sprint 28-A: Cursor trail — lagging dot chain follows mouse on desktop
+   ------------------------------------------------------------------------- */
+function initCursorTrail() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const COUNT = 10;
+  const EASE = 0.22;
+  const mouse = { x: -200, y: -200 };
+  const pos = Array.from({ length: COUNT }, () => ({ x: -200, y: -200 }));
+
+  const dots = Array.from({ length: COUNT }, (_, i) => {
+    const d = document.createElement('div');
+    d.className = 'cursor-trail-dot';
+    d.setAttribute('aria-hidden', 'true');
+    d.style.setProperty('--ti', String(i));
+    document.body.appendChild(d);
+    return d;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  }, { passive: true });
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+  let raf;
+  const tick = () => {
+    pos[0].x = lerp(pos[0].x, mouse.x, EASE + 0.08);
+    pos[0].y = lerp(pos[0].y, mouse.y, EASE + 0.08);
+    for (let i = 1; i < COUNT; i++) {
+      pos[i].x = lerp(pos[i].x, pos[i - 1].x, EASE);
+      pos[i].y = lerp(pos[i].y, pos[i - 1].y, EASE);
+    }
+    dots.forEach((d, i) => {
+      d.style.transform = `translate(${pos[i].x - 3}px, ${pos[i].y - 3}px)`;
+    });
+    raf = requestAnimationFrame(tick);
+  };
+  raf = requestAnimationFrame(tick);
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 28-B: Bento icon bounce — GSAP elastic pop when card enters view
+   ------------------------------------------------------------------------- */
+function initBentoIconBounce() {
+  const icons = document.querySelectorAll('.bento-icon');
+  if (!icons.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  icons.forEach((icon, i) => {
+    gsap.from(icon, {
+      scale: 0, rotation: -20, opacity: 0,
+      duration: 0.72, ease: 'elastic.out(1, 0.48)',
+      delay: i * 0.07,
+      scrollTrigger: { trigger: icon.closest('.bento-card') || icon, start: 'top 84%' },
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 28-C: Section progress dots — fixed right-side nav, dot per section
+   ------------------------------------------------------------------------- */
+function initSectionProgressDots() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+
+  const SECTIONS = [
+    { id: 'hero',     label: 'Home' },
+    { id: 'showcase', label: 'Before & After' },
+    { id: 'services', label: 'Services' },
+    { id: 'pricing',  label: 'Pricing' },
+    { id: 'process',  label: 'Process' },
+    { id: 'faq',      label: 'FAQ' },
+    { id: 'contact',  label: 'Contact' },
+  ];
+
+  const sections = SECTIONS
+    .map(s => ({ ...s, el: document.getElementById(s.id) }))
+    .filter(s => s.el);
+  if (sections.length < 2) return;
+
+  const nav = document.createElement('nav');
+  nav.className = 'section-dots';
+  nav.setAttribute('aria-label', 'Page sections');
+
+  const dotEls = sections.map((s) => {
+    const btn = document.createElement('button');
+    btn.className = 'section-dot';
+    btn.setAttribute('aria-label', s.label);
+    btn.setAttribute('title', s.label);
+    btn.addEventListener('click', () =>
+      s.el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    );
+    nav.appendChild(btn);
+    return btn;
+  });
+
+  document.body.appendChild(nav);
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      const idx = sections.findIndex(s => s.el === e.target);
+      if (idx !== -1) dotEls[idx].classList.toggle('is-active', e.isIntersecting);
+    });
+  }, { rootMargin: '-30% 0px -30% 0px', threshold: 0 });
+
+  sections.forEach(s => io.observe(s.el));
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -2257,6 +2369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavCTAPing, initSliderTabIndicator, initFormCompletionGlow,
     initSliderHint, initGlassShimmer, initScrollBloom,
     initNavShrink, initPriceCardSpotlight, initSectionKickerReveal,
+    initCursorTrail, initBentoIconBounce, initSectionProgressDots,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

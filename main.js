@@ -3632,6 +3632,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initWordRevealWave, initCardGlintSweep, initStaggerListReveal,    // Sprint 54
     initSectionLineAccent, initFooterWave, initMouseGlowFollower,     // Sprint 55
     initPageClickRipple, initImageClipReveal, initPricingCountdown,   // Sprint 56
+    initHeroGradientRing, initKeyboardNav, initDynamicThemeColor,     // Sprint 57
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -3872,4 +3873,73 @@ function initPricingCountdown() {
   };
   render();
   setInterval(render, 1000);
+}
+
+/* Sprint 57 — hero gradient ring, keyboard nav, dynamic theme color ----------- */
+
+function initHeroGradientRing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.querySelector('.hero, .hero-section, #hero');
+  if (!hero) return;
+  const ring = document.createElement('div');
+  ring.className = 'hero-gradient-ring';
+  ring.setAttribute('aria-hidden', 'true');
+  hero.appendChild(ring);
+}
+
+function initKeyboardNav() {
+  const sections = Array.from(document.querySelectorAll('.section, .hero, .ba-section'));
+  if (sections.length < 2) return;
+  let current = 0;
+  const showToast = (section) => {
+    const old = document.querySelector('.section-nav-toast');
+    if (old) old.remove();
+    const label = (section.querySelector('.section-kicker, h1, h2')?.textContent || '').trim().slice(0, 28);
+    if (!label) return;
+    const toast = document.createElement('div');
+    toast.className = 'section-nav-toast';
+    toast.textContent = label;
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('section-nav-toast--in'));
+    setTimeout(() => {
+      toast.classList.remove('section-nav-toast--in');
+      toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    }, 1800);
+  };
+  const go = (idx) => {
+    current = Math.max(0, Math.min(idx, sections.length - 1));
+    sections[current].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast(sections[current]);
+  };
+  document.addEventListener('keydown', (e) => {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+    if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); go(current + 1); }
+    if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); go(current - 1); }
+  });
+  sections.forEach((section, i) => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) current = i; });
+    }, { threshold: 0.5 });
+    io.observe(section);
+  });
+}
+
+function initDynamicThemeColor() {
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    document.head.appendChild(meta);
+  }
+  const palette = ['#0a0a0f', '#0a0f0e', '#08090f', '#0d0a14', '#080d0d'];
+  const sections = document.querySelectorAll('.section, .hero, .ba-section');
+  sections.forEach((section, i) => {
+    const color = palette[i % palette.length];
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) meta.setAttribute('content', color); });
+    }, { threshold: 0.4 });
+    io.observe(section);
+  });
+  meta.setAttribute('content', palette[0]);
 }

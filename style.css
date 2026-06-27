@@ -3860,3 +3860,63 @@ footer, .footer, .site-footer { position: relative; }
   min-width: 2.2ch;
   text-align: center;
 }
+
+/* Sprint 57 — hero gradient ring, keyboard nav toast, dynamic theme color ----- */
+
+/* Rotating conic gradient ring around hero */
+@property --ring-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.hero-gradient-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--ring-angle),
+    transparent 0%,
+    rgba(0,212,200,0.1) 12%,
+    rgba(127,90,240,0.08) 30%,
+    transparent 48%,
+    rgba(0,180,216,0.07) 65%,
+    rgba(0,212,200,0.09) 78%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+  animation: ring-rotate 9s linear infinite;
+  mask-image: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-image: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  padding: 1px;
+}
+@keyframes ring-rotate {
+  from { --ring-angle: 0deg; }
+  to   { --ring-angle: 360deg; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-gradient-ring { animation: none; } }
+
+/* Keyboard nav section toast */
+.section-nav-toast {
+  position: fixed;
+  bottom: 80px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(10,10,15,0.85);
+  border: 1px solid rgba(0,212,200,0.3);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: rgba(0,212,200,0.9);
+  padding: 0.45rem 1.2rem;
+  border-radius: 24px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.section-nav-toast--in { opacity: 1; transform: translateX(-50%) translateY(0); }

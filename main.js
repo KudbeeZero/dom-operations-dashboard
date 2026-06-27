@@ -3186,6 +3186,51 @@ function initSectionH2Underline() {
   });
 }
 
+/* Sprint 45 — click sparks, slider handle glow, scroll vignette ------------ */
+
+function initClickSpark() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.addEventListener('click', (e) => {
+    for (let i = 0; i < 5; i++) {
+      const spark = document.createElement('span');
+      spark.className = 'click-spark';
+      spark.setAttribute('aria-hidden', 'true');
+      spark.style.setProperty('--cx', `${e.clientX}px`);
+      spark.style.setProperty('--cy', `${e.clientY}px`);
+      spark.style.setProperty('--sa', `${(360 / 5) * i + (Math.random() * 20 - 10)}deg`);
+      spark.style.setProperty('--sd', `${28 + Math.random() * 18}px`);
+      document.body.appendChild(spark);
+      spark.addEventListener('animationend', () => spark.remove(), { once: true });
+    }
+  });
+}
+
+function initSliderHandleGlow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const handle = document.querySelector('.ba-handle');
+  if (!handle) return;
+  handle.classList.add('handle-glow-pulse');
+}
+
+function initScrollVignette() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const vig = document.createElement('div');
+  vig.className = 'scroll-vignette';
+  vig.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(vig);
+  let lastY = window.scrollY;
+  let fade = null;
+  window.addEventListener('scroll', () => {
+    const dy = Math.abs(window.scrollY - lastY);
+    lastY = window.scrollY;
+    if (dy > 8) {
+      vig.classList.add('vig-active');
+      clearTimeout(fade);
+      fade = setTimeout(() => vig.classList.remove('vig-active'), 180);
+    }
+  }, { passive: true });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3222,6 +3267,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeroHeadlineColorCycle, initContactListPop, initFooterGlowPulse,
     initSectionGlowHalo, initStepIconHover, initCtaPulseRing,
     initHeadlineGlitch, initQROrbitRings, initSectionH2Underline,
+    initClickSpark, initSliderHandleGlow, initScrollVignette,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

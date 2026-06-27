@@ -2667,6 +2667,56 @@ function initFormatTagEntrance() {
   });
 }
 
+/* Sprint 35 — social-proof ticker, CTA border morph, nav depth blur -------- */
+
+function initSocialProofTicker() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const trustBar = document.querySelector('.trust-bar');
+  if (!trustBar) return;
+  const PHRASES = [
+    '✓ Same-day results', '✓ Real person, not a bot', '✓ $25 to start',
+    '✓ Free fix if not right', '✓ No subscription fees', '✓ Always Dominick',
+    '✓ Text and get a reply', '✓ No AI guessing', '✓ One human you can call',
+    '✓ No templates, no fluff',
+  ];
+  const track = document.createElement('div');
+  track.className = 'sp-ticker-track';
+  track.setAttribute('aria-hidden', 'true');
+  const doubled = [...PHRASES, ...PHRASES];
+  doubled.forEach((phrase) => {
+    const span = document.createElement('span');
+    span.textContent = phrase;
+    track.appendChild(span);
+  });
+  const ticker = document.createElement('div');
+  ticker.className = 'sp-ticker';
+  ticker.setAttribute('aria-label', 'Why choose Dominick');
+  ticker.appendChild(track);
+  trustBar.insertAdjacentElement('afterend', ticker);
+}
+
+function initCtaMorph() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.btn.btn-primary').forEach((btn) => {
+    btn.classList.add('cta-morph');
+  });
+}
+
+function initNavBlur() {
+  const nav = document.getElementById('nav');
+  if (!nav) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let rafId;
+  const update = () => {
+    const depth = Math.min(window.scrollY / 500, 1);
+    const blur = (8 + depth * 22).toFixed(1);
+    nav.style.setProperty('--nav-blur', blur + 'px');
+    nav.classList.toggle('nav-deep', window.scrollY > 80);
+  };
+  window.addEventListener('scroll', () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(update); }, { passive: true });
+  update();
+}
+
 /* Sprint 34 — price-diff stagger, hero-price flash, QR hover glow ---------- */
 
 function initPriceDiffStagger() {
@@ -2731,6 +2781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initProcessLineDraw, initHeroEyebrowPulse, initFormatTagEntrance,
     initAboutIconSpin, initStepBadgePop, initPhoneRingWiggle,
     initPriceDiffStagger, initHeroPriceFlash, initQRHoverGlow,
+    initSocialProofTicker, initCtaMorph, initNavBlur,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

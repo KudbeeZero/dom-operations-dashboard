@@ -2420,3 +2420,11 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .footer-inner > .footer-enter { opacity: 1; transform: none; transition: none; }
 }
+
+/* ── Ticker hotfix: consolidate duplicate rule-sets, fix mobile wrapping ─ */
+/* Two .ticker-track blocks exist (original + Sprint 18 override). Both span
+   ::before (·) and ::after (✦) fire simultaneously, doubling decorators.
+   Force the track to never wrap and silence the original · separator. */
+.work-ticker { overflow: hidden; }
+.ticker-track { flex-wrap: nowrap; white-space: nowrap; }
+.ticker-track span::before { content: none; } /* Sprint 18 uses ::after (✦) */

@@ -1922,6 +1922,104 @@ function initFooterEntrance() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   FAQ STAGGER — GSAP slides .faq-item elements in from the right as the FAQ
+   list enters the viewport; replaces the flat IO .reveal fade.
+   ------------------------------------------------------------------------- */
+function initFaqStagger() {
+  const list = document.querySelector('.faq-list');
+  if (!list) return;
+  const items = Array.from(list.querySelectorAll('.faq-item'));
+  if (!items.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    items.forEach(el => el.classList.remove('reveal'));
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+  items.forEach(el => el.classList.remove('reveal'));
+  gsap.from(items, {
+    x: 48,
+    opacity: 0,
+    stagger: 0.1,
+    duration: 0.62,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: list, start: 'top 86%' },
+  });
+}
+
+/* -------------------------------------------------------------------------
+   SHOWCASE AUTOPLAY — cycles showcase tabs every 5 s; pauses on hover/click;
+   resumes 8 s after last manual interaction. Piggybacks on the existing
+   .showcase-tab click handlers set up by initBeforeAfter.
+   ------------------------------------------------------------------------- */
+function initShowcaseAutoplay() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const tabs   = document.querySelectorAll('.showcase-tab');
+  const slider = document.getElementById('baSlider');
+  if (!tabs.length || !slider) return;
+
+  let idx    = 0;
+  let paused = false;
+  let resumeTimer = null;
+
+  const advance = () => {
+    if (paused) return;
+    idx = (idx + 1) % tabs.length;
+    tabs[idx].click();
+  };
+
+  const pause = (resumeAfterMs) => {
+    paused = true;
+    clearTimeout(resumeTimer);
+    if (resumeAfterMs) resumeTimer = setTimeout(() => { paused = false; }, resumeAfterMs);
+  };
+
+  setInterval(advance, 5200);
+
+  slider.addEventListener('pointerenter', () => pause(0));
+  slider.addEventListener('pointerleave', () => { paused = false; });
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      idx = parseInt(tab.dataset.tab || '0', 10);
+      pause(9000);
+    });
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    paused = document.hidden;
+  });
+}
+
+/* -------------------------------------------------------------------------
+   KINETIC CTA FLOAT — .kinetic-cta springs in on scroll then gently floats
+   up and down on loop, drawing repeated attention to the SMS CTA.
+   ------------------------------------------------------------------------- */
+function initKineticFloat() {
+  const cta = document.querySelector('.kinetic-cta');
+  if (!cta) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from(cta, {
+    scale: 0.78,
+    opacity: 0,
+    duration: 0.72,
+    ease: 'back.out(2.2)',
+    scrollTrigger: { trigger: cta, start: 'top 90%' },
+    onComplete() {
+      gsap.to(cta, {
+        y: -9,
+        duration: 2.2,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+      });
+    },
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -1929,7 +2027,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const inits = [
     initPageIntro, initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
     initAboutEntrance, initBeforeAfter, initProcessTimeline,
-    initPricingEntrance, initBentoReveal,
+    initPricingEntrance, initBentoReveal, initFaqStagger,
     initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
     initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,
@@ -1937,6 +2035,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initButtonRipple, initHeroCursorGlow, initScrollToTop, initSectionAmbient,
     initContactReveal, initContactSteps,
     initHeroTrustCycle, initTrustBarEntrance, initFooterEntrance,
+    initShowcaseAutoplay, initKineticFloat,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

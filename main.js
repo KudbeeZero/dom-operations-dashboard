@@ -3693,6 +3693,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollSlideUpFade, initHoverCardGlowBorder, initTextRevealMaskV2,   // Sprint 115
     initScrollElasticEntry, initHoverRainbowBorder, initBgDotMatrix,        // Sprint 116
     initScrollOrbitReveal, initHoverInkSplatter, initBgScanLine,            // Sprint 117
+    initScrollPendulumEntry, initHoverGlowTrailV2, initBgFirefly,           // Sprint 118
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7647,4 +7648,67 @@ function initBgScanLine() {
   el.className = 'bg-scan-line';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 118 — scroll pendulum entry, hover glow trail v2, bg firefly */
+
+function initScrollPendulumEntry() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('p, li, [data-pendulum-entry]');
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.pendulumEntry) return;
+    el.dataset.pendulumEntry = '1';
+    el.classList.add('scroll-pendulum-entry');
+    el.style.setProperty('--pe-i', i % 8);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-pendulum-entry--active');
+      });
+    }, { threshold: 0.25 });
+    io.observe(el);
+  });
+}
+
+function initHoverGlowTrailV2() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const targets = document.querySelectorAll('.card, .service-card, [data-glow-trail-v2]');
+  if (!targets.length) return;
+  targets.forEach((el) => {
+    if (el.dataset.glowTrailV2) return;
+    el.dataset.glowTrailV2 = '1';
+    el.addEventListener('mousemove', (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      el.style.setProperty('--gtv2-x', x + '%');
+      el.style.setProperty('--gtv2-y', y + '%');
+      el.classList.add('glow-trail-v2--active');
+    }, { passive: true });
+    el.addEventListener('mouseleave', () => {
+      el.classList.remove('glow-trail-v2--active');
+    }, { passive: true });
+  });
+}
+
+function initBgFirefly() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-firefly-wrap')) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'bg-firefly-wrap';
+  wrap.setAttribute('aria-hidden', 'true');
+  const count = 18;
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'bg-firefly-dot';
+    dot.style.setProperty('--ff-x', (Math.random() * 100).toFixed(1) + '%');
+    dot.style.setProperty('--ff-y', (Math.random() * 100).toFixed(1) + '%');
+    dot.style.setProperty('--ff-d', (2.5 + Math.random() * 5).toFixed(2) + 's');
+    dot.style.setProperty('--ff-delay', (Math.random() * 5).toFixed(2) + 's');
+    wrap.appendChild(dot);
+  }
+  document.body.insertAdjacentElement('afterbegin', wrap);
 }

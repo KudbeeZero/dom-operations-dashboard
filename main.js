@@ -3703,6 +3703,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollStackReveal, initHoverShimmerBorder, initBgMatrixRain,        // Sprint 125
     initScrollMorphPath, initHoverLiquidBtn, initBgGradientFlow,            // Sprint 126
     initScrollFanCards, initHoverRippleExpand, initBgHoloFoil,              // Sprint 127
+    initScrollGlitchEntry, initHoverChromaticAberration, initBgParticleField, // Sprint 128
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8284,4 +8285,74 @@ function initBgHoloFoil() {
   el.className = 'bg-holo-foil';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 128 — scroll glitch entry, hover chromatic aberration, bg particle field */
+
+function initScrollGlitchEntry() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.section-title, h2, [data-glitch-entry]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.glitchEntry) return;
+    el.dataset.glitchEntry = '1';
+    el.classList.add('scroll-glitch-entry');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-glitch-entry--active');
+        el.addEventListener('animationend', () => {
+          el.classList.remove('scroll-glitch-entry--active', 'scroll-glitch-entry');
+        }, { once: true });
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+function initHoverChromaticAberration() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const els = document.querySelectorAll('.section-title, h1, h2, [data-chromatic]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.chromatic) return;
+    el.dataset.chromatic = '1';
+    el.classList.add('hover-chromatic');
+  });
+}
+
+function initBgParticleField() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-particle-field')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-particle-field';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const particles = Array.from({ length: 80 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: 1 + Math.random() * 2,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+    alpha: 0.1 + Math.random() * 0.25,
+  }));
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p) => {
+      p.x = (p.x + p.vx + canvas.width) % canvas.width;
+      p.y = (p.y + p.vy + canvas.height) % canvas.height;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,212,200,${p.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  };
+  draw();
 }

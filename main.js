@@ -3679,40 +3679,41 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollFadeBlur, initHoverColorPop, initBtnGlowPulse,               // Sprint 101
     initScrollSkewEntry, initImageParallaxLayer, initHoverUnderlineExpand,  // Sprint 102
     initScrollRotateIn, initHoverShadowLift, initTextGradientShift,         // Sprint 103
-    initScrollFlipReveal, initHoverIconSpin, initBgAuroraDrift,             // Sprint 104
+    initScrollFlipReveal, initHoverIconSpin,                                // Sprint 104
     initScrollStaggerGrid, initHoverCardShimmer, initSectionCountUp,        // Sprint 105
     initScrollZoomFade, initHoverBorderGlowPulse, initTypewriterCursor,     // Sprint 106
     initScrollWaveReveal, initHoverFloatingLabel, initBtnMagneticPull,      // Sprint 107
     initScrollBounceIn, initHoverTextOutline, initSectionNoiseLayer,        // Sprint 108
-    initScrollPendulumSwing, initHoverNeonBadge, initBgStarfield,           // Sprint 109
+    initScrollPendulumSwing, initHoverNeonBadge,                            // Sprint 109
     initScrollDoorOpen, initHoverCardDepthRing, initTextShimmerWave,        // Sprint 110
-    initScrollAccordionReveal, initHoverGlowIconRing, initBgMeshGradient,   // Sprint 111
-    initScrollSplitWipe, initHoverCardOutlineDraw, initBgGradientOrbs,      // Sprint 112
-    initScrollTypewriterReveal, initHoverFillSweep, initBgRadialPulse,      // Sprint 113
-    initScrollZoomBlurReveal, initHoverTextPop, initBgGridLines,            // Sprint 114
+    initScrollAccordionReveal, initHoverGlowIconRing,                       // Sprint 111
+    initScrollSplitWipe, initHoverCardOutlineDraw,                          // Sprint 112
+    initScrollTypewriterReveal, initHoverFillSweep,                         // Sprint 113
+    initScrollZoomBlurReveal, initHoverTextPop,                             // Sprint 114
     initScrollSlideUpFade, initHoverCardGlowBorder, initTextRevealMaskV2,   // Sprint 115
-    initScrollElasticEntry, initHoverRainbowBorder, initBgDotMatrix,        // Sprint 116
-    initScrollOrbitReveal, initHoverInkSplatter, initBgScanLine,            // Sprint 117
-    initScrollPendulumEntry, initHoverGlowTrailV2, initBgFirefly,           // Sprint 118
-    initScrollShutterReveal, initHoverMagneticText, initBgAuroraV2,         // Sprint 119
-    initScrollPrismSplit, initHoverDepthShadow, initBgNebula,               // Sprint 120
-    initScrollLensZoom, initHoverSpotlight, initBgVhsNoise,                 // Sprint 121
-    initScrollTypewriterV2, initHoverColorShift, initBgPlasma,              // Sprint 122
-    initScrollCurtainLift, initHoverBorderDash, initBgGridPulse,            // Sprint 123
-    initScrollWaveText, initHoverNeonGlow, initBgConstellation,             // Sprint 124
-    initScrollStackReveal, initHoverShimmerBorder, initBgMatrixRain,        // Sprint 125
-    initScrollMorphPath, initHoverLiquidBtn, initBgGradientFlow,            // Sprint 126
-    initScrollFanCards, initHoverRippleExpand, initBgHoloFoil,              // Sprint 127
-    initScrollGlitchEntry, initHoverChromaticAberration, initBgParticleField, // Sprint 128
-    initScrollAccordionStagger, initHoverGlowIconRingV2, initBgCircuitTrace,  // Sprint 129
-    initScrollTiltCard, initHoverBorderBeam, initBgLavaLamp,                 // Sprint 130
-    initScrollRevealCounter, initHoverUnderlineWave, initBgStaticBurst,      // Sprint 131
-    initScrollSpringPop, initHoverGradientText, initBgWarpGrid,              // Sprint 132
-    initScrollCascadeFade, initHoverIconBounce, initBgHexGrid,               // Sprint 133
-    initScrollZoomBlurIn, initHoverTextScramble, initBgPulseRing,            // Sprint 134
-    initScrollFlipX, initHoverBorderGlowSweep, initBgRainDrops,             // Sprint 135
+    initScrollElasticEntry, initHoverRainbowBorder,                         // Sprint 116
+    initScrollOrbitReveal, initHoverInkSplatter,                            // Sprint 117
+    initScrollPendulumEntry, initHoverGlowTrailV2,                          // Sprint 118
+    initScrollShutterReveal, initHoverMagneticText,                         // Sprint 119
+    initScrollPrismSplit, initHoverDepthShadow,                             // Sprint 120
+    initScrollLensZoom, initHoverSpotlight,                                 // Sprint 121
+    initScrollTypewriterV2, initHoverColorShift,                            // Sprint 122
+    initScrollCurtainLift, initHoverBorderDash,                             // Sprint 123
+    initScrollWaveText, initHoverNeonGlow,                                   // Sprint 124
+    initScrollStackReveal, initHoverShimmerBorder,                          // Sprint 125
+    initScrollMorphPath, initHoverLiquidBtn,                                // Sprint 126
+    initScrollFanCards, initHoverRippleExpand,                              // Sprint 127
+    initScrollGlitchEntry, initHoverChromaticAberration,                    // Sprint 128
+    initScrollAccordionStagger, initHoverGlowIconRingV2,                    // Sprint 129
+    initScrollTiltCard, initHoverBorderBeam,                                // Sprint 130
+    initScrollRevealCounter, initHoverUnderlineWave,                        // Sprint 131
+    initScrollSpringPop, initHoverGradientText,                             // Sprint 132
+    initScrollCascadeFade, initHoverIconBounce,                             // Sprint 133
+    initScrollZoomBlurIn, initHoverTextScramble,                            // Sprint 134
+    initScrollFlipX, initHoverBorderGlowSweep,                              // Sprint 135
     initScrollBlurPanel, initHoverScalePop, initBgCometTrail,               // Sprint 136
     initScrollRevealWords, initHoverGlowRing, initBgInkWash,                // Sprint 137
+    initScrollFadeSlide, initHoverMagneticGlow, initBgAmbientWave,          // Sprint 138
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -9014,5 +9015,58 @@ function initBgInkWash() {
     blob.style.setProperty('--iw-i', i);
     el.appendChild(blob);
   }
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 138 — scroll fade-slide, magnetic glow hover, ambient wave bg -------- */
+
+function initScrollFadeSlide() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.section__heading, .bento-card, .process__step, .pricing-card');
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.fadeSlide) return;
+    el.dataset.fadeSlide = '1';
+    el.dataset.fadeSlideDir = i % 2 === 0 ? 'left' : 'right';
+    el.classList.add('scroll-fade-slide');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-fade-slide--in');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initHoverMagneticGlow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const cards = document.querySelectorAll('.bento-card, .pricing-card, .process__step');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.magGlow) return;
+    card.dataset.magGlow = '1';
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--mg-x', `${x}%`);
+      card.style.setProperty('--mg-y', `${y}%`);
+      card.classList.add('mag-glow--active');
+    });
+    card.addEventListener('mouseleave', () => {
+      card.classList.remove('mag-glow--active');
+    });
+  });
+}
+
+function initBgAmbientWave() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-ambient-wave')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-ambient-wave';
+  el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
 }

@@ -3712,6 +3712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollZoomBlurIn, initHoverTextScramble, initBgPulseRing,            // Sprint 134
     initScrollFlipX, initHoverBorderGlowSweep, initBgRainDrops,             // Sprint 135
     initScrollBlurPanel, initHoverScalePop, initBgCometTrail,               // Sprint 136
+    initScrollRevealWords, initHoverGlowRing, initBgInkWash,                // Sprint 137
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8955,4 +8956,63 @@ function initBgCometTrail() {
     requestAnimationFrame(draw);
   };
   draw();
+}
+
+/* Sprint 137 — scroll reveal words, hover glow ring, bg ink wash */
+
+function initScrollRevealWords() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('p, [data-reveal-words]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.revealWords) return;
+    el.dataset.revealWords = '1';
+    const text = el.textContent.trim();
+    const words = text.split(/\s+/);
+    el.textContent = '';
+    el.setAttribute('aria-label', text);
+    words.forEach((word, i) => {
+      const span = document.createElement('span');
+      span.textContent = word + ' ';
+      span.className = 'reveal-word';
+      span.style.setProperty('--rw-i', i);
+      span.setAttribute('aria-hidden', 'true');
+      el.appendChild(span);
+    });
+    el.classList.add('scroll-reveal-words');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-reveal-words--active');
+      });
+    }, { threshold: 0.3 });
+    io.observe(el);
+  });
+}
+
+function initHoverGlowRing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.btn, [data-glow-ring]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.glowRing) return;
+    el.dataset.glowRing = '1';
+    el.classList.add('hover-glow-ring');
+  });
+}
+
+function initBgInkWash() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-ink-wash')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-ink-wash';
+  el.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 4; i++) {
+    const blob = document.createElement('span');
+    blob.className = 'bg-ink-wash__blob';
+    blob.style.setProperty('--iw-i', i);
+    el.appendChild(blob);
+  }
+  document.body.insertAdjacentElement('afterbegin', el);
 }

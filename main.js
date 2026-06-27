@@ -3650,6 +3650,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNeonLinkUnderline, initScrollRevealRotate, initVelocitySkew,   // Sprint 72
     initGridDiagonalReveal, initCardHoverDepth, initScrollMeter,       // Sprint 73
     initHeroScanline, initClipRevealSlide, initHighlightTextMark,      // Sprint 74
+    initSpringClickEffect, initScrollTextParallax, initGlobalFocusGlow, // Sprint 75
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4910,4 +4911,46 @@ function initHighlightTextMark() {
     }, { threshold: 0.5 });
     io.observe(el);
   });
+}
+
+/* Sprint 75 — spring click effect, scroll text parallax, global focus glow -- */
+
+function initSpringClickEffect() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.btn-primary, .btn-secondary, .btn, button:not([disabled])').forEach((btn) => {
+    btn.addEventListener('mousedown', () => {
+      btn.classList.add('spring-click');
+      btn.addEventListener('animationend', () => btn.classList.remove('spring-click'), { once: true });
+    });
+  });
+}
+
+function initScrollTextParallax() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = Array.from(document.querySelectorAll('[data-speed]'));
+  if (!targets.length) return;
+  const update = () => {
+    const sy = window.scrollY;
+    targets.forEach((el) => {
+      const speed = parseFloat(el.dataset.speed) || 0.1;
+      const rect = el.getBoundingClientRect();
+      const centerY = rect.top + rect.height / 2 + sy - window.innerHeight / 2;
+      el.style.transform = `translateY(${(centerY * speed * -0.15).toFixed(1)}px)`;
+    });
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+function initGlobalFocusGlow() {
+  const style = document.createElement('style');
+  style.textContent = `
+    :focus-visible {
+      outline: 2px solid rgba(0,212,200,0.8) !important;
+      outline-offset: 3px !important;
+      box-shadow: 0 0 0 4px rgba(0,212,200,0.15), 0 0 12px rgba(0,212,200,0.2) !important;
+      border-radius: 4px;
+    }
+  `;
+  document.head.appendChild(style);
 }

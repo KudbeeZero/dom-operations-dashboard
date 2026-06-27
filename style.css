@@ -4745,3 +4745,24 @@ nav a, .nav a, .nav-link {
 @media (prefers-reduced-motion: reduce) {
   .hl-mark-elem { background: none; }
 }
+
+/* Sprint 75 — spring click effect, scroll text parallax, global focus glow -- */
+
+/* Spring click — squish + bounce keyframe on mousedown */
+@keyframes spring-click-anim {
+  0%   { transform: scale(1); }
+  25%  { transform: scale(0.92, 1.06); }
+  55%  { transform: scale(1.04, 0.97); }
+  75%  { transform: scale(0.98, 1.01); }
+  100% { transform: scale(1); }
+}
+.spring-click {
+  animation: spring-click-anim 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) { .spring-click { animation: none; } }
+
+/* Scroll text parallax — [data-speed] elements use JS transform */
+[data-speed] { will-change: transform; }
+@media (prefers-reduced-motion: reduce) { [data-speed] { transform: none !important; } }
+
+/* Global focus glow — baseline; JS injects the :focus-visible override at runtime */

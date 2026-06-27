@@ -1534,6 +1534,30 @@ function initPageIntro() {
 }
 
 /* -------------------------------------------------------------------------
+   SECTION AMBIENT — IO-triggered teal haze at the top of each .section.
+   A .section-ambient div is prepended to each section and fades in via
+   the .active class as the section enters the viewport.
+   ------------------------------------------------------------------------- */
+function initSectionAmbient() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = document.querySelectorAll('.section');
+  if (!sections.length) return;
+  sections.forEach((s) => {
+    const glow = document.createElement('div');
+    glow.className = 'section-ambient';
+    glow.setAttribute('aria-hidden', 'true');
+    s.insertBefore(glow, s.firstChild);
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      const g = e.target.querySelector(':scope > .section-ambient');
+      if (g) g.classList.toggle('active', e.isIntersecting);
+    });
+  }, { threshold: 0.12 });
+  sections.forEach((s) => io.observe(s));
+}
+
+/* -------------------------------------------------------------------------
    BUTTON RIPPLE — material-style circular ripple from the click point on .btn
    ------------------------------------------------------------------------- */
 function initButtonRipple() {
@@ -1685,7 +1709,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
     initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,
     initScrollProgress, initMagneticButtons, initHeadingReveal, initActiveNav,
-    initButtonRipple, initHeroCursorGlow, initScrollToTop,
+    initButtonRipple, initHeroCursorGlow, initScrollToTop, initSectionAmbient,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

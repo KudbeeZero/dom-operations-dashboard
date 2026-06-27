@@ -428,3 +428,26 @@
 - Pseudo-element conflict resolution: inject child div when ::before/::after already taken
 - IO-pause pattern for continuous animations: toggle animation-play-state via IO callback
 - prefers-reduced-motion guard at top of every init function
+
+## Sprint 147 — Reveal Safety Net: Two-Phase Hover-Preserve Fix — 2026-06-27
+- Context: 145+ sprints stacked scroll-reveal CSS base classes on every element.
+  Only one CSS animation wins the cascade; others leave their hidden pre-state
+  (opacity:0, blur, clip-path) stuck. The previous fix (PR #146) used a
+  `.reveal-bypass` CSS class with `transition:none !important; transform:none !important`
+  which permanently killed all hover effects (bento card scale/3D tilt, glow filters).
+- Branch: claude/sprint-147-reveal-hover-card-fix (off main). PR #147 (DRAFT).
+- Fix — two-phase inline-style approach in revealSafetyNet() IIFE:
+  Phase 1: el.style.setProperty(..., 'important') overrides hidden states immediately,
+  beats every scroll-reveal base class in the cascade.
+  Phase 2: 2 rAFs later, strip the reveal classes so the element's natural CSS is
+  visible and hover transitions/transforms/glows work unobstructed.
+- SCROLL_RE expanded from ^(scroll-|...) to also match /-reveal(-elem|-el)?$| so
+  bento cards using CSS transitions (.scale-reveal-elem, .rotate-reveal-elem,
+  .card-flip-reveal, .radial-reveal-el) are detected by scan() AND stripped in Phase 2.
+- style.css: removed the old .reveal-bypass block (replaced with comment).
+- Playwright verified: 10/10 h2s, 6/6 bento cards, 12/12 sections visible at 7s.
+  cardTransition = 'filter 0.2s' confirms hover glow effects are intact.
+- CI: Cloudflare Pages ✅ green on PR #147.
+- DECISION: WeakSet (not CSS class) tracks bypassed elements for O(1) lookup.
+- DECISION: prefers-reduced-motion guard returns early — bypasses don't fire for
+  users who prefer reduced motion (they rely on base CSS visibility instead).

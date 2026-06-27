@@ -5955,3 +5955,41 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-aurora-drift { animation: none; }
 }
+
+/* Sprint 105 — scroll stagger grid, hover card shimmer, section count-up */
+
+@keyframes stagger-grid-in {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.stagger-grid-item { opacity: 0; }
+.stagger-grid--active .stagger-grid-item {
+  animation: stagger-grid-in 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: calc(var(--sgi) * 70ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stagger-grid-item { opacity: 1; }
+  .stagger-grid--active .stagger-grid-item { animation: none; }
+}
+
+@keyframes card-shimmer-slide {
+  from { transform: translateX(-100%) skewX(-12deg); }
+  to   { transform: translateX(250%) skewX(-12deg); }
+}
+.hover-card-shimmer-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+  pointer-events: none;
+  z-index: 5;
+  transform: translateX(-100%) skewX(-12deg);
+}
+.hover-card-shimmer-layer--active {
+  animation: card-shimmer-slide 0.55s ease forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-card-shimmer-layer--active { animation: none; }
+}

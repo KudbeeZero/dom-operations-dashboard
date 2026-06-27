@@ -3695,6 +3695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollOrbitReveal, initHoverInkSplatter, initBgScanLine,            // Sprint 117
     initScrollPendulumEntry, initHoverGlowTrailV2, initBgFirefly,           // Sprint 118
     initScrollShutterReveal, initHoverMagneticText, initBgAuroraV2,         // Sprint 119
+    initScrollPrismSplit, initHoverDepthShadow, initBgNebula,               // Sprint 120
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7768,5 +7769,70 @@ function initBgAuroraV2() {
   const el = document.createElement('div');
   el.className = 'bg-aurora-v2';
   el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 120 — scroll prism split, hover depth shadow, bg nebula */
+
+function initScrollPrismSplit() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.section-title, h1, h2, [data-prism-split]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.prismSplit) return;
+    el.dataset.prismSplit = '1';
+    el.classList.add('scroll-prism-split');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-prism-split--active');
+      });
+    }, { threshold: 0.35 });
+    io.observe(el);
+  });
+}
+
+function initHoverDepthShadow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const cards = document.querySelectorAll('.card, .service-card, [data-depth-shadow]');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.depthShadow) return;
+    card.dataset.depthShadow = '1';
+    let rafId = null;
+    card.addEventListener('mousemove', (e) => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const rect = card.getBoundingClientRect();
+        const rx = ((e.clientY - rect.top) / rect.height - 0.5) * 16;
+        const ry = ((e.clientX - rect.left) / rect.width - 0.5) * -16;
+        const sx = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
+        const sy = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
+        card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+        card.style.boxShadow = `${sx}px ${sy}px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,212,200,0.1)`;
+      });
+    }, { passive: true });
+    card.addEventListener('mouseleave', () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      card.style.transform = '';
+      card.style.boxShadow = '';
+    }, { passive: true });
+  });
+}
+
+function initBgNebula() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-nebula')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-nebula';
+  el.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 3; i++) {
+    const orb = document.createElement('span');
+    orb.className = 'bg-nebula__orb';
+    orb.style.setProperty('--nb-i', i);
+    el.appendChild(orb);
+  }
   document.body.insertAdjacentElement('afterbegin', el);
 }

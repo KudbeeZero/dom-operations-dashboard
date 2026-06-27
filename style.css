@@ -6684,3 +6684,59 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-aurora-v2 { animation: none; }
 }
+
+/* Sprint 120 — scroll prism split, hover depth shadow, bg nebula */
+
+@keyframes prism-split-in {
+  0%   { opacity: 0; filter: blur(8px) hue-rotate(90deg); letter-spacing: 0.3em; }
+  60%  { opacity: 1; filter: blur(1px) hue-rotate(10deg); letter-spacing: 0.02em; }
+  100% { filter: blur(0) hue-rotate(0deg); letter-spacing: normal; }
+}
+.scroll-prism-split { opacity: 0; }
+.scroll-prism-split--active {
+  animation: prism-split-in 0.8s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-prism-split { opacity: 1; }
+  .scroll-prism-split--active { animation: none; }
+}
+
+@keyframes nebula-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(40px, -30px) scale(1.15); }
+  66%       { transform: translate(-20px, 20px) scale(0.9); }
+}
+.bg-nebula {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -5;
+  overflow: hidden;
+}
+.bg-nebula__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.06;
+  animation: nebula-drift calc(12s + var(--nb-i, 0) * 4s) ease-in-out infinite alternate;
+}
+.bg-nebula__orb:nth-child(1) {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #00d4c8, transparent 70%);
+  top: 10%; left: 20%;
+}
+.bg-nebula__orb:nth-child(2) {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, #7b5cfa, transparent 70%);
+  top: 50%; left: 60%;
+  animation-delay: -5s;
+}
+.bg-nebula__orb:nth-child(3) {
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, #ff6b9d, transparent 70%);
+  top: 70%; left: 10%;
+  animation-delay: -9s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-nebula__orb { animation: none; }
+}

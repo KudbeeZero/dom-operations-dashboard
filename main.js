@@ -3718,6 +3718,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollMultiParallax, initHoverSpotlightReveal, initBgAuroraPulse,  // Sprint 140
     initScrollBlurSharp, initHover3DDepthTilt, initBgNoiseTexture,         // Sprint 141
     initScrollStaggerChars, initHoverGlowOrb, initBgScanlineOverlay,       // Sprint 142
+    initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -9308,6 +9309,46 @@ function initBgScanlineOverlay() {
   if (document.querySelector('.bg-scanline-overlay')) return;
   const el = document.createElement('div');
   el.className = 'bg-scanline-overlay';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 143 — scroll text stroke fill, morph border hover, radial vignette bg -- */
+
+function initScrollTextStrokeFill() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-stroke-fill]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.strokeFillInit) return;
+    el.dataset.strokeFillInit = '1';
+    el.classList.add('text-stroke-fill');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('text-stroke-fill--in');
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+}
+
+function initHoverMorphBorder() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.btn, .bento-card');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.morphBorder) return;
+    el.dataset.morphBorder = '1';
+    el.classList.add('hover-morph-border');
+  });
+}
+
+function initBgRadialVignette() {
+  if (document.querySelector('.bg-radial-vignette')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-radial-vignette';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
 }

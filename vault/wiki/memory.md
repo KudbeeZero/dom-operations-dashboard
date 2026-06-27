@@ -472,3 +472,20 @@
      (deep-3) background. Raised footer-copy to 0.78 opacity, disclaimer to 0.60.
 - All three perf + footer commits pushed to claude/sprint-147-reveal-hover-card-fix.
 - Cloudflare Pages ✅ preview: https://9eecd4dc.dom-operations-dashboard.pages.dev
+
+## Sprint 148 — Interactive Availability + Try-It Demo + Sonar Ping — 2026-06-27
+- Branch: claude/sprint-148-interactive-availability-sonar. PR #148. Squash-merged.
+- initLiveAvailabilityPing: Injects a badge above .hero-eyebrow in .hero-content.
+  Reads CT time via Intl.DateTimeFormat('en-US', {timeZone:'America/Chicago'}).
+  Mon–Fri 8am–8pm CT = green pulsing "Available now — reply in minutes".
+  Outside hours = amber "Back Monday morning / Back at 8 am CT / Back tomorrow morning".
+  Entry animation: translateY(-6px) → 0 over 0.6s, delay 0.4s.
+- initTryItDemo: New #try section (index.html) between .transform-strip and #pricing.
+  cleanText(): normalizes whitespace, capitalizes sentences, fixes bare 'i' → 'I'.
+  UX: 1.4s shimmer "working" state → typewriter output → "Want the real thing?
+  Text Dominick →" CTA fades in. Responsive: single column on ≤680px.
+- initSonarPing: IO observer (threshold 0.6, one-shot) on each .section-title/.section-head h2.
+  On entry, appends .sonar-ring div (position:absolute, centered, CSS keyframe expands
+  0→400% scale while fading). Self-removes on animationend. Respects prefers-reduced-motion.
+- All three functions added to the inits[] array after Sprint 145 functions.
+- Cloudflare Pages ✅ green, no review comments. Squash-merged to main.

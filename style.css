@@ -6942,3 +6942,64 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-constellation { display: none; }
 }
+
+/* Sprint 125 — scroll stack reveal, hover shimmer border, bg matrix rain */
+
+@keyframes stack-item-in {
+  0%   { opacity: 0; transform: translateY(40px) scale(0.94); }
+  70%  { opacity: 1; transform: translateY(-4px) scale(1.01); }
+  100% { transform: translateY(0) scale(1); }
+}
+.stack-reveal-item { opacity: 0; }
+.stack-reveal--active .stack-reveal-item {
+  animation: stack-item-in 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  animation-delay: calc(var(--sri, 0) * 90ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stack-reveal-item { opacity: 1; }
+  .stack-reveal--active .stack-reveal-item { animation: none; }
+}
+
+@keyframes shimmer-border-sweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.hover-shimmer-border {
+  position: relative;
+}
+.hover-shimmer-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0,212,200,0.6) 40%,
+    rgba(255,255,255,0.8) 50%,
+    rgba(0,212,200,0.6) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.hover-shimmer-border:hover::after {
+  opacity: 1;
+  animation: shimmer-border-sweep 1.2s ease infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-shimmer-border:hover::after { animation: none; opacity: 0.4; }
+}
+
+.bg-matrix-rain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.9;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-matrix-rain { display: none; }
+}

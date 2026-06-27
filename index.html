@@ -126,35 +126,28 @@
     <div class="container">
       <header class="section-head ba-head reveal">
         <span class="section-kicker">See The Difference</span>
-        <h2 class="section-title">Drag to see chaos become clarity.</h2>
+        <h2 class="section-title">Real work. Drag to compare.</h2>
+        <p class="ba-intro">Four examples of what actually lands in my inbox — and what goes back out.</p>
       </header>
+
+      <div class="showcase-tabs reveal" role="tablist" aria-label="Service examples">
+        <button class="showcase-tab is-active" data-tab="0" role="tab" aria-selected="true">📄 Resume</button>
+        <button class="showcase-tab" data-tab="1" role="tab" aria-selected="false">🖼️ Screenshot</button>
+        <button class="showcase-tab" data-tab="2" role="tab" aria-selected="false">🗒️ Notes</button>
+        <button class="showcase-tab" data-tab="3" role="tab" aria-selected="false">✉️ Email</button>
+      </div>
 
       <div class="ba reveal" id="baSlider">
         <!-- AFTER (clean) sits underneath, full width -->
         <div class="ba-panel ba-after-panel">
           <span class="ba-tag ba-tag-after">After</span>
-          <div class="ba-doc ba-doc-after" aria-hidden="true">
-            <p class="ba-line ba-title-line">Resume <span class="ba-dash">—</span> John Smith</p>
-            <p class="ba-line">Experience 2019<span class="ba-dash">–</span>Present</p>
-            <p class="ba-line">Google <span class="ba-dash">—</span> Software Engineer</p>
-            <p class="ba-line ba-skills">
-              <span class="ba-chip">Python</span>
-              <span class="ba-chip">Java</span>
-            </p>
-            <p class="ba-line ba-stamp"><span class="ba-check">✓</span> Clean &amp; ready to send</p>
-          </div>
+          <div class="ba-doc ba-doc-after" id="baAfterContent" aria-hidden="true"></div>
         </div>
 
         <!-- BEFORE (messy) clipped on top -->
         <div class="ba-panel ba-before-panel" id="baBefore">
           <span class="ba-tag ba-tag-before">Before</span>
-          <div class="ba-doc ba-doc-before" aria-hidden="true">
-            <p class="ba-line ba-title-line"><span class="ba-bad">resuMe</span> - <span class="ba-bad">johN smIth</span></p>
-            <p class="ba-line"><span class="ba-bad">excperience</span> 2019-curent</p>
-            <p class="ba-line">google <span class="ba-bad">sofTware</span> eng</p>
-            <p class="ba-line ba-skills-messy">•skills:python java</p>
-            <p class="ba-line ba-stamp-messy">draft?? messy ??</p>
-          </div>
+          <div class="ba-doc ba-doc-before" id="baBeforeContent" aria-hidden="true"></div>
         </div>
 
         <!-- Draggable divider -->
@@ -255,37 +248,49 @@
         <article class="bento-card glass anchor reveal">
           <div class="bento-icon">📄</div>
           <h3>Document &amp; Resume Cleanup</h3>
-          <p>Rough resume, bio, or document in — clean, formatted, ready-to-send version out. This is the one most people start with.</p>
+          <p>Rough draft in — clean, formatted, interview-ready version out. Most people start here.</p>
+          <p class="bento-example"><span class="bento-in">You send:</span> typo-filled Word doc or Google Doc</p>
+          <p class="bento-example"><span class="bento-out">You get:</span> polished, consistent, ready to submit</p>
         </article>
 
         <article class="bento-card glass reveal">
           <div class="bento-icon">🖼️</div>
           <h3>Screenshot → Clean Text</h3>
-          <p>Pull the words out of a screenshot or photo and format them properly.</p>
+          <p>Can't copy-paste from a screenshot? I pull the words out and format them.</p>
+          <p class="bento-example"><span class="bento-in">You send:</span> screenshot, photo, or scanned image</p>
+          <p class="bento-example"><span class="bento-out">You get:</span> clean editable text, properly formatted</p>
         </article>
 
         <article class="bento-card glass reveal">
           <div class="bento-icon">🍽️</div>
           <h3>Menu &amp; Flyer Formatting</h3>
-          <p>An unstructured menu or flyer turned into a clean, scannable layout.</p>
+          <p>Your prices, items, and layout — made scannable and professional.</p>
+          <p class="bento-example"><span class="bento-in">You send:</span> handwritten list or messy draft</p>
+          <p class="bento-example"><span class="bento-out">You get:</span> clean, print-ready menu or flyer</p>
         </article>
 
         <article class="bento-card glass reveal">
           <div class="bento-icon">🗒️</div>
           <h3>Notes → Organized Doc</h3>
-          <p>Messy notes reorganized into a clear, structured document.</p>
+          <p>Meeting notes, brain dumps, and scattered ideas turned into structured documents.</p>
+          <p class="bento-example"><span class="bento-in">You send:</span> chaotic notes, bullet points, text threads</p>
+          <p class="bento-example"><span class="bento-out">You get:</span> clear doc with headers, flow, and structure</p>
         </article>
 
         <article class="bento-card glass reveal">
           <div class="bento-icon">✉️</div>
           <h3>Email &amp; Message Drafting</h3>
-          <p>Rough thoughts turned into a polished, ready-to-send message.</p>
+          <p>You know what you want to say — I write the version you'd actually send.</p>
+          <p class="bento-example"><span class="bento-in">You send:</span> rough thoughts or a rambling voice note</p>
+          <p class="bento-example"><span class="bento-out">You get:</span> professional, clear, ready to hit send</p>
         </article>
 
         <article class="bento-card glass reveal">
           <div class="bento-icon">⚡</div>
           <h3>Same-Day Buildout</h3>
-          <p>Bigger jobs assembled and cleaned, same day where possible.</p>
+          <p>Multiple pieces? Big job? Send it all. I'll assemble and clean it same day.</p>
+          <p class="bento-example"><span class="bento-in">You send:</span> multiple docs, screenshots, or pieces</p>
+          <p class="bento-example"><span class="bento-out">You get:</span> one clean, cohesive final product</p>
         </article>
       </div>
 

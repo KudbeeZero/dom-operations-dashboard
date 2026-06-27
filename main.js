@@ -384,6 +384,77 @@ function initBeforeAfter() {
   const handle = document.getElementById('baHandle');
   if (!slider || !handle) return;
 
+  const beforeContent = document.getElementById('baBeforeContent');
+  const afterContent  = document.getElementById('baAfterContent');
+
+  /* ---- Example data: one entry per tab ---- */
+  const EXAMPLES = [
+    {
+      before: [
+        '<p class="ba-line ba-title-line"><span class="ba-bad">resuMe</span> – <span class="ba-bad">johN smIth</span></p>',
+        '<p class="ba-line"><span class="ba-bad">excperience</span> 2019-curent</p>',
+        '<p class="ba-line">google — <span class="ba-bad">sofTware</span> eng</p>',
+        '<p class="ba-line ba-skills-messy">•skills: python java sql idk</p>',
+        '<p class="ba-line ba-stamp-messy">draft?? send this?? ugh</p>',
+      ].join(''),
+      after: [
+        '<p class="ba-line ba-title-line">Resume <span class="ba-dash">—</span> John Smith</p>',
+        '<p class="ba-line">Experience <span class="ba-dash">·</span> 2019–Present</p>',
+        '<p class="ba-line">Google <span class="ba-dash">—</span> Software Engineer</p>',
+        '<p class="ba-line ba-skills"><span class="ba-chip">Python</span><span class="ba-chip">Java</span><span class="ba-chip">SQL</span></p>',
+        '<p class="ba-line ba-stamp"><span class="ba-check">✓</span> Clean &amp; ready to send</p>',
+      ].join(''),
+    },
+    {
+      before: [
+        '<p class="ba-line ba-title-line"><span class="ba-bad">[IMG_3847.png]</span></p>',
+        '<p class="ba-line"><span class="ba-bad">T0tal items: l4</span></p>',
+        '<p class="ba-line"><span class="ba-bad">Subtt0l: $84.99</span></p>',
+        '<p class="ba-line"><span class="ba-bad">Tax(8.25%):$7.O1</span></p>',
+        '<p class="ba-line ba-stamp-messy">pls confirrm asap!!</p>',
+      ].join(''),
+      after: [
+        '<p class="ba-line ba-title-line">Order Summary</p>',
+        '<p class="ba-line">Total Items: <span class="ba-dash">14</span></p>',
+        '<p class="ba-line">Subtotal: <span class="ba-dash">$84.99</span></p>',
+        '<p class="ba-line">Tax (8.25%): <span class="ba-dash">$7.01</span></p>',
+        '<p class="ba-line ba-stamp"><span class="ba-check">✓</span> Extracted &amp; ready to send</p>',
+      ].join(''),
+    },
+    {
+      before: [
+        '<p class="ba-line ba-title-line"><span class="ba-bad">mtg notes thurs maybe?</span></p>',
+        '<p class="ba-line"><span class="ba-bad">- john said budget thing???</span></p>',
+        '<p class="ba-line"><span class="ba-bad">- mktg push Q3 idk</span></p>',
+        '<p class="ba-line"><span class="ba-bad">- ACTION sarah does thing</span></p>',
+        '<p class="ba-line ba-stamp-messy">next mtg TBD lol</p>',
+      ].join(''),
+      after: [
+        '<p class="ba-line ba-title-line">Meeting Notes <span class="ba-dash">—</span> Thursday</p>',
+        '<p class="ba-line">Budget: Under review <span class="ba-dash">(John)</span></p>',
+        '<p class="ba-line">Marketing: Q3 push planned</p>',
+        '<p class="ba-line">Action: Sarah <span class="ba-dash">—</span> deliverable by EOW</p>',
+        '<p class="ba-line ba-stamp"><span class="ba-check">✓</span> Organized &amp; clear</p>',
+      ].join(''),
+    },
+    {
+      before: [
+        '<p class="ba-line ba-title-line"><span class="ba-bad">email draft (rough)</span></p>',
+        '<p class="ba-line"><span class="ba-bad">hey so we are delayed</span></p>',
+        '<p class="ba-line"><span class="ba-bad">like 2 weeks idk how</span></p>',
+        '<p class="ba-line"><span class="ba-bad">to say it w/o them</span></p>',
+        '<p class="ba-line ba-stamp-messy">getting mad lol help</p>',
+      ].join(''),
+      after: [
+        '<p class="ba-line ba-title-line">Re: Project Update</p>',
+        '<p class="ba-line">Hi [Client],</p>',
+        '<p class="ba-line">We\'re running ~2 weeks behind.</p>',
+        '<p class="ba-line">Revised timeline by Friday.</p>',
+        '<p class="ba-line ba-stamp"><span class="ba-check">✓</span> Professional &amp; ready to send</p>',
+      ].join(''),
+    },
+  ];
+
   const setPos = (pct) => {
     const v = Math.max(0, Math.min(100, pct));
     slider.style.setProperty('--pos', v + '%');
@@ -395,6 +466,25 @@ function initBeforeAfter() {
     return ((clientX - rect.left) / rect.width) * 100;
   };
 
+  /* ---- Tab switching ---- */
+  const tabs = document.querySelectorAll('.showcase-tab');
+
+  const renderExample = (i) => {
+    const ex = EXAMPLES[i];
+    if (!ex || !beforeContent || !afterContent) return;
+    beforeContent.innerHTML = ex.before;
+    afterContent.innerHTML  = ex.after;
+    setPos(50);
+    tabs.forEach((t, idx) => {
+      t.classList.toggle('is-active', idx === i);
+      t.setAttribute('aria-selected', String(idx === i));
+    });
+  };
+
+  tabs.forEach((tab, i) => tab.addEventListener('click', () => renderExample(i)));
+  renderExample(0);
+
+  /* ---- Drag / pointer ---- */
   let dragging = false;
 
   const onDown = (e) => {
@@ -409,14 +499,12 @@ function initBeforeAfter() {
   };
   const onUp = () => { dragging = false; };
 
-  // Press anywhere on the slider to jump; grab the handle to drag.
   slider.addEventListener('pointerdown', onDown);
   handle.addEventListener('pointerdown', (e) => { e.stopPropagation(); onDown(e); });
   window.addEventListener('pointermove', onMove, { passive: false });
   window.addEventListener('pointerup', onUp);
   window.addEventListener('pointercancel', onUp);
 
-  // Keyboard support for the slider role.
   handle.addEventListener('keydown', (e) => {
     const cur = parseFloat(slider.style.getPropertyValue('--pos')) || 50;
     const step = e.shiftKey ? 10 : 4;
@@ -425,8 +513,6 @@ function initBeforeAfter() {
     else if (e.key === 'Home') { setPos(0); e.preventDefault(); }
     else if (e.key === 'End') { setPos(100); e.preventDefault(); }
   });
-
-  setPos(50);
 }
 
 /* -------------------------------------------------------------------------

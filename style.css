@@ -520,7 +520,40 @@ button { font: inherit; cursor: pointer; }
    BEFORE / AFTER slider
    -------------------------------------------------------------------------- */
 .ba-section { padding: var(--space-24) 0; }
-.ba-head { margin-bottom: var(--space-12); }
+.ba-head { margin-bottom: var(--space-6); }
+.ba-intro { color: var(--text-muted); font-size: 1rem; margin-bottom: var(--space-8); }
+
+.showcase-tabs {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: var(--space-8);
+}
+.showcase-tab {
+  padding: 0.45rem 1.1rem;
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+  white-space: nowrap;
+}
+.showcase-tab:hover {
+  border-color: rgba(0,212,200,0.35);
+  color: var(--text);
+  background: rgba(0,212,200,0.06);
+}
+.showcase-tab.is-active {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+  color: var(--teal);
+  font-weight: 600;
+}
 
 .ba {
   position: relative;
@@ -690,6 +723,15 @@ button { font: inherit; cursor: pointer; }
   font-weight: 700;
 }
 .bento-card p { color: var(--text-muted); font-size: var(--text-base); }
+.bento-example {
+  margin-top: var(--space-1);
+  font-size: 0.8rem !important;
+  display: flex;
+  gap: 0.35rem;
+  align-items: baseline;
+}
+.bento-in  { color: #ff9b9b; font-weight: 600; white-space: nowrap; }
+.bento-out { color: var(--teal); font-weight: 600; white-space: nowrap; }
 
 .disclaimer {
   margin-top: var(--space-12);

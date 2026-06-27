@@ -1132,13 +1132,115 @@ function initReef() {
   }, { threshold: 0 }).observe(footer);
 }
 
+/* -------------------------------------------------------------------------
+   TEXT SCRAMBLE — shared utility used by hero + transform strip
+   ------------------------------------------------------------------------- */
+function makeScrambler(CHARS) {
+  CHARS = CHARS || '!#@$%^&*<>[]{}/|?+~`░▒▓╬═╔╗';
+  return function scramble(el, newText, durationMs) {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.textContent = newText; return Promise.resolve();
+    }
+    durationMs = durationMs || 900;
+    const old = el.textContent;
+    const len = Math.max(old.length, newText.length);
+    const FPS = 24;
+    const totalFrames = Math.round((durationMs / 1000) * FPS);
+    const positions = Array.from({ length: len }, (_, i) => ({
+      start: Math.floor(Math.random() * totalFrames * 0.25),
+      end: Math.floor(totalFrames * 0.35 + Math.random() * totalFrames * 0.55),
+    }));
+    let frame = 0;
+    return new Promise((resolve) => {
+      const tick = () => {
+        if (frame > totalFrames) { el.textContent = newText; resolve(); return; }
+        let out = '';
+        for (let i = 0; i < len; i++) {
+          const pos = positions[i];
+          if (frame < pos.start) out += (old[i] || '');
+          else if (frame > pos.end) out += (newText[i] || '');
+          else out += CHARS[Math.floor(Math.random() * CHARS.length)];
+        }
+        el.textContent = out;
+        frame++;
+        setTimeout(tick, 1000 / FPS);
+      };
+      tick();
+    });
+  };
+}
+
+/* -------------------------------------------------------------------------
+   TRANSFORM DEMO — cycling scramble: "you send" → "you get back"
+   ------------------------------------------------------------------------- */
+function initTransformDemo() {
+  const inEl  = document.getElementById('tIn');
+  const outEl = document.getElementById('tOut');
+  if (!inEl || !outEl) return;
+
+  const PAIRS = [
+    { in: 'messy draft full of typos',       out: 'clean, formatted, ready to send' },
+    { in: 'blurry screenshot of text',        out: 'clean editable document' },
+    { in: 'scattered meeting notes',          out: 'organized summary with action items' },
+    { in: 'rambling email rough draft',       out: 'professional message, ready to hit send' },
+    { in: 'handwritten menu update',          out: 'print-ready formatted menu' },
+    { in: 'voice-note transcription chaos',   out: 'structured, easy-to-read doc' },
+  ];
+
+  const scramble = makeScrambler();
+  let idx = 0;
+  let paused = false;
+  let timer = null;
+
+  const HOLD_MS  = 3200;
+  const GAP_MS   = 400;
+
+  async function runCycle() {
+    if (paused) return;
+    const pair = PAIRS[idx % PAIRS.length];
+    idx++;
+    await scramble(inEl,  pair.in,  780);
+    await new Promise(r => setTimeout(r, GAP_MS));
+    await scramble(outEl, pair.out, 820);
+    timer = setTimeout(runCycle, HOLD_MS);
+  }
+
+  const section = inEl.closest('.transform-strip');
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      paused = false;
+      clearTimeout(timer);
+      runCycle();
+    } else {
+      paused = true;
+      clearTimeout(timer);
+    }
+  }, { threshold: 0.3 });
+
+  if (section) observer.observe(section); else runCycle();
+}
+
+/* -------------------------------------------------------------------------
+   HERO CLARITY SCRAMBLE — "Clarity." resolves from glitch on page load
+   ------------------------------------------------------------------------- */
+function initClarityScramble() {
+  const el = document.getElementById('wordClarity');
+  if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (typeof gsap === 'undefined') return;
+  const scramble = makeScrambler('!#@%?*<>[]{}/|~░▒▓');
+  const target   = el.textContent;
+  el.textContent = '???????';
+  gsap.delayedCall(1.8, () => scramble(el, target, 1100));
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
-    initHeroCanvas, initHeroAnimation, initNav, initMobileBar, initDiveHero,
+    initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
     initBeforeAfter, initScrollReveals, initUnderwater, initReef, initContactForm, initQRCode,
+    initTransformDemo,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

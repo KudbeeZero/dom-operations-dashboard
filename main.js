@@ -2815,6 +2815,51 @@ function initHeroOrbitDot() {
   hero.appendChild(dot);
 }
 
+/* Sprint 38 — FAQ icon spin, price hover wash, section deco numbers --------- */
+
+function initFaqIconSpin() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const list = document.querySelector('.faq-list');
+  if (!list) return;
+  list.classList.add('faq-spin-icons');
+}
+
+function initPriceHoverMorph() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.price-card').forEach((card) => {
+    const wash = document.createElement('div');
+    wash.className = 'price-morph-wash';
+    wash.setAttribute('aria-hidden', 'true');
+    card.appendChild(wash);
+    card.classList.add('price-morph-ready');
+  });
+}
+
+function initSectionDecoNumbers() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  const kickers = document.querySelectorAll('.section-kicker');
+  if (!kickers.length) return;
+  let n = 0;
+  kickers.forEach((kicker) => {
+    n++;
+    const num = document.createElement('span');
+    num.className = 'section-deco-num';
+    num.setAttribute('aria-hidden', 'true');
+    num.textContent = String(n).padStart(2, '0');
+    kicker.parentElement.insertBefore(num, kicker);
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        obs.unobserve(e.target);
+        e.target.classList.add('deco-num-visible');
+      });
+    }, { threshold: 0.3 });
+    io.observe(num);
+  });
+}
+
 /* Sprint 34 — price-diff stagger, hero-price flash, QR hover glow ---------- */
 
 function initPriceDiffStagger() {
@@ -2882,6 +2927,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSocialProofTicker, initCtaMorph, initNavBlur,
     initHeroSubMorph, initContactPulseRing, initBadgeLevitate,
     initFooterBrandGlow, initStepRevealSequence, initHeroOrbitDot,
+    initFaqIconSpin, initPriceHoverMorph, initSectionDecoNumbers,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

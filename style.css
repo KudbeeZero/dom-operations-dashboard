@@ -2989,3 +2989,53 @@ body::after {
   100% { transform: rotate(360deg) translateX(38vmin) scaleY(0.42) translateX(0); }
 }
 @media (prefers-reduced-motion: reduce) { .hero-orbit-dot { display: none; } }
+
+/* Sprint 38 — FAQ icon spin, price hover wash, section deco numbers --------- */
+
+/* FAQ summary icon: rotate the + to × on open (overrides content swap) */
+.faq-spin-icons details[open] summary::after {
+  content: '+';
+  transform: rotate(135deg);
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.faq-spin-icons details summary::after {
+  transition: transform 0.25s ease;
+}
+
+/* Price card teal wash from bottom on hover */
+.price-morph-ready { position: relative; }
+.price-morph-wash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to top, rgba(0,212,200,0.14) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.price-morph-ready:hover .price-morph-wash { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .price-morph-wash { display: none; } }
+
+/* Decorative section numbers */
+.section-deco-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 12vw, 9rem);
+  font-weight: 800;
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(0,212,200,0.18);
+  letter-spacing: -0.04em;
+  user-select: none;
+  pointer-events: none;
+  transform: translateX(-40px);
+  opacity: 0;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
+  margin-bottom: calc(var(--space-2) * -1);
+}
+.section-deco-num.deco-num-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) { .section-deco-num { display: none; } }

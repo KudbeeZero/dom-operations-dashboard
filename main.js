@@ -3647,6 +3647,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBlobMorphHero, initScrollTimelineBar, initRainbowTextHue,      // Sprint 69
     initDepthParallaxLayers, initTextStrokeReveal, initSectionHoverGlow, // Sprint 70
     initCursorTextLabel, initSplitDualReveal, initScrollFloodFill,      // Sprint 71
+    initNeonLinkUnderline, initScrollRevealRotate, initVelocitySkew,   // Sprint 72
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4766,4 +4767,47 @@ function initScrollFloodFill() {
     }, { threshold: 0.15 });
     io.observe(section);
   });
+}
+
+/* Sprint 72 — neon link underline, scroll reveal rotate, velocity skew ----- */
+
+function initNeonLinkUnderline() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  document.querySelectorAll('nav a, .footer-links a, .contact-links a').forEach((link) => {
+    link.classList.add('neon-link');
+  });
+}
+
+function initScrollRevealRotate() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.rotate-reveal, .bento-card:not([data-scaleReveal])').forEach((el) => {
+    if (el.dataset.rotateReveal) return;
+    el.dataset.rotateReveal = '1';
+    el.classList.add('rotate-reveal-elem');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('rotate-reveal-elem--in');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initVelocitySkew() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll('.bento-card, .pricing-card, .service-card, .process-step');
+  if (!targets.length) return;
+  let lastY = window.scrollY, velocity = 0, current = 0;
+  const update = () => {
+    const now = window.scrollY;
+    velocity += (now - lastY - velocity) * 0.3;
+    lastY = now;
+    current += (-velocity * 0.018 - current) * 0.12;
+    const skew = Math.max(-4, Math.min(4, current));
+    targets.forEach((el) => { el.style.transform = `skewY(${skew.toFixed(2)}deg)`; });
+    requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
 }

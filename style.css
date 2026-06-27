@@ -5514,3 +5514,48 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .text-highlight-sweep--active { animation: none; background-size: 100% 100%; }
 }
+
+/* Sprint 96 — hover glow trail, scroll letter-spacing morph, btn elastic bounce */
+
+.hover-glow-trail {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,200,0.18) 0%, rgba(123,92,250,0.1) 50%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  will-change: transform;
+}
+
+@keyframes ls-morph-in {
+  from { letter-spacing: -0.04em; opacity: 0.7; }
+  to   { letter-spacing: 0.02em;  opacity: 1; }
+}
+@keyframes ls-morph-out {
+  from { letter-spacing: 0.02em; }
+  to   { letter-spacing: -0.02em; }
+}
+.ls-morph { letter-spacing: -0.04em; }
+.ls-morph--in  { animation: ls-morph-in  0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+.ls-morph--out { animation: ls-morph-out 0.4s ease forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .ls-morph--in, .ls-morph--out { animation: none; letter-spacing: inherit; }
+}
+
+@keyframes elastic-bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.1, 0.92); }
+  55%  { transform: scale(0.94, 1.08); }
+  75%  { transform: scale(1.04, 0.97); }
+  90%  { transform: scale(0.98, 1.02); }
+  100% { transform: scale(1); }
+}
+.btn-elastic-bounce--active {
+  animation: elastic-bounce 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-elastic-bounce--active { animation: none; }
+}

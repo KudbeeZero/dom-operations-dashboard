@@ -3659,6 +3659,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStaggerListReveal, initHoverShimmer, initScrollSnapDots,       // Sprint 81
     initParallaxHeroText, initCardFlipReveal, initScrollHueShift,     // Sprint 82
     initNoiseTextureOverlay, initBtnRipple, initHeroScrollBlur,       // Sprint 83
+    initFloatingLabelInput, initFadeUpReveal, initCursorTrail,        // Sprint 84
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5433,4 +5434,77 @@ function initHeroScrollBlur() {
     hero.style.filter = `blur(${blur}px)`;
     hero.style.opacity = opacity;
   }, { passive: true });
+}
+
+/* Sprint 84 — floating label input, fade-up reveal, cursor trail ------------- */
+
+function initFloatingLabelInput() {
+  const inputs = document.querySelectorAll('input[placeholder], textarea[placeholder]');
+  if (!inputs.length) return;
+  inputs.forEach((input) => {
+    if (input.dataset.floatLabel) return;
+    input.dataset.floatLabel = '1';
+    const wrap = input.parentElement;
+    if (!wrap) return;
+    input.classList.add('float-label-input');
+    const toggleActive = () => {
+      input.classList.toggle('float-label-input--active', !!input.value || document.activeElement === input);
+    };
+    input.addEventListener('focus', toggleActive);
+    input.addEventListener('blur', toggleActive);
+    input.addEventListener('input', toggleActive);
+    toggleActive();
+  });
+}
+
+function initFadeUpReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll(
+    'h1, h2, h3, h4, p.lead, .section-desc, .hero-sub, .hero-description'
+  );
+  if (!targets.length) return;
+  targets.forEach((el, i) => {
+    if (el.dataset.fadeUp) return;
+    el.dataset.fadeUp = '1';
+    el.style.setProperty('--fui', i % 6);
+    el.classList.add('fade-up-reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('fade-up-reveal--visible');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initCursorTrail() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const TRAIL = 8;
+  const dots = Array.from({ length: TRAIL }, (_, i) => {
+    const d = document.createElement('div');
+    d.className = 'cursor-trail-dot';
+    d.style.setProperty('--cti', i);
+    d.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(d);
+    return d;
+  });
+  const pts = dots.map(() => ({ x: -100, y: -100 }));
+  let mouse = { x: -100, y: -100 };
+  window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  const tick = () => {
+    pts[0].x += (mouse.x - pts[0].x) * 0.35;
+    pts[0].y += (mouse.y - pts[0].y) * 0.35;
+    for (let i = 1; i < TRAIL; i++) {
+      pts[i].x += (pts[i - 1].x - pts[i].x) * 0.45;
+      pts[i].y += (pts[i - 1].y - pts[i].y) * 0.45;
+    }
+    dots.forEach((d, i) => {
+      d.style.transform = `translate(${pts[i].x.toFixed(1)}px, ${pts[i].y.toFixed(1)}px)`;
+    });
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }

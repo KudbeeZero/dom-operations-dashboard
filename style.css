@@ -4168,3 +4168,55 @@ nav a, .nav a, .nav-link {
 @media (max-width: 767px), (prefers-reduced-motion: reduce) {
   .active-border-section::before { display: none; }
 }
+
+/* Sprint 64 — blob cursor blend, section watermark, nav morph pill --------- */
+
+/* Cursor blend blob — mix-blend-mode exclusion creates inversion on dark backgrounds */
+.cursor-blend-blob {
+  position: fixed;
+  top: 0; left: 0;
+  width: 120px; height: 120px;
+  background: rgba(0, 212, 200, 0.55);
+  border-radius: 50%;
+  mix-blend-mode: exclusion;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce), (pointer: coarse) { .cursor-blend-blob { display: none; } }
+
+/* Section watermark — large editorial background stamp text */
+.section-watermark {
+  position: absolute;
+  bottom: -0.15em; right: -0.05em;
+  font-size: clamp(5rem, 15vw, 12rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(0,212,200,0.08);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  transform: scale(1.4);
+  opacity: 0;
+  transition: transform 0.7s cubic-bezier(0.22,1,0.36,1), opacity 0.7s ease;
+  overflow: hidden;
+}
+.section-watermark--in { transform: scale(1); opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .section-watermark { display: none; } }
+
+/* Nav morphing pill — slides between hovered nav items */
+.nav-morph-pill {
+  position: absolute;
+  background: rgba(0,212,200,0.12);
+  border: 1px solid rgba(0,212,200,0.2);
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  transition: left 0.25s cubic-bezier(0.22,1,0.36,1),
+              top 0.25s cubic-bezier(0.22,1,0.36,1),
+              width 0.25s cubic-bezier(0.22,1,0.36,1),
+              opacity 0.2s ease;
+  z-index: 0;
+}

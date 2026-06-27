@@ -7540,3 +7540,64 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-comet-trail { display: none; }
 }
+
+/* Sprint 137 — scroll reveal words, hover glow ring, bg ink wash */
+
+@keyframes reveal-word-in {
+  0%   { opacity: 0; transform: translateY(12px) skewX(-4deg); }
+  100% { opacity: 1; transform: translateY(0) skewX(0deg); }
+}
+.reveal-word {
+  display: inline-block;
+  opacity: 0;
+}
+.scroll-reveal-words--active .reveal-word {
+  animation: reveal-word-in 0.4s ease forwards;
+  animation-delay: calc(var(--rw-i, 0) * 40ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-word { opacity: 1; }
+  .scroll-reveal-words--active .reveal-word { animation: none; }
+}
+
+@keyframes glow-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,200,0.4); }
+  50%       { box-shadow: 0 0 0 8px rgba(0,212,200,0); }
+}
+.hover-glow-ring {
+  transition: box-shadow 0.3s ease;
+}
+.hover-glow-ring:hover {
+  box-shadow: 0 0 0 3px rgba(0,212,200,0.6), 0 0 16px rgba(0,212,200,0.3);
+  animation: glow-ring-pulse 1.5s ease infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-glow-ring:hover { animation: none; box-shadow: 0 0 0 2px rgba(0,212,200,0.5); }
+}
+
+@keyframes ink-wash-drift {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33%       { transform: translate(20px, -30px) scale(1.1) rotate(5deg); }
+  66%       { transform: translate(-15px, 15px) scale(0.92) rotate(-3deg); }
+}
+.bg-ink-wash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -6;
+  overflow: hidden;
+}
+.bg-ink-wash__blob {
+  position: absolute;
+  border-radius: 60% 40% 55% 45% / 50% 55% 45% 50%;
+  background: rgba(0, 212, 200, 0.04);
+  filter: blur(50px);
+  animation: ink-wash-drift calc(14s + var(--iw-i, 0) * 3s) ease-in-out infinite alternate;
+}
+.bg-ink-wash__blob:nth-child(1) { width: 350px; height: 280px; top: 5%;  left: 5%;  }
+.bg-ink-wash__blob:nth-child(2) { width: 280px; height: 320px; top: 40%; left: 55%; }
+.bg-ink-wash__blob:nth-child(3) { width: 300px; height: 250px; top: 65%; left: 15%; }
+.bg-ink-wash__blob:nth-child(4) { width: 240px; height: 300px; top: 20%; left: 75%; }
+@media (prefers-reduced-motion: reduce) {
+  .bg-ink-wash__blob { animation: none; }
+}

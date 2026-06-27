@@ -3666,6 +3666,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initGlitchTextHover, initScrollZoomSection, initBtnLiquidFill,    // Sprint 88
     initAuroraBgSection, initUnderlineMorph, initScrollScaleText,     // Sprint 89
     initCardStackHover, initParticleBurst, initSectionEdgeGlow,       // Sprint 90
+    initTextRevealMask, initHoverBorderGlow, initScrollOpacityFade,   // Sprint 91
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -5879,5 +5880,61 @@ function initSectionEdgeGlow() {
       });
     }, { threshold: 0.3 });
     io.observe(section);
+  });
+}
+
+/* Sprint 91 — text reveal mask, hover border glow, scroll opacity fade ------- */
+
+function initTextRevealMask() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll(
+    '.section-title, .hero-subtitle, .lead, .section-desc, [data-mask-reveal]'
+  );
+  if (!targets.length) return;
+  targets.forEach((el, i) => {
+    if (el.dataset.maskReveal) return;
+    el.dataset.maskReveal = '1';
+    el.style.setProperty('--mri', i % 5);
+    el.classList.add('text-reveal-mask');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('text-reveal-mask--visible');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initHoverBorderGlow() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const els = document.querySelectorAll(
+    '.bento-card, .pricing-card, .feature-card, .service-card, .testimonial-card'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.borderGlow) return;
+    el.dataset.borderGlow = '1';
+    el.classList.add('hover-border-glow');
+  });
+}
+
+function initScrollOpacityFade() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.section-kicker, .hero-badge, .badge, .tag, .step-number'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.opacityFade) return;
+    el.dataset.opacityFade = '1';
+    el.classList.add('scroll-opacity-fade');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        el.classList.toggle('scroll-opacity-fade--visible', e.isIntersecting);
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
   });
 }

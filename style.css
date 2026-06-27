@@ -3794,3 +3794,69 @@ footer, .footer, .site-footer { position: relative; }
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
   .mouse-glow-follower { display: none; }
 }
+
+/* Sprint 56 — page click ripple, image clip reveal, pricing countdown --------- */
+
+/* Expanding ring on any page click */
+.page-click-ripple {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  width: 0; height: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: click-ring-expand 0.7s cubic-bezier(0,0.5,0.5,1) forwards;
+}
+@keyframes click-ring-expand {
+  0%   { box-shadow: 0 0 0 0 rgba(0,212,200,0.5); }
+  100% { box-shadow: 0 0 0 44px rgba(0,212,200,0); }
+}
+@media (prefers-reduced-motion: reduce) { .page-click-ripple { display: none; } }
+
+/* Image clip-path reveal on scroll entry */
+.img-clip-hidden { clip-path: inset(100% 0 0 0); }
+.img-clip-reveal {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 0.75s cubic-bezier(0.22,1,0.36,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .img-clip-hidden, .img-clip-reveal { clip-path: none; transition: none; }
+}
+
+/* Pricing countdown timer */
+.pricing-countdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0.65rem 1.4rem;
+  background: rgba(0,212,200,0.05);
+  border: 1px solid rgba(0,212,200,0.15);
+  border-radius: 10px;
+  font-size: 0.78rem;
+}
+.cd-label {
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+.cd-time {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: rgba(0,212,200,0.9);
+  letter-spacing: 0.06em;
+}
+.cd-sep { color: rgba(0,212,200,0.35); padding: 0 1px; }
+.cd-seg {
+  background: rgba(0,212,200,0.09);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  min-width: 2.2ch;
+  text-align: center;
+}

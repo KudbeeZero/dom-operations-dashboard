@@ -2350,6 +2350,93 @@ function initSectionProgressDots() {
   sections.forEach(s => io.observe(s.el));
 }
 
+/* -------------------------------------------------------------------------
+   Sprint 29-A: Scroll velocity skew — subtle section lean on fast scroll
+   ------------------------------------------------------------------------- */
+function initScrollSkew() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // Skip hero: it has competing hero animation transforms.
+  // Skip footer: footer entrance animation owns its transform timing.
+  const targets = Array.from(document.querySelectorAll('.ba-section, .section'));
+  if (!targets.length) return;
+
+  const MAX_SKEW = 1.6;
+  const EASE = 0.08;
+  let lastY = window.scrollY;
+  let skew = 0;
+
+  const tick = () => {
+    const delta = window.scrollY - lastY;
+    lastY = window.scrollY;
+    const goal = Math.max(-MAX_SKEW, Math.min(MAX_SKEW, delta * -0.032));
+    skew += (goal - skew) * EASE;
+    const abs = Math.abs(skew);
+    const val = abs > 0.02 ? `skewY(${skew.toFixed(3)}deg)` : '';
+    if (abs <= 0.02) skew = 0;
+    targets.forEach(el => { el.style.transform = val; });
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 29-B: Section title curtain — clip-path wipe left→right on scroll
+   ------------------------------------------------------------------------- */
+function initSectionTitleMask() {
+  if (!('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const titles = document.querySelectorAll('.section-title');
+  if (!titles.length) return;
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      e.target.classList.add('title-revealed');
+    });
+  }, { threshold: 0.25 });
+  titles.forEach((el) => {
+    el.classList.add('title-mask');
+    if (el.getBoundingClientRect().top < window.innerHeight) {
+      el.classList.add('title-revealed');
+    } else {
+      io.observe(el);
+    }
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 29-C: Floating CTA chip — appears once hero exits, hides at contact
+   ------------------------------------------------------------------------- */
+function initFloatingCTA() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero    = document.getElementById('hero');
+  const contact = document.getElementById('contact');
+  if (!hero || !contact) return;
+
+  const btn = document.createElement('button');
+  btn.className  = 'float-cta';
+  btn.textContent = 'Get Started →';
+  btn.setAttribute('aria-label', 'Scroll to contact form');
+  btn.addEventListener('click', () =>
+    contact.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  );
+  document.body.appendChild(btn);
+
+  let heroGone = false, atContact = false;
+  const update = () => btn.classList.toggle('float-cta-visible', heroGone && !atContact);
+
+  new IntersectionObserver(
+    (e) => { heroGone = !e[0].isIntersecting; update(); },
+    { threshold: 0.1 }
+  ).observe(hero);
+
+  new IntersectionObserver(
+    (e) => { atContact = e[0].isIntersecting; update(); },
+    { threshold: 0.25 }
+  ).observe(contact);
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -2370,6 +2457,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSliderHint, initGlassShimmer, initScrollBloom,
     initNavShrink, initPriceCardSpotlight, initSectionKickerReveal,
     initCursorTrail, initBentoIconBounce, initSectionProgressDots,
+    initScrollSkew, initSectionTitleMask, initFloatingCTA,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

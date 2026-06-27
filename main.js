@@ -1757,18 +1757,110 @@ function initHeadingReveal() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   PRICING ENTRANCE — GSAP spring-stagger on .price-card as the grid enters;
+   removes .reveal so the IO system doesn't double-animate.
+   After all cards land, the price amounts fire a brief teal glow pulse.
+   ------------------------------------------------------------------------- */
+function initPricingEntrance() {
+  const grid = document.querySelector('.pricing-grid');
+  if (!grid) return;
+  const cards = Array.from(grid.querySelectorAll('.price-card'));
+  if (!cards.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    cards.forEach(c => c.classList.remove('reveal'));
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+  cards.forEach(c => c.classList.remove('reveal'));
+  gsap.from(cards, {
+    y: 52,
+    opacity: 0,
+    scale: 0.93,
+    stagger: 0.14,
+    duration: 0.76,
+    ease: 'back.out(1.7)',
+    scrollTrigger: { trigger: grid, start: 'top 86%' },
+    onComplete() {
+      document.querySelectorAll('.price-amount').forEach((el, i) => {
+        setTimeout(() => el.classList.add('price-lit'), i * 120 + 80);
+      });
+    },
+  });
+}
+
+/* -------------------------------------------------------------------------
+   BENTO REVEAL — replaces the IO .reveal on .bento-card with a GSAP stagger;
+   anchor card leads with extra pop (back.out(2)), rest cascade at 0.09s.
+   ------------------------------------------------------------------------- */
+function initBentoReveal() {
+  const bento = document.querySelector('.bento');
+  if (!bento) return;
+  const cards = Array.from(bento.querySelectorAll('.bento-card'));
+  if (!cards.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    cards.forEach(c => c.classList.remove('reveal'));
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+  cards.forEach(c => c.classList.remove('reveal'));
+
+  const anchor = bento.querySelector('.anchor');
+  const rest   = cards.filter(c => c !== anchor);
+  const tl = gsap.timeline({ scrollTrigger: { trigger: bento, start: 'top 82%' } });
+  if (anchor) {
+    tl.from(anchor, { y: 48, opacity: 0, scale: 0.90, duration: 0.82, ease: 'back.out(2)' });
+  }
+  if (rest.length) {
+    tl.from(rest, { y: 38, opacity: 0, scale: 0.94, stagger: 0.09, duration: 0.65, ease: 'back.out(1.5)' }, anchor ? '-=0.44' : 0);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   CONTACT STEPS STAGGER — .contact-next li items slide in from the left
+   with a cascading delay (145ms per step); IO-triggered on scroll.
+   ------------------------------------------------------------------------- */
+function initContactSteps() {
+  if (!('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const list = document.querySelector('.contact-next');
+  if (!list) return;
+  const items = Array.from(list.querySelectorAll('li'));
+  if (!items.length) return;
+  items.forEach((li, i) => li.style.setProperty('--step-delay', (i * 145) + 'ms'));
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      e.target.classList.add('is-visible');
+    });
+  }, { threshold: 0.18 });
+  items.forEach((li) => {
+    li.classList.add('step-reveal');
+    if (li.getBoundingClientRect().top < window.innerHeight) {
+      li.classList.add('is-visible');
+    } else {
+      io.observe(li);
+    }
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
     initPageIntro, initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
-    initAboutEntrance, initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
+    initAboutEntrance, initBeforeAfter, initProcessTimeline,
+    initPricingEntrance, initBentoReveal,
+    initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
     initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,
     initScrollProgress, initMagneticButtons, initHeadingReveal, initActiveNav,
     initButtonRipple, initHeroCursorGlow, initScrollToTop, initSectionAmbient,
-    initContactReveal,
+    initContactReveal, initContactSteps,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

@@ -3678,6 +3678,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCinematicScrollWipe, initHeroParticleBurst, initCascadeReveal,      // Sprint 100
     initScrollFadeBlur, initHoverColorPop, initBtnGlowPulse,               // Sprint 101
     initScrollSkewEntry, initImageParallaxLayer, initHoverUnderlineExpand,  // Sprint 102
+    initScrollRotateIn, initHoverShadowLift, initTextGradientShift,         // Sprint 103
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -6731,5 +6732,55 @@ function initHoverUnderlineExpand() {
     if (el.dataset.underlineExpand) return;
     el.dataset.underlineExpand = '1';
     el.classList.add('hover-underline-expand');
+  });
+}
+
+/* Sprint 103 — scroll rotate-in, hover shadow lift, text gradient shift */
+
+function initScrollRotateIn() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.card, .service-card, .ba-card, figure, [data-rotate-in]'
+  );
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.rotateIn) return;
+    el.dataset.rotateIn = '1';
+    el.classList.add('scroll-rotate-in');
+    el.style.setProperty('--sri-deg', i % 2 === 0 ? '-4deg' : '4deg');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-rotate-in--active');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initHoverShadowLift() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.card, .service-card, .ba-card, [data-shadow-lift]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.shadowLift) return;
+    el.dataset.shadowLift = '1';
+    el.classList.add('hover-shadow-lift');
+  });
+}
+
+function initTextGradientShift() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const headings = document.querySelectorAll(
+    'h1, h2, .section-title, .hero-title, [data-gradient-shift]'
+  );
+  if (!headings.length) return;
+  headings.forEach((el) => {
+    if (el.dataset.gradientShift) return;
+    el.dataset.gradientShift = '1';
+    el.classList.add('text-gradient-shift');
   });
 }

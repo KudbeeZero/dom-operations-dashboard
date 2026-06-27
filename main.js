@@ -3329,6 +3329,49 @@ function initPricingGridGlow() {
   io.observe(grid);
 }
 
+/* Sprint 48 — pricing card hover particles, about pulse, footer link glow ---- */
+
+function initPricingCardParticles() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.pricing-card').forEach((card) => {
+    card.addEventListener('mouseenter', () => {
+      for (let i = 0; i < 4; i++) {
+        const p = document.createElement('span');
+        p.className = 'price-particle';
+        p.setAttribute('aria-hidden', 'true');
+        p.style.setProperty('--pp-angle', `${i * 90 + Math.random() * 30 - 15}deg`);
+        p.style.setProperty('--pp-dist', `${32 + Math.random() * 16}px`);
+        card.appendChild(p);
+        p.addEventListener('animationend', () => p.remove(), { once: true });
+      }
+    });
+  });
+}
+
+function initAboutSectionPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  const about = document.querySelector('.about, .about-section, #about');
+  if (!about) return;
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      e.target.classList.add('about-pulse-active');
+    });
+  }, { threshold: 0.25 });
+  io.observe(about);
+}
+
+function initFooterLinkGlow() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('footer a, .footer a, .footer-nav a').forEach((link) => {
+    link.classList.add('footer-link-glow');
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3368,6 +3411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initClickSpark, initSliderHandleGlow, initScrollVignette,
     initFloatingWords, initMorphBlob, initServiceTagHover,
     initBentoCardShine, initNavDotIndicator, initPricingGridGlow,
+    initPricingCardParticles, initAboutSectionPulse, initFooterLinkGlow,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

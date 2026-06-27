@@ -5993,3 +5993,44 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .hover-card-shimmer-layer--active { animation: none; }
 }
+
+/* Sprint 106 — scroll zoom-fade, hover border glow pulse, typewriter cursor */
+
+@keyframes zoom-fade-in {
+  from { opacity: 0; transform: scale(1.08); filter: blur(4px); }
+  to   { opacity: 1; transform: scale(1);    filter: blur(0); }
+}
+.scroll-zoom-fade { opacity: 0; transform: scale(1.08); filter: blur(4px); }
+.scroll-zoom-fade--active {
+  animation: zoom-fade-in 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-zoom-fade { opacity: 1; transform: none; filter: none; }
+  .scroll-zoom-fade--active { animation: none; }
+}
+
+@keyframes border-glow-pulse-anim {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0,212,200,0.3), 0 0 12px rgba(0,212,200,0.15); }
+  50%       { box-shadow: 0 0 0 2px rgba(0,212,200,0.6), 0 0 28px rgba(123,92,250,0.3); }
+}
+.hover-border-glow-pulse--active {
+  animation: border-glow-pulse-anim 1.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-border-glow-pulse--active { animation: none; box-shadow: 0 0 0 2px #00d4c8; }
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.typewriter-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  color: #00d4c8;
+  font-weight: 300;
+  animation: cursor-blink 1s step-end infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .typewriter-cursor { animation: none; opacity: 1; }
+}

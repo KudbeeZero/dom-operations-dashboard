@@ -1456,6 +1456,62 @@ button { font: inherit; cursor: pointer; }
 }
 
 /* --------------------------------------------------------------------------
+   Work ticker marquee — types of work, infinite scroll
+   -------------------------------------------------------------------------- */
+.work-ticker {
+  overflow: hidden;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.ticker-track {
+  display: flex;
+  gap: var(--space-6);
+  width: max-content;
+  animation: ticker-scroll 36s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track span {
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  padding: 0 var(--space-2);
+}
+
+.ticker-track span::before {
+  content: '·';
+  margin-right: var(--space-6);
+  color: var(--teal);
+  opacity: 0.5;
+}
+
+.ticker-track span:first-child::before { display: none; }
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.work-ticker:hover .ticker-track { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: var(--space-2);
+    scrollbar-width: none;
+  }
+  .ticker-track::-webkit-scrollbar { display: none; }
+}
+
+/* --------------------------------------------------------------------------
    About strip — "I'm Dominick"
    -------------------------------------------------------------------------- */
 .about-strip { padding-block: var(--space-16); }

@@ -6276,3 +6276,69 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-mesh-gradient { animation: none; }
 }
+
+/* Sprint 112 — scroll split wipe, hover card outline draw, bg gradient orbs */
+
+@keyframes split-wipe-in {
+  from {
+    clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+    opacity: 0.3;
+  }
+  to {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    opacity: 1;
+  }
+}
+.scroll-split-wipe {
+  opacity: 0.3;
+  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+}
+.scroll-split-wipe--active {
+  animation: split-wipe-in 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-split-wipe { opacity: 1; clip-path: none; }
+  .scroll-split-wipe--active { animation: none; }
+}
+
+@keyframes outline-draw-in {
+  from { background-size: 0% 2px, 2px 0%, 0% 2px, 2px 0%; }
+  25%  { background-size: 100% 2px, 2px 0%, 0% 2px, 2px 0%; }
+  50%  { background-size: 100% 2px, 2px 100%, 0% 2px, 2px 0%; }
+  75%  { background-size: 100% 2px, 2px 100%, 100% 2px, 2px 0%; }
+  to   { background-size: 100% 2px, 2px 100%, 100% 2px, 2px 100%; }
+}
+.hover-card-outline-draw {
+  background-image:
+    linear-gradient(90deg, #00d4c8, #7b5cfa),
+    linear-gradient(180deg, #7b5cfa, #00d4c8),
+    linear-gradient(270deg, #00d4c8, #7b5cfa),
+    linear-gradient(0deg, #7b5cfa, #00d4c8);
+  background-repeat: no-repeat;
+  background-position: top left, top right, bottom right, bottom left;
+  background-size: 0% 2px, 2px 0%, 0% 2px, 2px 0%;
+}
+.hover-card-outline-draw--active {
+  animation: outline-draw-in 0.5s linear forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-card-outline-draw--active { animation: none; outline: 2px solid #00d4c8; }
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(4%, -6%) scale(1.08); }
+  66%       { transform: translate(-5%, 5%) scale(0.94); }
+}
+.bg-gradient-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  animation: orb-float linear infinite;
+  filter: blur(50px);
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-gradient-orb { animation: none; }
+}

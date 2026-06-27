@@ -3687,6 +3687,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollPendulumSwing, initHoverNeonBadge, initBgStarfield,           // Sprint 109
     initScrollDoorOpen, initHoverCardDepthRing, initTextShimmerWave,        // Sprint 110
     initScrollAccordionReveal, initHoverGlowIconRing, initBgMeshGradient,   // Sprint 111
+    initScrollSplitWipe, initHoverCardOutlineDraw, initBgGradientOrbs,      // Sprint 112
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7317,4 +7318,60 @@ function initBgMeshGradient() {
   mesh.className = 'bg-mesh-gradient';
   mesh.setAttribute('aria-hidden', 'true');
   section.insertAdjacentElement('afterbegin', mesh);
+}
+
+/* Sprint 112 — scroll split wipe, hover card outline draw, bg gradient orbs */
+
+function initScrollSplitWipe() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const headings = document.querySelectorAll('h1, h2, .section-title, [data-split-wipe]');
+  if (!headings.length) return;
+  headings.forEach((el) => {
+    if (el.dataset.splitWipe) return;
+    el.dataset.splitWipe = '1';
+    el.classList.add('scroll-split-wipe');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-split-wipe--active');
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  });
+}
+
+function initHoverCardOutlineDraw() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const cards = document.querySelectorAll('.card, .service-card, .ba-card, [data-outline-draw]');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.outlineDraw) return;
+    card.dataset.outlineDraw = '1';
+    card.classList.add('hover-card-outline-draw');
+    card.addEventListener('mouseenter', () => {
+      card.classList.add('hover-card-outline-draw--active');
+    }, { passive: true });
+    card.addEventListener('mouseleave', () => {
+      card.classList.remove('hover-card-outline-draw--active');
+    }, { passive: true });
+  });
+}
+
+function initBgGradientOrbs() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-gradient-orb')) return;
+  const ORB_CONFIG = [
+    { top: '10%', left: '5%',  size: '35vw', color: 'rgba(0,212,200,0.07)',  dur: '14s' },
+    { top: '60%', left: '70%', size: '30vw', color: 'rgba(123,92,250,0.06)', dur: '18s' },
+    { top: '40%', left: '40%', size: '25vw', color: 'rgba(0,255,213,0.04)',  dur: '22s' },
+  ];
+  ORB_CONFIG.forEach((cfg, i) => {
+    const orb = document.createElement('div');
+    orb.className = 'bg-gradient-orb';
+    orb.setAttribute('aria-hidden', 'true');
+    orb.style.cssText = `top:${cfg.top};left:${cfg.left};width:${cfg.size};height:${cfg.size};background:radial-gradient(circle,${cfg.color} 0%,transparent 70%);animation-duration:${cfg.dur};animation-delay:${i * -4}s`;
+    document.body.appendChild(orb);
+  });
 }

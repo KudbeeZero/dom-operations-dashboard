@@ -315,18 +315,36 @@ function initContactForm() {
     });
   });
 
-  form.addEventListener('submit', (e) => {
+  const submitBtn = form.querySelector('.form-submit');
+  const formError = document.getElementById('formError');
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const allValid = fields.map(validateField).every(Boolean);
     if (!allValid) {
       form.querySelector('.field.invalid input, .field.invalid textarea')?.focus();
       return;
     }
-    // Success: swap the form out for the branded confirmation state.
-    form.hidden = true;
-    if (confirm) {
-      confirm.hidden = false;
-      confirm.focus?.();
+
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending…'; }
+    if (formError) formError.hidden = true;
+
+    try {
+      const res = await fetch('https://formspree.io/f/mqevpwzd', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: new FormData(form),
+      });
+
+      if (res.ok) {
+        form.hidden = true;
+        if (confirm) { confirm.hidden = false; confirm.focus?.(); }
+      } else {
+        throw new Error('not ok');
+      }
+    } catch (_) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send It →'; }
+      if (formError) formError.hidden = false;
     }
   });
 }

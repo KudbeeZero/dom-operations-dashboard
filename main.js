@@ -2438,6 +2438,61 @@ function initFloatingCTA() {
 }
 
 /* -------------------------------------------------------------------------
+   Sprint 31-A: Featured card pulse — persistent ring glow on popular card
+   ------------------------------------------------------------------------- */
+function initFeaturedCardPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const card = document.querySelector('.price-card.featured');
+  if (!card) return;
+  card.classList.add('featured-pulse');
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 31-B: Bento title scramble — h3 text glitches on card hover
+   ------------------------------------------------------------------------- */
+function initBentoTitleScramble() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!?*';
+  const scramble = (el) => {
+    const original = el.textContent;
+    let iter = 0;
+    const step = () => {
+      el.textContent = original.split('').map((ch, i) => {
+        if (i < iter || ch === ' ') return original[i];
+        return CHARS[Math.floor(Math.random() * CHARS.length)];
+      }).join('');
+      iter += 0.45;
+      if (iter < original.length) requestAnimationFrame(step);
+      else el.textContent = original;
+    };
+    requestAnimationFrame(step);
+  };
+  document.querySelectorAll('.bento-card').forEach((card) => {
+    const title = card.querySelector('h3');
+    if (!title) return;
+    let busy = false;
+    card.addEventListener('mouseenter', () => {
+      if (busy) return;
+      busy = true;
+      scramble(title);
+      setTimeout(() => { busy = false; }, 600);
+    }, { passive: true });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 31-C: FAQ bar reveal — teal left-bar box-shadow on open
+   ------------------------------------------------------------------------- */
+function initFaqBarReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.faq-item').forEach((item) => {
+    item.addEventListener('toggle', () => {
+      item.classList.toggle('faq-opened', item.open);
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
    Sprint 30-A: Step number pop — GSAP elastic entrance on process step nums
    ------------------------------------------------------------------------- */
 function initStepNumPop() {
@@ -2530,6 +2585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCursorTrail, initBentoIconBounce, initSectionProgressDots,
     initScrollSkew, initSectionTitleMask, initFloatingCTA,
     initStepNumPop, initGrainOverlay, initSubmitConfetti,
+    initFeaturedCardPulse, initBentoTitleScramble, initFaqBarReveal,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

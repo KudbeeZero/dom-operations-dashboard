@@ -1510,6 +1510,71 @@ function initFaqAnimation() {
   });
 }
 
+/* -------------------------------------------------------------------------
+   SCROLL PROGRESS — thin teal bar at the top edge that fills as you scroll
+   ------------------------------------------------------------------------- */
+function initScrollProgress() {
+  const bar = document.createElement('div');
+  bar.id = 'scrollProgress';
+  bar.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(bar);
+  const update = () => {
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0) + '%';
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}
+
+/* -------------------------------------------------------------------------
+   MAGNETIC BUTTONS — .btn-primary drifts toward the cursor within ~90px;
+   springs back with a cubic-bezier bounce on mouseleave.
+   Desktop / fine-pointer only; respects prefers-reduced-motion.
+   ------------------------------------------------------------------------- */
+function initMagneticButtons() {
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const RADIUS   = 90;
+  const STRENGTH = 0.38;
+
+  document.querySelectorAll('.btn-primary').forEach((btn) => {
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const dx = e.clientX - (rect.left + rect.width  / 2);
+      const dy = e.clientY - (rect.top  + rect.height / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < RADIUS) {
+        const pull = (1 - dist / RADIUS) * STRENGTH;
+        btn.style.transform = `translate(${(dx * pull).toFixed(2)}px,${(dy * pull).toFixed(2)}px)`;
+      }
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transition = 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)';
+      btn.style.transform  = '';
+      setTimeout(() => { btn.style.transition = ''; }, 460);
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   HEADING REVEAL — each .section-title wipes in left→right via clip-path
+   as it enters the viewport (GSAP ScrollTrigger, one-shot per heading).
+   ------------------------------------------------------------------------- */
+function initHeadingReveal() {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  document.querySelectorAll('.section-title').forEach((h) => {
+    gsap.from(h, {
+      clipPath: 'inset(0 100% 0 0)',
+      duration: 0.88,
+      ease: 'power3.inOut',
+      scrollTrigger: { trigger: h, start: 'top 91%' },
+    });
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -1519,6 +1584,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBeforeAfter, initProcessTimeline, initScrollReveals, initUnderwater, initReef,
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
     initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,
+    initScrollProgress, initMagneticButtons, initHeadingReveal,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

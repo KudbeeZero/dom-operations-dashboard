@@ -1998,6 +1998,30 @@ button { font: inherit; cursor: pointer; }
 .teal-orb { will-change: transform; }
 
 /* ==========================================================================
+   Sprint 16 — Scroll progress bar + magnetic buttons + heading reveal
+   ========================================================================== */
+
+#scrollProgress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--teal) 0%, rgba(0,212,200,0.45) 100%);
+  z-index: 10001;
+  pointer-events: none;
+  border-radius: 0 2px 2px 0;
+  will-change: width;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #scrollProgress { display: none; }
+}
+
+/* Heading clip-path reveal — GSAP sets clipPath inline; this lets the GPU
+   composite it cheaply and avoids a paint on the surrounding layout. */
+.section-title { will-change: clip-path; }
+
+/* ==========================================================================
    Sprint 13 — Polish: 3D tilt + CTA pulse + count-up
    ========================================================================== */
 

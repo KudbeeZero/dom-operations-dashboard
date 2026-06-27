@@ -3711,6 +3711,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollCascadeFade, initHoverIconBounce, initBgHexGrid,               // Sprint 133
     initScrollZoomBlurIn, initHoverTextScramble, initBgPulseRing,            // Sprint 134
     initScrollFlipX, initHoverBorderGlowSweep, initBgRainDrops,             // Sprint 135
+    initScrollBlurPanel, initHoverScalePop, initBgCometTrail,               // Sprint 136
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8869,6 +8870,86 @@ function initBgRainDrops() {
       if (d.y > canvas.height) {
         d.y = -d.len;
         d.x = Math.random() * canvas.width;
+      }
+    });
+    requestAnimationFrame(draw);
+  };
+  draw();
+}
+
+/* Sprint 136 — scroll blur panel, hover scale pop, bg comet trail */
+
+function initScrollBlurPanel() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('section, .panel, [data-blur-panel]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.blurPanel) return;
+    el.dataset.blurPanel = '1';
+    el.classList.add('scroll-blur-panel');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-blur-panel--active');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initHoverScalePop() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-scale-pop]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.scalePop) return;
+    el.dataset.scalePop = '1';
+    el.classList.add('hover-scale-pop');
+  });
+}
+
+function initBgCometTrail() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-comet-trail')) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-comet-trail';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', canvas);
+  const ctx = canvas.getContext('2d');
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const comets = Array.from({ length: 5 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height * 0.5,
+    vx: 3 + Math.random() * 4,
+    vy: 1.5 + Math.random() * 2,
+    tail: 80 + Math.random() * 60,
+    alpha: 0.15 + Math.random() * 0.15,
+    delay: Math.random() * 180,
+  }));
+  let frame = 0;
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    comets.forEach((c) => {
+      if (frame < c.delay) return;
+      const grad = ctx.createLinearGradient(c.x - c.tail, c.y - c.tail * 0.5, c.x, c.y);
+      grad.addColorStop(0, `rgba(0,212,200,0)`);
+      grad.addColorStop(1, `rgba(0,212,200,${c.alpha})`);
+      ctx.beginPath();
+      ctx.moveTo(c.x - c.tail, c.y - c.tail * 0.5);
+      ctx.lineTo(c.x, c.y);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      c.x += c.vx;
+      c.y += c.vy;
+      if (c.x > canvas.width + c.tail || c.y > canvas.height + c.tail) {
+        c.x = -c.tail;
+        c.y = Math.random() * canvas.height * 0.6;
+        c.delay = frame + Math.random() * 120;
       }
     });
     requestAnimationFrame(draw);

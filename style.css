@@ -7498,3 +7498,45 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-rain-drops { display: none; }
 }
+
+/* Sprint 136 — scroll blur panel, hover scale pop, bg comet trail */
+
+@keyframes blur-panel-in {
+  0%   { opacity: 0; filter: blur(12px) brightness(0.7); transform: translateY(20px); }
+  60%  { opacity: 1; filter: blur(2px) brightness(1); transform: translateY(-2px); }
+  100% { filter: blur(0) brightness(1); transform: translateY(0); }
+}
+.scroll-blur-panel { opacity: 0; }
+.scroll-blur-panel--active {
+  animation: blur-panel-in 0.75s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-blur-panel { opacity: 1; }
+  .scroll-blur-panel--active { animation: none; }
+}
+
+@keyframes scale-pop-hover {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  70%  { transform: scale(0.98); }
+  100% { transform: scale(1.03); }
+}
+.hover-scale-pop {
+  transition: transform 0.2s ease;
+}
+.hover-scale-pop:hover {
+  animation: scale-pop-hover 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-scale-pop:hover { animation: none; transform: scale(1.02); }
+}
+
+.bg-comet-trail {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-comet-trail { display: none; }
+}

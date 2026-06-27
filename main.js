@@ -2563,6 +2563,59 @@ function initSubmitConfetti() {
   }).observe(confirmEl, { attributes: true, attributeFilter: ['hidden'] });
 }
 
+/* -------------------------------------------------------------------------
+   Sprint 32-A: Process line draw — scaleX 0→1 left-to-right on scroll
+   ------------------------------------------------------------------------- */
+function initProcessLineDraw() {
+  const line = document.querySelector('.step-line');
+  if (!line) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.set(line, { scaleX: 0, transformOrigin: 'left center' });
+  gsap.to(line, {
+    scaleX: 1, duration: 1.25, ease: 'power2.inOut',
+    scrollTrigger: { trigger: line, start: 'top 85%' },
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 32-B: Hero eyebrow pulse — teal glow burst 2s after load
+   ------------------------------------------------------------------------- */
+function initHeroEyebrowPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector('.hero-eyebrow');
+  if (!el) return;
+  setTimeout(() => {
+    el.classList.add('eyebrow-pulse');
+    el.addEventListener('animationend', () => el.classList.remove('eyebrow-pulse'), { once: true });
+  }, 2200);
+}
+
+/* -------------------------------------------------------------------------
+   Sprint 32-C: Format tag entrance — GSAP pop for .step-formats chips
+   ------------------------------------------------------------------------- */
+function initFormatTagEntrance() {
+  const tags = document.querySelectorAll('.step-formats span');
+  if (!tags.length) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  const groups = new Map();
+  tags.forEach((tag) => {
+    const parent = tag.closest('.step-formats');
+    if (!groups.has(parent)) groups.set(parent, []);
+    groups.get(parent).push(tag);
+  });
+  groups.forEach((tagList, parent) => {
+    gsap.from(tagList, {
+      y: 14, opacity: 0, scale: 0.8,
+      stagger: 0.065, duration: 0.44, ease: 'back.out(2)',
+      scrollTrigger: { trigger: parent, start: 'top 85%' },
+    });
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -2586,6 +2639,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollSkew, initSectionTitleMask, initFloatingCTA,
     initStepNumPop, initGrainOverlay, initSubmitConfetti,
     initFeaturedCardPulse, initBentoTitleScramble, initFaqBarReveal,
+    initProcessLineDraw, initHeroEyebrowPulse, initFormatTagEntrance,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

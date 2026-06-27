@@ -2739,3 +2739,11 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .faq-item.faq-opened > p { padding-left: 0; animation: none; }
 }
+
+/* Hero eyebrow pulse — teal glow burst on page load */
+@keyframes eyebrow-pulse {
+  0%, 100% { text-shadow: none; }
+  38%       { text-shadow: 0 0 18px rgba(0, 212, 200, 0.9), 0 0 40px rgba(0, 212, 200, 0.45); }
+}
+.hero-eyebrow.eyebrow-pulse { animation: eyebrow-pulse 1.4s ease-out; }
+@media (prefers-reduced-motion: reduce) { .hero-eyebrow.eyebrow-pulse { animation: none; } }

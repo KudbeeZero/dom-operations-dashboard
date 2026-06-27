@@ -5096,3 +5096,35 @@ svg path.draw-path, svg .draw-path {
   will-change: transform;
 }
 @media (prefers-reduced-motion: reduce) { .cursor-trail-dot { display: none; } }
+
+/* Sprint 85 — text scramble hover, button border draw, scroll band reveal ---- */
+
+.btn-border-draw {
+  position: relative;
+}
+.btn-border-draw::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(0,212,200,0.6);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.btn-border-draw:hover::before {
+  clip-path: inset(0 0% 0 0);
+}
+@media (prefers-reduced-motion: reduce) { .btn-border-draw::before { display: none; } }
+
+.scroll-band-reveal {
+  --band-x: calc(var(--sbri, 0) * 2 - 1);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.scroll-band-reveal--visible {
+  clip-path: inset(0 0% 0 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-band-reveal { clip-path: none; transition: none; }
+}

@@ -1904,3 +1904,36 @@ button { font: inherit; cursor: pointer; }
   .price-card.featured::before { animation: none; }
   .scroll-chevron { animation: none; }
 }
+
+/* ==========================================================================
+   Sprint 12 — Alive: animated process + card spotlight + hero parallax
+   ========================================================================== */
+
+/* --- Bento card cursor spotlight --------------------------------------- */
+.bento-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    380px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(0,212,200,0.11), transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+@media (hover: hover) {
+  .bento-card:hover::after { opacity: 1; }
+}
+
+/* --- Process steps: draw line + step number pop ----------------------- */
+.step-line { transform-origin: top center; }
+.step-num  { will-change: transform, opacity; }
+
+/* Animated step formats (chip row) — GSAP targets these */
+.step-formats span { display: inline-block; }
+
+/* --- Hero teal orb parallax ------------------------------------------ */
+.teal-orb { will-change: transform; }

@@ -5609,3 +5609,57 @@ svg path.draw-path, svg .draw-path {
   .split-char { opacity: 1; }
   .split-reveal--active .split-char { animation: none; }
 }
+
+/* Sprint 98 — cursor spotlight, scroll clip reveal, hover border trace */
+
+.cursor-spotlight {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,200,0.06) 0%, rgba(123,92,250,0.04) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 9980;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  will-change: transform;
+}
+
+@keyframes clip-reveal-in {
+  from { clip-path: inset(0 100% 0 0); opacity: 0.5; }
+  to   { clip-path: inset(0 0% 0 0);   opacity: 1; }
+}
+.clip-reveal {
+  clip-path: inset(0 100% 0 0);
+  opacity: 0.5;
+}
+.clip-reveal--active {
+  animation: clip-reveal-in 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .clip-reveal { clip-path: none; opacity: 1; }
+  .clip-reveal--active { animation: none; }
+}
+
+@keyframes border-trace-in {
+  from { background-position: 0% 0%, 100% 100%, 100% 0%, 0% 100%; background-size: 0% 2px, 0% 2px, 2px 0%, 2px 0%; }
+  to   { background-position: 100% 0%, 0% 100%, 100% 100%, 0% 0%; background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%; }
+}
+.border-trace {
+  background-image:
+    linear-gradient(90deg, #00d4c8, #7b5cfa),
+    linear-gradient(90deg, #7b5cfa, #00d4c8),
+    linear-gradient(180deg, #00d4c8, #7b5cfa),
+    linear-gradient(180deg, #7b5cfa, #00d4c8);
+  background-repeat: no-repeat;
+  background-size: 0% 2px, 0% 2px, 2px 0%, 2px 0%;
+  background-position: 0% 0%, 100% 100%, 100% 0%, 0% 100%;
+}
+.border-trace--active {
+  animation: border-trace-in 0.45s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .border-trace--active { animation: none; outline: 2px solid #00d4c8; }
+}

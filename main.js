@@ -3498,6 +3498,51 @@ function initSecondaryBtnRipple() {
   });
 }
 
+/* Sprint 51 — parallax bento cards, time-of-day tint, kicker hover glow ----- */
+
+function initParallaxBentoCards() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(min-width: 768px)').matches) return;
+  const cards = document.querySelectorAll('.bento-card');
+  if (!cards.length) return;
+  let raf = null;
+  window.addEventListener('scroll', () => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = null;
+      const scroll = window.scrollY;
+      cards.forEach((card, i) => {
+        const speed = ((i % 3) - 1) * 0.04;
+        const y = Math.min(40, Math.max(-40, scroll * speed));
+        card.style.setProperty('--pbc-y', `${y}px`);
+      });
+    });
+  }, { passive: true });
+}
+
+function initTimeOfDayTint() {
+  const hero = document.querySelector('.hero, #hero, .hero-section');
+  if (!hero) return;
+  const hour = new Date().getHours();
+  let period;
+  if (hour >= 5 && hour < 10) period = 'dawn';
+  else if (hour >= 10 && hour < 16) period = 'day';
+  else if (hour >= 16 && hour < 20) period = 'dusk';
+  else period = 'night';
+  const tint = document.createElement('div');
+  tint.className = `hero-tint-layer hero-tint-${period}`;
+  tint.setAttribute('aria-hidden', 'true');
+  hero.insertBefore(tint, hero.firstChild);
+}
+
+function initKickerHoverGlow() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section-kicker, .kicker, .kicker-label').forEach((k) => {
+    k.classList.add('kicker-hover-glow');
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3540,6 +3585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPricingCardParticles, initAboutSectionPulse, initFooterLinkGlow,
     initContactItemSparkle, initQRScanline, initScrollEchoLines,
     initAuroraBg, initProcessChainBounce, initSecondaryBtnRipple,
+    initParallaxBentoCards, initTimeOfDayTint, initKickerHoverGlow,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

@@ -3600,3 +3600,32 @@ body::after {
   100% { transform: translate(-50%,-50%) scale(8); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .btn-hover-ring { display: none; } }
+
+/* Sprint 51 — parallax bento cards, time-of-day tint, kicker hover glow ----- */
+
+/* Bento card scroll parallax — uses CSS `translate` (separate from GSAP transform) */
+.bento-card { translate: 0 var(--pbc-y, 0px); }
+@media (prefers-reduced-motion: reduce) { .bento-card { translate: none; } }
+
+/* Time-of-day hero tint layer */
+.hero-tint-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-tint-dawn  { background: rgba(255,155,55,0.045); }
+.hero-tint-day   { background: rgba(0,212,200,0.025); }
+.hero-tint-dusk  { background: rgba(255,110,45,0.05); }
+.hero-tint-night { background: rgba(70,40,160,0.05); }
+
+/* Section kicker hover glow */
+.kicker-hover-glow {
+  transition: text-shadow 0.25s ease, letter-spacing 0.25s ease;
+  cursor: default;
+}
+.kicker-hover-glow:hover {
+  text-shadow: 0 0 18px rgba(0,212,200,0.72);
+  letter-spacing: 0.16em;
+}
+@media (prefers-reduced-motion: reduce) { .kicker-hover-glow { transition: none; } }

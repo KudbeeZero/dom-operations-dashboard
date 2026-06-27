@@ -4131,3 +4131,40 @@ footer, .footer, .site-footer { position: relative; }
   to   { transform: translateX(200%); }
 }
 @media (prefers-reduced-motion: reduce) { .section-entry-sheen { display: none; } }
+
+/* Sprint 63 — nav hover scale, scroll blob tracker, active section border --- */
+
+/* Nav hover scale — smooth transition for siblings */
+nav a, .nav a, .nav-link {
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+/* Scroll-tracking ambient orb on right side */
+.scroll-blob-track {
+  position: fixed;
+  top: 20%; right: -180px;
+  width: 360px; height: 360px;
+  background: radial-gradient(circle, rgba(127,90,240,0.07) 0%, rgba(0,212,200,0.04) 50%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) { .scroll-blob-track { display: none; } }
+
+/* Active section left-border indicator */
+.active-border-section { position: relative; }
+.active-border-section::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 10%;
+  width: 2px; height: 0;
+  background: linear-gradient(180deg, transparent, rgba(0,212,200,0.6), transparent);
+  transition: height 0.5s cubic-bezier(0.22,1,0.36,1);
+  border-radius: 1px;
+}
+.active-border-section--active::before { height: 80%; }
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+  .active-border-section::before { display: none; }
+}

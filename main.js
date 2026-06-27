@@ -3691,6 +3691,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTypewriterReveal, initHoverFillSweep, initBgRadialPulse,      // Sprint 113
     initScrollZoomBlurReveal, initHoverTextPop, initBgGridLines,            // Sprint 114
     initScrollSlideUpFade, initHoverCardGlowBorder, initTextRevealMaskV2,   // Sprint 115
+    initScrollElasticEntry, initHoverRainbowBorder, initBgDotMatrix,        // Sprint 116
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7541,4 +7542,53 @@ function initTextRevealMaskV2() {
     }, { threshold: 0.5 });
     io.observe(el);
   });
+}
+
+/* Sprint 116 — scroll elastic entry, hover rainbow border, bg dot matrix */
+
+function initScrollElasticEntry() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll(
+    '.section-title, h2, h3, [data-elastic-entry]'
+  );
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.elasticEntry) return;
+    el.dataset.elasticEntry = '1';
+    el.classList.add('scroll-elastic-entry');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-elastic-entry--active');
+      });
+    }, { threshold: 0.3 });
+    io.observe(el);
+  });
+}
+
+function initHoverRainbowBorder() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cards = document.querySelectorAll('.card, .service-card, [data-rainbow-border]');
+  if (!cards.length) return;
+  cards.forEach((card) => {
+    if (card.dataset.rainbowBorder) return;
+    card.dataset.rainbowBorder = '1';
+    card.classList.add('hover-rainbow-border');
+    card.addEventListener('mouseenter', () => {
+      card.classList.add('hover-rainbow-border--active');
+    }, { passive: true });
+    card.addEventListener('mouseleave', () => {
+      card.classList.remove('hover-rainbow-border--active');
+    }, { passive: true });
+  });
+}
+
+function initBgDotMatrix() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-dot-matrix')) return;
+  const dot = document.createElement('div');
+  dot.className = 'bg-dot-matrix';
+  dot.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', dot);
 }

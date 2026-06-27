@@ -2717,6 +2717,59 @@ function initNavBlur() {
   update();
 }
 
+/* Sprint 36 — hero sub morph, contact pulse ring, badge levitate ----------- */
+
+function initHeroSubMorph() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector('.hero-sub');
+  if (!el) return;
+  const LINES = [
+    'I turn messy notes, screenshots, menus, and rough drafts into clean, professional, ready-to-send results. Same day.',
+    'You send me the mess. I send back something ready to use. Done same day.',
+    'No app to learn. No bot to configure. Just text me and get it back clean.',
+  ];
+  let idx = 0;
+  el.classList.add('hero-sub-morph');
+  setInterval(() => {
+    el.classList.add('hero-sub-out');
+    setTimeout(() => {
+      idx = (idx + 1) % LINES.length;
+      el.textContent = LINES[idx];
+      el.classList.remove('hero-sub-out');
+      el.classList.add('hero-sub-in');
+      el.addEventListener('animationend', () => el.classList.remove('hero-sub-in'), { once: true });
+    }, 350);
+  }, 4500);
+}
+
+function initContactPulseRing() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const form = document.getElementById('contactForm');
+  if (!form) return;
+  const anchor = document.createElement('div');
+  anchor.className = 'contact-pulse-anchor';
+  anchor.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 3; i++) {
+    const ring = document.createElement('span');
+    ring.className = 'contact-pulse-ring';
+    ring.style.setProperty('--ri', String(i));
+    anchor.appendChild(ring);
+  }
+  form.parentElement.insertBefore(anchor, form);
+  if (!('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => anchor.classList.toggle('pulse-active', e.isIntersecting));
+  }, { threshold: 0.3 });
+  io.observe(form);
+}
+
+function initBadgeLevitate() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const badge = document.querySelector('.bento-card .bento-badge');
+  if (!badge) return;
+  badge.classList.add('badge-levitate');
+}
+
 /* Sprint 34 — price-diff stagger, hero-price flash, QR hover glow ---------- */
 
 function initPriceDiffStagger() {
@@ -2782,6 +2835,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAboutIconSpin, initStepBadgePop, initPhoneRingWiggle,
     initPriceDiffStagger, initHeroPriceFlash, initQRHoverGlow,
     initSocialProofTicker, initCtaMorph, initNavBlur,
+    initHeroSubMorph, initContactPulseRing, initBadgeLevitate,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

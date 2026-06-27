@@ -3698,6 +3698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollPrismSplit, initHoverDepthShadow, initBgNebula,               // Sprint 120
     initScrollLensZoom, initHoverSpotlight, initBgVhsNoise,                 // Sprint 121
     initScrollTypewriterV2, initHoverColorShift, initBgPlasma,              // Sprint 122
+    initScrollCurtainLift, initHoverBorderDash, initBgGridPulse,            // Sprint 123
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -7971,4 +7972,45 @@ function initBgPlasma() {
     requestAnimationFrame(draw);
   };
   draw();
+}
+
+/* Sprint 123 — scroll curtain lift, hover border dash, bg grid pulse */
+
+function initScrollCurtainLift() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('section, .section-wrap, [data-curtain-lift]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.curtainLift) return;
+    el.dataset.curtainLift = '1';
+    el.classList.add('scroll-curtain-lift');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-curtain-lift--active');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initHoverBorderDash() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-border-dash]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.borderDash) return;
+    el.dataset.borderDash = '1';
+    el.classList.add('hover-border-dash');
+  });
+}
+
+function initBgGridPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-grid-pulse')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-grid-pulse';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
 }

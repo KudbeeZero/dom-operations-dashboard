@@ -1937,3 +1937,30 @@ button { font: inherit; cursor: pointer; }
 
 /* --- Hero teal orb parallax ------------------------------------------ */
 .teal-orb { will-change: transform; }
+
+/* ==========================================================================
+   Sprint 13 — Polish: 3D tilt + CTA pulse + count-up
+   ========================================================================== */
+
+/* --- 3D card tilt: suppress CSS transition while rAF drives the transform */
+.bento-card.tilt-active {
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+/* --- CTA pulse ring: expanding box-shadow halo on primary action buttons */
+@keyframes cta-pulse {
+  0%   { box-shadow: 0 0 0 0    rgba(0,212,200,0.55); }
+  70%  { box-shadow: 0 0 0 14px rgba(0,212,200,0); }
+  100% { box-shadow: 0 0 0 0    rgba(0,212,200,0); }
+}
+.btn-primary {
+  animation: cta-pulse 2.8s ease-out 2.2s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary { animation: none; }
+}
+
+/* --- Featured pricing card: deeper glow on hover */
+.price-card.featured:hover {
+  box-shadow: 0 0 60px rgba(201,168,76,0.18), 0 20px 40px rgba(0,0,0,0.25);
+}

@@ -3271,6 +3271,64 @@ function initServiceTagHover() {
   });
 }
 
+/* Sprint 47 — bento card shine, nav dot indicator, pricing grid glow -------- */
+
+function initBentoCardShine() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.bento-card').forEach((card) => {
+    const shine = document.createElement('div');
+    shine.className = 'card-shine';
+    shine.setAttribute('aria-hidden', 'true');
+    card.style.overflow = card.style.overflow || 'hidden';
+    card.appendChild(shine);
+    card.addEventListener('mouseenter', () => {
+      shine.classList.remove('card-shine-sweep');
+      void shine.offsetWidth;
+      shine.classList.add('card-shine-sweep');
+    });
+  });
+}
+
+function initNavDotIndicator() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const links = document.querySelectorAll('.nav-link, nav a');
+  if (!links.length) return;
+  const nav = links[0].closest('nav, .nav, header');
+  if (!nav) return;
+  nav.style.position = nav.style.position || 'relative';
+  const dot = document.createElement('span');
+  dot.className = 'nav-dot';
+  dot.setAttribute('aria-hidden', 'true');
+  nav.appendChild(dot);
+  links.forEach((link) => {
+    link.addEventListener('mouseenter', () => {
+      const lr = link.getBoundingClientRect();
+      const nr = nav.getBoundingClientRect();
+      dot.style.setProperty('--dot-x', `${lr.left - nr.left + lr.width / 2}px`);
+      dot.style.setProperty('--dot-y', `${lr.bottom - nr.top + 4}px`);
+      dot.classList.add('dot-active');
+    });
+  });
+  nav.addEventListener('mouseleave', () => dot.classList.remove('dot-active'));
+}
+
+function initPricingGridGlow() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  const grid = document.querySelector('.pricing-grid, .pricing-section, #pricing');
+  if (!grid) return;
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.unobserve(e.target);
+      e.target.classList.add('pricing-glow-active');
+    });
+  }, { threshold: 0.2 });
+  io.observe(grid);
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3309,6 +3367,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeadlineGlitch, initQROrbitRings, initSectionH2Underline,
     initClickSpark, initSliderHandleGlow, initScrollVignette,
     initFloatingWords, initMorphBlob, initServiceTagHover,
+    initBentoCardShine, initNavDotIndicator, initPricingGridGlow,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

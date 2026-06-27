@@ -2022,6 +2022,80 @@ button { font: inherit; cursor: pointer; }
 .section-title { will-change: clip-path; }
 
 /* ==========================================================================
+   Sprint 19 — Button ripple · Hero cursor glow · Scroll-to-top
+   ========================================================================== */
+
+/* --- Button ripple ----------------------------------------------------- */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  transform: scale(0);
+  animation: btn-ripple 0.55s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes btn-ripple {
+  to { transform: scale(1); opacity: 0; }
+}
+
+/* --- Hero cursor glow -------------------------------------------------- */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    650px circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(0,212,200,0.07), transparent 62%
+  );
+  pointer-events: none;
+  opacity: var(--ghover, 0);
+  transition: opacity 0.6s ease;
+}
+
+/* --- Scroll-to-top button ---------------------------------------------- */
+#scrollTop {
+  position: fixed;
+  bottom: var(--space-8);
+  right: var(--space-8);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--teal);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s, border-color 0.2s;
+  pointer-events: none;
+}
+#scrollTop.visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+#scrollTop:hover {
+  background: var(--surface-3);
+  border-color: var(--teal);
+  box-shadow: 0 0 18px var(--teal-glow);
+}
+@media (max-width: 880px) {
+  #scrollTop { bottom: 5.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #scrollTop { transition: opacity 0.3s ease; transform: none !important; }
+}
+
+/* ==========================================================================
    Sprint 17 — Page intro wipe · Film grain · "Clarity." gradient text
    ========================================================================== */
 

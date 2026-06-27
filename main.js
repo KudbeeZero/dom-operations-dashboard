@@ -1534,6 +1534,62 @@ function initPageIntro() {
 }
 
 /* -------------------------------------------------------------------------
+   BUTTON RIPPLE — material-style circular ripple from the click point on .btn
+   ------------------------------------------------------------------------- */
+function initButtonRipple() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn');
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 2;
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    ripple.style.cssText = [
+      `width:${size}px`, `height:${size}px`,
+      `left:${e.clientX - rect.left - size / 2}px`,
+      `top:${e.clientY - rect.top  - size / 2}px`,
+    ].join(';');
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   HERO CURSOR GLOW — subtle radial teal gradient in the hero BG follows the
+   cursor; fades in on mouseenter and fades out on mouseleave.
+   ------------------------------------------------------------------------- */
+function initHeroCursorGlow() {
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.getElementById('hero');
+  if (!hero) return;
+  hero.addEventListener('mousemove', (e) => {
+    const r = hero.getBoundingClientRect();
+    hero.style.setProperty('--gx', ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%');
+    hero.style.setProperty('--gy', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
+  });
+  hero.addEventListener('mouseenter', () => hero.style.setProperty('--ghover', '1'));
+  hero.addEventListener('mouseleave', () => hero.style.setProperty('--ghover', '0'));
+}
+
+/* -------------------------------------------------------------------------
+   SCROLL TO TOP — circular button appears after 40 % of page is scrolled;
+   smooth-scrolls back to top on click.
+   ------------------------------------------------------------------------- */
+function initScrollToTop() {
+  const btn = document.createElement('button');
+  btn.id = 'scrollTop';
+  btn.setAttribute('aria-label', 'Back to top');
+  btn.textContent = '↑';
+  document.body.appendChild(btn);
+  const toggle = () => btn.classList.toggle('visible', window.scrollY > window.innerHeight * 0.4);
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+}
+
+/* -------------------------------------------------------------------------
    ACTIVE NAV — highlights the nav link for the section currently in view.
    Uses a narrow rootMargin viewport band so only one section wins at a time.
    ------------------------------------------------------------------------- */
@@ -1629,6 +1685,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initContactForm, initQRCode, initTransformDemo, initCardSpotlight, initHeroParallax,
     initCardTilt, initCountUp, initKineticText, initFaqAnimation, initCustomCursor,
     initScrollProgress, initMagneticButtons, initHeadingReveal, initActiveNav,
+    initButtonRipple, initHeroCursorGlow, initScrollToTop,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

@@ -3128,6 +3128,64 @@ function initQRHoverGlow() {
   io.observe(block);
 }
 
+/* Sprint 44 — headline glitch, QR orbit rings, section h2 underline ---------- */
+
+function initHeadlineGlitch() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector('.hero-headline');
+  if (!el) return;
+  const fire = () => {
+    el.classList.remove('headline-glitch');
+    void el.offsetWidth;
+    el.classList.add('headline-glitch');
+    el.addEventListener('animationend', () => el.classList.remove('headline-glitch'), { once: true });
+  };
+  setTimeout(() => { fire(); setInterval(fire, 14000); }, 2200);
+}
+
+function initQROrbitRings() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const card = document.querySelector('.qr-card');
+  if (!card) return;
+  card.style.position = card.style.position || 'relative';
+  [0, 1].forEach((i) => {
+    const ring = document.createElement('div');
+    ring.className = `qr-orbit qr-orbit--${i}`;
+    ring.setAttribute('aria-hidden', 'true');
+    card.appendChild(ring);
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      const state = e.isIntersecting ? 'running' : 'paused';
+      card.querySelectorAll('.qr-orbit').forEach((r) => {
+        r.style.animationPlayState = state;
+      });
+    });
+  }, { threshold: 0.1 });
+  io.observe(card);
+}
+
+function initSectionH2Underline() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const headings = document.querySelectorAll('.section h2, .ba-section h2');
+  if (!headings.length) return;
+  headings.forEach((h2) => {
+    h2.style.position = h2.style.position || 'relative';
+    const line = document.createElement('span');
+    line.className = 'h2-underline';
+    line.setAttribute('aria-hidden', 'true');
+    h2.appendChild(line);
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        obs.unobserve(e.target);
+        line.classList.add('h2-underline--active');
+      });
+    }, { threshold: 0.3 });
+    io.observe(h2);
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3163,6 +3221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavProgressLine, initShowcaseTabPop, initPriceLabelPop,
     initHeroHeadlineColorCycle, initContactListPop, initFooterGlowPulse,
     initSectionGlowHalo, initStepIconHover, initCtaPulseRing,
+    initHeadlineGlitch, initQROrbitRings, initSectionH2Underline,
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }

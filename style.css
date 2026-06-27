@@ -3250,3 +3250,65 @@ body::after {
   100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .cta-ring { display: none; } }
+
+/* Sprint 44 — headline glitch, QR orbit rings, section h2 underline ---------- */
+
+/* Hero headline RGB-split chromatic glitch */
+@keyframes headline-glitch {
+  0%   { text-shadow: none; transform: translateX(0); }
+  10%  { text-shadow: -3px 0 rgba(255,0,80,0.7), 3px 0 rgba(0,212,200,0.7); transform: translateX(-2px); }
+  20%  { text-shadow: 3px 0 rgba(255,0,80,0.7), -3px 0 rgba(0,212,200,0.7); transform: translateX(2px); }
+  30%  { text-shadow: -2px 0 rgba(255,0,80,0.5), 2px 0 rgba(0,212,200,0.5); transform: translateX(-1px); }
+  40%  { text-shadow: none; transform: translateX(0); }
+  100% { text-shadow: none; transform: translateX(0); }
+}
+.headline-glitch { animation: headline-glitch 0.55s steps(1) forwards; }
+@media (prefers-reduced-motion: reduce) { .headline-glitch { animation: none; } }
+
+/* QR section orbit rings */
+.qr-orbit {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 1px solid rgba(0,212,200,0.25);
+  animation: qr-orbit-spin linear infinite;
+  animation-play-state: paused;
+  top: 50%; left: 50%;
+}
+.qr-orbit--0 {
+  width: 140%; height: 80%;
+  margin-top: -40%; margin-left: -70%;
+  animation-duration: 8s;
+}
+.qr-orbit--1 {
+  width: 115%; height: 115%;
+  margin-top: -57.5%; margin-left: -57.5%;
+  animation-duration: 14s;
+  animation-direction: reverse;
+  border-color: rgba(0,212,200,0.12);
+}
+@keyframes qr-orbit-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) { .qr-orbit { display: none; } }
+
+/* Section h2 animated teal underline sweep */
+.h2-underline {
+  display: block;
+  position: absolute;
+  left: 0; bottom: -6px;
+  width: 55%; height: 3px;
+  background: linear-gradient(90deg, rgba(0,212,200,0.9) 0%, rgba(0,212,200,0.3) 70%, transparent 100%);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+@keyframes h2-underline-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.h2-underline--active {
+  animation: h2-underline-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) { .h2-underline { display: none; } }

@@ -2022,6 +2022,45 @@ button { font: inherit; cursor: pointer; }
 .section-title { will-change: clip-path; }
 
 /* ==========================================================================
+   Sprint 17 — Page intro wipe · Film grain · "Clarity." gradient text
+   ========================================================================== */
+
+/* --- Page-load intro overlay ------------------------------------------- */
+#pageIntro {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 99999;
+  pointer-events: none;
+  transform: translateY(0);
+  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+}
+#pageIntro.intro-exit {
+  transform: translateY(-100%);
+}
+
+/* --- Film grain — subtle SVG feTurbulence noise overlaid on every page --- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9997;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+  background-repeat: repeat;
+}
+
+/* --- "Clarity." gradient text — teal → chrome on the hero clarity word --- */
+#wordClarity {
+  background: linear-gradient(135deg, var(--teal) 0%, rgba(255,255,255,0.92) 65%, var(--teal) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ==========================================================================
    Sprint 13 — Polish: 3D tilt + CTA pulse + count-up
    ========================================================================== */
 

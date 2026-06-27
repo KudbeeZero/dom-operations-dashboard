@@ -3705,6 +3705,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollFanCards, initHoverRippleExpand, initBgHoloFoil,              // Sprint 127
     initScrollGlitchEntry, initHoverChromaticAberration, initBgParticleField, // Sprint 128
     initScrollAccordionStagger, initHoverGlowIconRingV2, initBgCircuitTrace,  // Sprint 129
+    initScrollTiltCard, initHoverBorderBeam, initBgLavaLamp,                 // Sprint 130
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -8444,4 +8445,57 @@ function initBgCircuitTrace() {
     requestAnimationFrame(draw);
   };
   draw();
+}
+
+/* Sprint 130 — scroll tilt card, hover border beam, bg lava lamp */
+
+function initScrollTiltCard() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.card, .service-card, [data-tilt-card]');
+  if (!els.length) return;
+  els.forEach((el, i) => {
+    if (el.dataset.tiltCard) return;
+    el.dataset.tiltCard = '1';
+    el.classList.add('scroll-tilt-card');
+    el.style.setProperty('--tc-i', i % 2 === 0 ? '1' : '-1');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scroll-tilt-card--active');
+      });
+    }, { threshold: 0.2 });
+    io.observe(el);
+  });
+}
+
+function initHoverBorderBeam() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('.btn, .card, [data-border-beam]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.borderBeam) return;
+    el.dataset.borderBeam = '1';
+    el.classList.add('hover-border-beam');
+  });
+}
+
+function initBgLavaLamp() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-lava-lamp')) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'bg-lava-lamp';
+  wrap.setAttribute('aria-hidden', 'true');
+  const blobs = [
+    { c: '#00d4c8', w: 420, h: 420, tx: '10%', ty: '5%', d: '16s' },
+    { c: '#7b5cfa', w: 360, h: 360, tx: '65%', ty: '40%', d: '22s' },
+    { c: '#ff6b9d', w: 300, h: 300, tx: '30%', ty: '70%', d: '18s' },
+  ];
+  blobs.forEach((b, i) => {
+    const el = document.createElement('div');
+    el.className = 'bg-lava-lamp__blob';
+    el.style.cssText = `width:${b.w}px;height:${b.h}px;background:${b.c};left:${b.tx};top:${b.ty};animation-duration:${b.d};animation-delay:-${i * 5}s`;
+    wrap.appendChild(el);
+  });
+  document.body.insertAdjacentElement('afterbegin', wrap);
 }

@@ -3634,6 +3634,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPageClickRipple, initImageClipReveal, initPricingCountdown,   // Sprint 56
     initHeroGradientRing, initKeyboardNav, initDynamicThemeColor,     // Sprint 57
     initPageLeaveGreeting, initScrollColorShift, initInputTypingIndicator, // Sprint 58
+    initLivePreviewPanel, initScrollNextHint, initHoverCardLightBeam,     // Sprint 59
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -3986,6 +3987,60 @@ function initInputTypingIndicator() {
       else if (len < 3)  { tip.textContent = 'Keep going…'; tip.dataset.state = 'weak'; }
       else if (len < 10) { tip.textContent = 'Almost there'; tip.dataset.state = 'ok'; }
       else               { tip.textContent = 'Looking good ✓'; tip.dataset.state = 'good'; }
+    });
+  });
+}
+
+/* Sprint 59 — live textarea preview, scroll-next hint, card light beam ------- */
+
+function initLivePreviewPanel() {
+  const textarea = document.querySelector('textarea');
+  if (!textarea) return;
+  const panel = document.createElement('div');
+  panel.className = 'live-preview-panel';
+  panel.setAttribute('aria-hidden', 'true');
+  panel.innerHTML = '<span class="live-preview-label">Preview</span><p class="live-preview-text"></p>';
+  textarea.parentNode.insertBefore(panel, textarea.nextSibling);
+  const previewText = panel.querySelector('.live-preview-text');
+  textarea.addEventListener('input', () => {
+    const val = textarea.value.trim();
+    previewText.textContent = val;
+    panel.classList.toggle('live-preview-panel--visible', val.length > 0);
+  });
+}
+
+function initScrollNextHint() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sections = Array.from(document.querySelectorAll('.section, .hero, .ba-section'));
+  if (sections.length < 2) return;
+  sections.slice(0, -1).forEach((section, i) => {
+    const hint = document.createElement('div');
+    hint.className = 'scroll-next-hint';
+    hint.textContent = 'Scroll to continue';
+    hint.setAttribute('aria-hidden', 'true');
+    section.appendChild(hint);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        hint.classList.add('scroll-next-hint--show');
+        setTimeout(() => hint.classList.remove('scroll-next-hint--show'), 2200);
+      });
+    }, { threshold: 0.7 });
+    io.observe(section);
+  });
+}
+
+function initHoverCardLightBeam() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  document.querySelectorAll('.bento-card').forEach((card) => {
+    const beam = document.createElement('div');
+    beam.className = 'card-light-beam';
+    beam.setAttribute('aria-hidden', 'true');
+    card.appendChild(beam);
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--bx', `${((e.clientX - r.left) / r.width * 100).toFixed(1)}%`);
+      card.style.setProperty('--by', `${((e.clientY - r.top) / r.height * 100).toFixed(1)}%`);
     });
   });
 }

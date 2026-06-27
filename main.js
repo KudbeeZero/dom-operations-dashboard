@@ -3714,6 +3714,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollBlurPanel, initHoverScalePop, initBgCometTrail,               // Sprint 136
     initScrollRevealWords, initHoverGlowRing, initBgInkWash,                // Sprint 137
     initScrollFadeSlide, initHoverMagneticGlow, initBgAmbientWave,          // Sprint 138
+    initScrollCountMorph, initHoverNeonBorderTrail, initBgGridReveal,       // Sprint 139
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -9067,6 +9068,65 @@ function initBgAmbientWave() {
   if (document.querySelector('.bg-ambient-wave')) return;
   const el = document.createElement('div');
   el.className = 'bg-ambient-wave';
+  el.setAttribute('aria-hidden', 'true');
+  document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 139 — text morph counter, neon border trail hover, grid reveal bg ---- */
+
+function initScrollCountMorph() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const els = document.querySelectorAll('[data-count-morph]');
+  if (!els.length) return;
+  els.forEach((el) => {
+    if (el.dataset.countMorphInit) return;
+    el.dataset.countMorphInit = '1';
+    const target = parseFloat(el.dataset.countMorph) || 0;
+    const suffix = el.dataset.countSuffix || '';
+    const duration = 1400;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        const start = performance.now();
+        const tick = (now) => {
+          const t = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          const val = target * ease;
+          el.textContent = (Number.isInteger(target) ? Math.round(val) : val.toFixed(1)) + suffix;
+          if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+}
+
+function initHoverNeonBorderTrail() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  const btns = document.querySelectorAll('.btn, [data-neon-trail]');
+  if (!btns.length) return;
+  btns.forEach((btn) => {
+    if (btn.dataset.neonTrail) return;
+    btn.dataset.neonTrail = '1';
+    btn.classList.add('hover-neon-trail');
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      btn.style.setProperty('--nt-x', `${x}%`);
+      btn.style.setProperty('--nt-y', `${y}%`);
+    });
+  });
+}
+
+function initBgGridReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.querySelector('.bg-grid-reveal')) return;
+  const el = document.createElement('div');
+  el.className = 'bg-grid-reveal';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
 }

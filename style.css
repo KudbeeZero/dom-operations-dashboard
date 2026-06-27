@@ -5334,3 +5334,35 @@ svg path.draw-path, svg .draw-path {
   .section-edge-glow { transition: none; }
   .section-edge-glow--active { box-shadow: none; }
 }
+
+/* Sprint 91 — text reveal mask, hover border glow, scroll opacity fade ------- */
+
+.text-reveal-mask {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.65s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--mri, 0) * 0.1s);
+}
+.text-reveal-mask--visible {
+  clip-path: inset(0 0% 0 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-reveal-mask { clip-path: none; transition: none; }
+}
+
+.hover-border-glow {
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.hover-border-glow:hover {
+  border-color: rgba(0,212,200,0.4);
+  box-shadow: 0 0 0 1px rgba(0,212,200,0.25), 0 0 20px -4px rgba(0,212,200,0.2);
+}
+
+.scroll-opacity-fade {
+  opacity: 0.25;
+  transition: opacity 0.5s ease;
+}
+.scroll-opacity-fade--visible {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-opacity-fade { opacity: 1; transition: none; }
+}

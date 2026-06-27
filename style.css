@@ -6740,3 +6740,57 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .bg-nebula__orb { animation: none; }
 }
+
+/* Sprint 121 — scroll lens zoom, hover spotlight, bg vhs noise */
+
+@keyframes lens-zoom-in {
+  0%   { opacity: 0; transform: scale(1.25); filter: blur(6px); }
+  60%  { opacity: 1; transform: scale(0.98); filter: blur(0); }
+  100% { transform: scale(1); }
+}
+.scroll-lens-zoom { opacity: 0; }
+.scroll-lens-zoom--active {
+  animation: lens-zoom-in 0.65s cubic-bezier(0.25,1,0.5,1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-lens-zoom { opacity: 1; }
+  .scroll-lens-zoom--active { animation: none; }
+}
+
+.hover-spotlight { position: relative; overflow: hidden; }
+.hover-spotlight--active::before {
+  content: '';
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,200,0.12) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  left: var(--sl-x, -999px);
+  top: var(--sl-y, -999px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes vhs-flicker {
+  0%, 100% { opacity: 0.025; }
+  50%       { opacity: 0.04; }
+}
+.bg-vhs-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.03) 0px,
+      rgba(0,0,0,0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  animation: vhs-flicker 0.1s steps(1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-vhs-noise { animation: none; opacity: 0.02; }
+}

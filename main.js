@@ -3637,6 +3637,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLivePreviewPanel, initScrollNextHint, initHoverCardLightBeam,     // Sprint 59
     initHeroTextShadowMouse, initScrollMomentumDot, initCtaWaveHover,    // Sprint 60
     initHeroSubtitleUnderline, initSectionDimmer, initPricePingPulse,   // Sprint 61
+    initDotGridBg, initTagCloudHover, initSectionEntrySheen,           // Sprint 62
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4142,5 +4143,58 @@ function initPricePingPulse() {
     price.classList.add('price-ping');
     setTimeout(() => ping(price), 2000 + i * 350);
     setInterval(() => ping(price), 5000 + i * 350);
+  });
+}
+
+/* Sprint 62 — dot grid bg, tag cloud hover push, section entry sheen --------- */
+
+function initDotGridBg() {
+  const grid = document.createElement('div');
+  grid.className = 'dot-grid-overlay';
+  grid.setAttribute('aria-hidden', 'true');
+  document.body.insertBefore(grid, document.body.firstChild);
+}
+
+function initTagCloudHover() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  document.querySelectorAll('.format-tags, .service-tags, .tag-group').forEach((container) => {
+    const tags = Array.from(container.querySelectorAll('.format-tag, .tag, li'));
+    if (tags.length < 2) return;
+    container.addEventListener('mousemove', (e) => {
+      const cr = container.getBoundingClientRect();
+      const mx = e.clientX - cr.left;
+      const my = e.clientY - cr.top;
+      tags.forEach((tag) => {
+        const tr = tag.getBoundingClientRect();
+        const tx = (tr.left - cr.left) + tr.width / 2;
+        const ty = (tr.top - cr.top) + tr.height / 2;
+        const dx = tx - mx, dy = ty - my;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = Math.max(0, 55 - dist) / 55;
+        tag.style.transform = `translate(${(dx / dist) * force * 10}px, ${(dy / dist) * force * 7}px)`;
+      });
+    });
+    container.addEventListener('mouseleave', () => {
+      tags.forEach((tag) => { tag.style.transform = ''; });
+    });
+  });
+}
+
+function initSectionEntrySheen() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section, .ba-section').forEach((section) => {
+    const sheen = document.createElement('div');
+    sheen.className = 'section-entry-sheen';
+    sheen.setAttribute('aria-hidden', 'true');
+    section.appendChild(sheen);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(section);
+        sheen.classList.add('section-entry-sheen--active');
+        sheen.addEventListener('animationend', () => sheen.remove(), { once: true });
+      });
+    }, { threshold: 0.15 });
+    io.observe(section);
   });
 }

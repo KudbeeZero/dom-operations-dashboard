@@ -4097,3 +4097,37 @@ footer, .footer, .site-footer { position: relative; }
   100% { border-color: rgba(0,212,200,0); transform: scale(1.45); }
 }
 @media (prefers-reduced-motion: reduce) { .price-ping--active::before { animation: none; } }
+
+/* Sprint 62 — dot grid bg, tag cloud hover push, section entry sheen --------- */
+
+/* Subtle teal dot grid fixed overlay */
+.dot-grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(0,212,200,0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Tag cloud hover push — transition for smooth return */
+.format-tag, .service-tags li, .tag-group .tag {
+  transition: transform 0.22s ease;
+}
+
+/* One-shot diagonal sheen on section entry */
+.section-entry-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.04) 50%, transparent 65%);
+  transform: translateX(-100%);
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+.section-entry-sheen--active { animation: section-sheen-pass 0.85s ease forwards; }
+@keyframes section-sheen-pass {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(200%); }
+}
+@media (prefers-reduced-motion: reduce) { .section-entry-sheen { display: none; } }

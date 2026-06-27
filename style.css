@@ -6150,3 +6150,73 @@ svg path.draw-path, svg .draw-path {
   z-index: 1;
   opacity: 0.7;
 }
+
+/* Sprint 110 — scroll door open, hover card depth ring, text shimmer wave */
+
+@keyframes door-left-open {
+  from { transform: scaleX(1); transform-origin: left center; }
+  to   { transform: scaleX(0); transform-origin: left center; }
+}
+@keyframes door-right-open {
+  from { transform: scaleX(1); transform-origin: right center; }
+  to   { transform: scaleX(0); transform-origin: right center; }
+}
+.door-panel {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0e1a, rgba(0,212,200,0.05));
+  z-index: 10;
+  pointer-events: none;
+}
+.door-panel--left  { left: 0; transform-origin: left center; }
+.door-panel--right { right: 0; transform-origin: right center; }
+.door-open--active .door-panel--left  { animation: door-left-open  0.8s cubic-bezier(0.77,0,0.18,1) forwards; }
+.door-open--active .door-panel--right { animation: door-right-open 0.8s cubic-bezier(0.77,0,0.18,1) 0.05s forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .door-panel { display: none; }
+}
+
+.hover-card-depth-ring {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.hover-card-depth-ring:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 2px 0 rgba(0,212,200,0.8),
+    0 8px 0 rgba(0,212,200,0.4),
+    0 18px 0 rgba(0,212,200,0.15),
+    0 30px 20px rgba(0,0,0,0.3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-card-depth-ring { transition: none; }
+  .hover-card-depth-ring:hover { transform: none; }
+}
+
+@keyframes shimmer-wave-pan {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.text-shimmer-wave {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.6) 0%,
+    rgba(0,212,200,0.9) 30%,
+    rgba(123,92,250,0.9) 50%,
+    rgba(0,212,200,0.9) 70%,
+    rgba(255,255,255,0.6) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-wave-pan 3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-shimmer-wave {
+    animation: none;
+    -webkit-text-fill-color: inherit;
+    background: none;
+  }
+}

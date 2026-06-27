@@ -2714,3 +2714,28 @@ body::after {
   70%  { opacity: 0.7; }
   100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot, 360deg)) scale(0.2); opacity: 0; }
 }
+
+/* Featured pricing card ring pulse */
+@keyframes featured-ring {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0, 212, 200, 0.25), 0 6px 32px rgba(0, 0, 0, 0.4); }
+  50%       { box-shadow: 0 0 0 3px rgba(0, 212, 200, 0.55), 0 0 28px rgba(0, 212, 200, 0.18), 0 6px 32px rgba(0, 0, 0, 0.4); }
+}
+.price-card.featured.featured-pulse {
+  animation: featured-ring 2.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .price-card.featured.featured-pulse { animation: none; }
+}
+
+/* FAQ bar reveal — teal left-edge box-shadow animates in on open */
+@keyframes faq-bar-in {
+  from { box-shadow: -2px 0 0 0 rgba(0, 212, 200, 0); }
+  to   { box-shadow: -2px 0 0 0 rgba(0, 212, 200, 0.55); }
+}
+.faq-item.faq-opened > p {
+  padding-left: 14px;
+  animation: faq-bar-in 0.5s ease-out 0.12s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-item.faq-opened > p { padding-left: 0; animation: none; }
+}

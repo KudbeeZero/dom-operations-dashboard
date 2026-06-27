@@ -3643,6 +3643,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBorderBeamBtn, initScrollRippleSection, initStatGlowReveal,    // Sprint 65
     initCharWaveReveal, initBtnFillHover, initProgressiveTextReveal,   // Sprint 66
     initMosaicImgReveal, initHeroWordCycle, initCardPeelCorner,        // Sprint 67
+    initHoverCharRepel, initScaleReveal, initAttentionPulse,           // Sprint 68
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4504,5 +4505,67 @@ function initCardPeelCorner() {
   if (!window.matchMedia('(pointer: fine)').matches) return;
   document.querySelectorAll('.bento-card, .pricing-card, .service-card').forEach((card) => {
     card.classList.add('card-peel');
+  });
+}
+
+/* Sprint 68 — hover char repel, scale reveal, attention pulse -------------- */
+
+function initHoverCharRepel() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.section h2[data-char-wave], .ba-section h2[data-char-wave]').forEach((el) => {
+    const chars = Array.from(el.querySelectorAll('.char-wave-char'));
+    if (!chars.length) return;
+    el.addEventListener('mousemove', (e) => {
+      chars.forEach((ch) => {
+        const r = ch.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dx = e.clientX - cx, dy = e.clientY - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = Math.max(0, 40 - dist) / 40;
+        const px = -(dx / dist) * force * 8;
+        const py = -(dy / dist) * force * 5;
+        ch.style.transform = `translate(${px.toFixed(1)}px, ${py.toFixed(1)}px)`;
+      });
+    });
+    el.addEventListener('mouseleave', () => {
+      chars.forEach((ch) => { ch.style.transform = ''; });
+    });
+  });
+}
+
+function initScaleReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.scale-reveal, .bento-card, .pricing-card').forEach((el) => {
+    if (el.dataset.scaleReveal) return;
+    el.dataset.scaleReveal = '1';
+    el.classList.add('scale-reveal-elem');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('scale-reveal-elem--in');
+      });
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+}
+
+function initAttentionPulse() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll('.btn-primary, .hero-cta, .price-total, .trust-number');
+  if (!targets.length) return;
+  targets.forEach((el, i) => {
+    el.style.setProperty('--api', i);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('attention-pulse');
+        el.addEventListener('animationend', () => el.classList.remove('attention-pulse'), { once: true });
+      });
+    }, { threshold: 0.7 });
+    io.observe(el);
   });
 }

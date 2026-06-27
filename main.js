@@ -3649,6 +3649,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCursorTextLabel, initSplitDualReveal, initScrollFloodFill,      // Sprint 71
     initNeonLinkUnderline, initScrollRevealRotate, initVelocitySkew,   // Sprint 72
     initGridDiagonalReveal, initCardHoverDepth, initScrollMeter,       // Sprint 73
+    initHeroScanline, initClipRevealSlide, initHighlightTextMark,      // Sprint 74
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
@@ -4861,4 +4862,52 @@ function initScrollMeter() {
   };
   window.addEventListener('scroll', update, { passive: true });
   update();
+}
+
+/* Sprint 74 — hero scanline, clip reveal slide, highlight text mark --------- */
+
+function initHeroScanline() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.querySelector('.hero, .hero-section, [data-section="hero"]');
+  if (!hero) return;
+  const scan = document.createElement('div');
+  scan.className = 'hero-scanline';
+  scan.setAttribute('aria-hidden', 'true');
+  const pos = getComputedStyle(hero).position;
+  if (pos === 'static') hero.style.position = 'relative';
+  hero.appendChild(scan);
+}
+
+function initClipRevealSlide() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.wipe-reveal, .section-kicker, .hero-badge').forEach((el) => {
+    if (el.dataset.wipeReveal) return;
+    el.dataset.wipeReveal = '1';
+    el.classList.add('clip-wipe-elem');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('clip-wipe-elem--in');
+      });
+    }, { threshold: 0.3 });
+    io.observe(el);
+  });
+}
+
+function initHighlightTextMark() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('mark, .text-highlight, .highlight-mark').forEach((el) => {
+    if (el.dataset.hlMark) return;
+    el.dataset.hlMark = '1';
+    el.classList.add('hl-mark-elem');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('hl-mark-elem--in');
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
 }

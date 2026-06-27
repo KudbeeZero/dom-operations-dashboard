@@ -3628,8 +3628,79 @@ document.addEventListener('DOMContentLoaded', () => {
     initAuroraBg, initProcessChainBounce, initSecondaryBtnRipple,
     initParallaxBentoCards, initTimeOfDayTint, initKickerHoverGlow,
     initCustomScrollbar, initCardFocusRing, initSectionCounter,
+    initNeonFlickerText, initCardStackDepth, initScrollProgressRing,  // Sprint 53
   ];
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
   }
 });
+
+/* Sprint 53 — neon flicker text, card stack depth, scroll progress ring ------ */
+
+function initNeonFlickerText() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const targets = document.querySelectorAll('.count-num, .hero-price, .bento-card .section-kicker');
+  if (!targets.length) return;
+  targets.forEach((el) => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(el);
+        el.classList.add('neon-flicker');
+        el.addEventListener('animationend', () => el.classList.remove('neon-flicker'), { once: true });
+      });
+    }, { threshold: 0.6 });
+    io.observe(el);
+  });
+}
+
+function initCardStackDepth() {
+  const grid = document.querySelector('.pricing-grid, .pricing-cards');
+  if (!grid) return;
+  const cards = Array.from(grid.querySelectorAll('.pricing-card'));
+  if (cards.length < 2) return;
+  grid.style.perspective = '1200px';
+  cards.forEach((card) => {
+    card.addEventListener('mouseenter', () => {
+      cards.forEach((c) => { if (c !== card) c.classList.add('stack-back'); });
+    });
+    card.addEventListener('mouseleave', () => {
+      cards.forEach((c) => c.classList.remove('stack-back'));
+    });
+  });
+}
+
+function initScrollProgressRing() {
+  const btn = document.getElementById('scroll-top') || document.querySelector('.scroll-to-top, .back-to-top, [data-scroll-top]');
+  if (!btn) return;
+  const SIZE = 44, R = 18;
+  const CIRC = 2 * Math.PI * R;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', SIZE);
+  svg.setAttribute('height', SIZE);
+  svg.setAttribute('viewBox', `0 0 ${SIZE} ${SIZE}`);
+  svg.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:1;';
+  svg.setAttribute('aria-hidden', 'true');
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circle.setAttribute('cx', SIZE / 2);
+  circle.setAttribute('cy', SIZE / 2);
+  circle.setAttribute('r', R);
+  circle.setAttribute('fill', 'none');
+  circle.setAttribute('stroke', 'rgba(0,212,200,0.8)');
+  circle.setAttribute('stroke-width', '2.5');
+  circle.setAttribute('stroke-dasharray', CIRC);
+  circle.setAttribute('stroke-dashoffset', CIRC);
+  circle.setAttribute('stroke-linecap', 'round');
+  circle.style.transform = 'rotate(-90deg)';
+  circle.style.transformOrigin = '50% 50%';
+  svg.appendChild(circle);
+  btn.style.position = 'relative';
+  btn.appendChild(svg);
+  const update = () => {
+    const doc = document.documentElement;
+    const pct = doc.scrollTop / (doc.scrollHeight - doc.clientHeight) || 0;
+    circle.setAttribute('stroke-dashoffset', CIRC * (1 - Math.min(pct, 1)));
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}

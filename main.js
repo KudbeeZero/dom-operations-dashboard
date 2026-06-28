@@ -3755,6 +3755,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
     initScrollClipSlide, initHoverImageShimmer, initBgGradientDrift,       // Sprint 144
     initScrollElasticScale, initHoverBorderPulse, initBgDepthFog,          // Sprint 145
+    initTestimonialsReveal, initTestimonialCardShine,                     // Sprint 149
     initLiveAvailabilityPing, initTryItDemo, initSonarPing,               // Sprint 148
   ];
   for (const init of inits) {
@@ -9569,6 +9570,54 @@ function initBgDepthFog() {
   el.className = 'bg-depth-fog';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 149 — Testimonial stagger reveal + holographic card shine ----------- */
+
+function initTestimonialsReveal() {
+  const cards = document.querySelectorAll('.tcard[data-tcard]');
+  if (!cards.length) return;
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const card = e.target;
+      io.unobserve(card);
+      card.classList.add('tcard-in');
+      // Stagger star fill 200ms after card starts entering
+      setTimeout(() => card.classList.add('stars-in'), 200);
+    });
+  }, { threshold: 0.25 });
+
+  cards.forEach(c => io.observe(c));
+}
+
+function initTestimonialCardShine() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const cards = document.querySelectorAll('.tcard[data-tcard]');
+  if (!cards.length) return;
+
+  cards.forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      card.style.setProperty('--mx', `${x}%`);
+      card.style.setProperty('--my', `${y}%`);
+      // Subtle 3D tilt
+      const tiltX = ((e.clientY - r.top) / r.height - 0.5) * -8;
+      const tiltY = ((e.clientX - r.left) / r.width - 0.5) * 8;
+      card.style.transform = `perspective(600px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-2px)`;
+      card.style.boxShadow = `0 12px 36px rgba(0,0,0,0.35), 0 0 24px rgba(0,212,180,0.12)`;
+    }, { passive: true });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+      card.style.boxShadow = '';
+    });
+  });
 }
 
 /* Sprint 148 — Live availability ping, Try-It demo, sonar ping reveal -------- */

@@ -9578,14 +9578,18 @@ function initBgDepthFog() {
   document.body.insertAdjacentElement('afterbegin', el);
 }
 
-/* Payment — wire pricing buttons to a hosted payment destination ------------- */
+/* Payment — on-site pay options per tier ------------------------------------- */
 /*
- * OWNER: paste a payment URL per tier below. Any hosted checkout works —
- * a Stripe Payment Link (https://buy.stripe.com/...), PayPal.me
- * (https://paypal.me/you/25), Cash App (https://cash.app/$tag/25), or Venmo.
- * Leave a value as '' and that button stays a real tier-specific "Start" action
- * that opens a pre-filled text to begin the purchase — so the section is fully
- * functional now and upgrades to card-on-tap the moment a URL is added.
+ * Visitors can pay on-site right now via Zelle to Dominick's published number.
+ * OWNER, to add more one-tap methods, fill any of these in (each becomes a real
+ * amount-prefilled link automatically):
+ *   PAYMENT_LINKS[tier]  — a hosted card checkout (Stripe Payment Link / PayPal.me
+ *                          / Cash App / Venmo URL). If set, the button opens it
+ *                          directly ("Pay $25 →") for card-on-tap.
+ *   PAYMENT_METHODS.cashapp — your $Cashtag (e.g. '$dominick')
+ *   PAYMENT_METHODS.venmo   — your Venmo username (e.g. 'dominick-ziola')
+ *   PAYMENT_METHODS.paypal  — your PayPal.me handle (e.g. 'dominickziola')
+ * Zelle is always shown using the number below (already the site's contact line).
  */
 const PAYMENT_LINKS = {
   quick: '',     // $25 — Quick Fix
@@ -9594,11 +9598,54 @@ const PAYMENT_LINKS = {
 };
 
 const PAYMENT_PHONE = '7736477598';
+const PAYMENT_METHODS = {
+  zellePhone: '7736477598',   // Zelle by phone — Dominick's published number
+  cashapp: '',                // e.g. '$dominick'  → https://cash.app/$dominick/25
+  venmo: '',                  // e.g. 'dominick-ziola' → https://venmo.com/u/...?txn=pay&amount=25
+  paypal: '',                 // e.g. 'dominickziola'  → https://paypal.me/dominickziola/25
+};
 const PAYMENT_TIER_LABELS = {
   quick: 'the Quick Fix ($25)',
   clean: 'the Clean Package ($50)',
-  buildout: 'a Same-Day Buildout ($75+)',
+  buildout: 'a Same-Day Buildout ($75)',
 };
+
+function fmtPhone(p) {
+  return p.length === 10 ? `(${p.slice(0,3)}) ${p.slice(3,6)}-${p.slice(6)}` : p;
+}
+
+function buildPayPanel(tier, price) {
+  const panel = document.createElement('div');
+  panel.className = 'price-pay-panel';
+  panel.hidden = true;
+
+  const rows = [];
+  // Zelle — always available (uses the already-published contact number).
+  rows.push(
+    `<div class="pay-method">
+       <span class="pay-method-name">Zelle</span>
+       <span class="pay-method-detail">Send <strong>$${price}</strong> to <strong>${fmtPhone(PAYMENT_METHODS.zellePhone)}</strong></span>
+     </div>`
+  );
+  // Optional one-tap app links — only render when the owner has filled a handle.
+  if (PAYMENT_METHODS.cashapp) {
+    const tag = PAYMENT_METHODS.cashapp.replace(/^\$/, '');
+    rows.push(`<a class="pay-method pay-method-link" href="https://cash.app/$${tag}/${price}" target="_blank" rel="noopener"><span class="pay-method-name">Cash App</span><span class="pay-method-detail">Pay $${price} →</span></a>`);
+  }
+  if (PAYMENT_METHODS.venmo) {
+    rows.push(`<a class="pay-method pay-method-link" href="https://venmo.com/u/${PAYMENT_METHODS.venmo}?txn=pay&amount=${price}&note=${encodeURIComponent('I Got A Dom')}" target="_blank" rel="noopener"><span class="pay-method-name">Venmo</span><span class="pay-method-detail">Pay $${price} →</span></a>`);
+  }
+  if (PAYMENT_METHODS.paypal) {
+    rows.push(`<a class="pay-method pay-method-link" href="https://paypal.me/${PAYMENT_METHODS.paypal}/${price}" target="_blank" rel="noopener"><span class="pay-method-name">PayPal</span><span class="pay-method-detail">Pay $${price} →</span></a>`);
+  }
+  // Card / questions → text (keeps the personal flow).
+  const what = PAYMENT_TIER_LABELS[tier] || 'a cleanup';
+  const body = `Hi Dominick — I'd like ${what}. Can you send a card link?`;
+  rows.push(`<a class="pay-method pay-method-link" href="sms:${PAYMENT_PHONE}?&body=${encodeURIComponent(body)}"><span class="pay-method-name">Card / other</span><span class="pay-method-detail">Text me a link →</span></a>`);
+
+  panel.innerHTML = `<p class="pay-panel-title">Pay $${price} now</p>${rows.join('')}`;
+  return panel;
+}
 
 function initPaymentLinks() {
   const buttons = document.querySelectorAll('.price-pay[data-tier]');
@@ -9608,20 +9655,27 @@ function initPaymentLinks() {
     const url = (PAYMENT_LINKS[tier] || '').trim();
     const price = btn.dataset.price;
     if (/^https:\/\/\S+$/.test(url)) {
-      // Real hosted payment link present — pay by card/app on tap.
+      // Real hosted card checkout present — pay by card on tap.
       btn.href = url;
       btn.target = '_blank';
       btn.rel = 'noopener';
       if (price) btn.textContent = `Pay $${price} →`;
-    } else {
-      // No link yet — a real, tier-specific purchase-start text (not a dead button).
-      const what = PAYMENT_TIER_LABELS[tier] || 'a cleanup';
-      const body = `Hi Dominick — I'd like ${what}. How do I pay?`;
-      btn.href = `sms:${PAYMENT_PHONE}?&body=${encodeURIComponent(body)}`;
-      btn.removeAttribute('target');
-      btn.removeAttribute('rel');
-      if (price) btn.textContent = `Get Started — $${price} →`;
+      return;
     }
+    // No hosted link — reveal the on-site pay options (Zelle now + any app links).
+    if (price) btn.textContent = `Pay $${price} →`;
+    const panel = buildPayPanel(tier, price);
+    btn.insertAdjacentElement('afterend', panel);
+    btn.setAttribute('aria-expanded', 'false');
+    // Keep an SMS href as the no-JS fallback; intercept to toggle the panel.
+    const what = PAYMENT_TIER_LABELS[tier] || 'a cleanup';
+    btn.href = `sms:${PAYMENT_PHONE}?&body=${encodeURIComponent(`Hi Dominick — I'd like ${what}.`)}`;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const open = panel.hidden;
+      panel.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    });
   });
 }
 

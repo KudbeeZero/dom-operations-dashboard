@@ -3755,6 +3755,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
     initScrollClipSlide, initHoverImageShimmer, initBgGradientDrift,       // Sprint 144
     initScrollElasticScale, initHoverBorderPulse, initBgDepthFog,          // Sprint 145
+    initPaymentLinks,                                                     // Payment
     initParticleWord,                                                     // Sprint 152
     initSmsComposer,                                                      // Sprint 151
     initStatsCountUp, initMagneticButtons, initTestimonialsAmbient,       // Sprint 150
@@ -9575,6 +9576,42 @@ function initBgDepthFog() {
   el.className = 'bg-depth-fog';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Payment — wire pricing buttons to Stripe Payment Links --------------------- */
+/*
+ * OWNER: paste your Stripe Payment Link URLs below (one per tier). Create them in
+ * the Stripe dashboard → Payment links. Leave a value as '' and that button will
+ * safely fall back to "Text to Start →" (opens SMS) until a link is added — the
+ * site is never broken by a missing link.
+ */
+const PAYMENT_LINKS = {
+  quick: '',     // $25 — Quick Fix
+  clean: '',     // $50 — Clean Package
+  buildout: '',  // $75 — Same-Day Buildout
+};
+
+function initPaymentLinks() {
+  const buttons = document.querySelectorAll('.price-pay[data-tier]');
+  if (!buttons.length) return;
+  buttons.forEach((btn) => {
+    const tier = btn.dataset.tier;
+    const url = (PAYMENT_LINKS[tier] || '').trim();
+    const price = btn.dataset.price;
+    if (/^https:\/\/\S+$/.test(url)) {
+      // Real Stripe Payment Link present — wire it up.
+      btn.href = url;
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      if (price) btn.textContent = `Pay $${price} →`;
+    } else {
+      // No link yet — keep the personal SMS flow, label it honestly.
+      btn.href = 'sms:7736477598';
+      btn.removeAttribute('target');
+      btn.removeAttribute('rel');
+      btn.textContent = 'Text to Start →';
+    }
+  });
 }
 
 /* Sprint 152 — Clarity Bloom: cursor-interactive particle text --------------- */

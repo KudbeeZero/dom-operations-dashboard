@@ -3755,6 +3755,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
     initScrollClipSlide, initHoverImageShimmer, initBgGradientDrift,       // Sprint 144
     initScrollElasticScale, initHoverBorderPulse, initBgDepthFog,          // Sprint 145
+    initSmsComposer,                                                      // Sprint 151
     initStatsCountUp, initMagneticButtons, initTestimonialsAmbient,       // Sprint 150
     initTestimonialsReveal, initTestimonialCardShine,                     // Sprint 149
     initLiveAvailabilityPing, initTryItDemo, initSonarPing,               // Sprint 148
@@ -9573,6 +9574,59 @@ function initBgDepthFog() {
   el.className = 'bg-depth-fog';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 151 — Interactive SMS composer (tap chips → prefilled text) --------- */
+
+function initSmsComposer() {
+  const composer = document.querySelector('.composer');
+  if (!composer) return;
+  const msgEl = composer.querySelector('#composerMsg');
+  const sendEl = composer.querySelector('#composerSend');
+  if (!msgEl || !sendEl) return;
+
+  const PHONE = '7736477598';
+  const selection = { what: '', size: '' };
+
+  const buildMessage = () => {
+    const what = selection.what || 'something';
+    let msg = `Hey Dominick — I've got ${what} to clean up.`;
+    if (selection.size) msg += ` It's ${selection.size}.`;
+    msg += ' Can you help?';
+    return msg;
+  };
+
+  const update = () => {
+    const msg = buildMessage();
+    msgEl.textContent = msg;
+    // `?&body=` form works across iOS and Android SMS handlers
+    sendEl.href = `sms:${PHONE}?&body=${encodeURIComponent(msg)}`;
+    msgEl.classList.remove('composer-msg-pulse');
+    // reflow to restart the animation
+    void msgEl.offsetWidth;
+    msgEl.classList.add('composer-msg-pulse');
+  };
+
+  composer.querySelectorAll('[data-chip-group]').forEach((group) => {
+    const key = group.dataset.chipGroup; // 'what' | 'size'
+    group.querySelectorAll('.chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const wasSelected = chip.classList.contains('chip-selected');
+        group.querySelectorAll('.chip').forEach((c) => {
+          c.classList.remove('chip-selected');
+          c.setAttribute('aria-pressed', 'false');
+        });
+        if (wasSelected) {
+          selection[key] = '';
+        } else {
+          chip.classList.add('chip-selected');
+          chip.setAttribute('aria-pressed', 'true');
+          selection[key] = chip.dataset.value || '';
+        }
+        update();
+      });
+    });
+  });
 }
 
 /* Sprint 150 — Stats count-up, magnetic CTAs, testimonials ambient canvas ---- */

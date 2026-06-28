@@ -1781,6 +1781,13 @@ button { font: inherit; cursor: pointer; }
    -------------------------------------------------------------------------- */
 
 .price-pay { width: 100%; justify-content: center; }
+.price-pay-note {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: rgba(240,237,232,0.7);
+  max-width: 52ch;
+  margin: 0 auto var(--space-3);
+}
 .price-cta-alt {
   display: block;
   margin-top: var(--space-2);

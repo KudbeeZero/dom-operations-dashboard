@@ -1777,6 +1777,39 @@ button { font: inherit; cursor: pointer; }
 }
 
 /* --------------------------------------------------------------------------
+   Sprint 152 — Clarity Bloom: cursor-interactive particle text
+   -------------------------------------------------------------------------- */
+
+.bloom-section {
+  padding-block: var(--space-16);
+  text-align: center;
+}
+.bloom-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+}
+.bloom-hint {
+  font-size: var(--text-sm);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(240,237,232,0.45);
+  font-weight: 600;
+}
+.bloom-canvas {
+  width: 100%;
+  max-width: 880px;
+  height: 240px;
+  display: block;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+@media (max-width: 600px) {
+  .bloom-canvas { height: 150px; }
+}
+
+/* --------------------------------------------------------------------------
    Sprint 151 — Interactive SMS composer (tap-to-build your text)
    -------------------------------------------------------------------------- */
 

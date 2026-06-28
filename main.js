@@ -3755,6 +3755,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
     initScrollClipSlide, initHoverImageShimmer, initBgGradientDrift,       // Sprint 144
     initScrollElasticScale, initHoverBorderPulse, initBgDepthFog,          // Sprint 145
+    initStatsCountUp, initMagneticButtons, initTestimonialsAmbient,       // Sprint 150
     initTestimonialsReveal, initTestimonialCardShine,                     // Sprint 149
     initLiveAvailabilityPing, initTryItDemo, initSonarPing,               // Sprint 148
   ];
@@ -9099,18 +9100,20 @@ function initBgCometTrail() {
 
 function initScrollRevealWords() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const els = document.querySelectorAll('p, [data-reveal-words]');
+  const els = document.querySelectorAll('[data-reveal-words], .section-body p, .about-body p, .hero-subtitle');
   if (!els.length) return;
   els.forEach((el) => {
-    if (el.dataset.revealWords) return;
+    if (el.dataset.revealWords || el.children.length) return;
     el.dataset.revealWords = '1';
     const text = el.textContent.trim();
     const words = text.split(/\s+/);
+    if (words.length < 3) return;
     el.textContent = '';
     el.setAttribute('aria-label', text);
     words.forEach((word, i) => {
+      if (i > 0) el.appendChild(document.createTextNode(' '));
       const span = document.createElement('span');
-      span.textContent = word + ' ';
+      span.textContent = word;
       span.className = 'reveal-word';
       span.style.setProperty('--rw-i', i);
       span.setAttribute('aria-hidden', 'true');
@@ -9570,6 +9573,144 @@ function initBgDepthFog() {
   el.className = 'bg-depth-fog';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 150 — Stats count-up, magnetic CTAs, testimonials ambient canvas ---- */
+
+function initStatsCountUp() {
+  const items = document.querySelectorAll('.stat-item[data-stat-to]');
+  if (!items.length) return;
+
+  const countUp = (el) => {
+    const target = parseInt(el.dataset.statTo, 10);
+    const prefix = el.dataset.statPrefix || '';
+    const suffix = el.dataset.statSuffix || '';
+    const numEl = el.querySelector('.stat-num');
+    if (!numEl) return;
+    const duration = 1400;
+    const start = performance.now();
+    const tick = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      const value = Math.round(ease * target);
+      numEl.textContent = prefix + value + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+      else el.classList.add('stat-counted');
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      countUp(e.target);
+    });
+  }, { threshold: 0.5 });
+
+  items.forEach(el => io.observe(el));
+
+  // Text-only stat items: just flash the bottom bar on entry
+  document.querySelectorAll('.stat-item[data-stat-text]').forEach((el) => {
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io2.unobserve(e.target);
+        setTimeout(() => e.target.classList.add('stat-counted'), 300);
+      });
+    }, { threshold: 0.5 });
+    io2.observe(el);
+  });
+}
+
+function initMagneticButtons() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const RADIUS = 80; // px — activation zone
+  const PULL = 10;   // px — max displacement
+
+  const btns = document.querySelectorAll('.btn-primary, .float-cta');
+  if (!btns.length) return;
+  btns.forEach(b => b.classList.add('magnetic-cta'));
+
+  document.addEventListener('mousemove', (e) => {
+    btns.forEach((btn) => {
+      const r = btn.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < RADIUS) {
+        const strength = (1 - dist / RADIUS) * PULL;
+        btn.style.transform = `translate(${(dx / dist) * strength}px, ${(dy / dist) * strength}px)`;
+      } else {
+        btn.style.transform = '';
+      }
+    });
+  }, { passive: true });
+}
+
+function initTestimonialsAmbient() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const section = document.getElementById('testimonials');
+  if (!section) return;
+
+  const canvas = document.createElement('canvas');
+  canvas.className = 'tcard-ambient-canvas';
+  canvas.setAttribute('aria-hidden', 'true');
+  section.insertBefore(canvas, section.firstChild);
+
+  const ctx = canvas.getContext('2d');
+  const PARTICLE_COUNT = 22;
+  let particles = [], raf = null, active = false;
+
+  const resize = () => {
+    canvas.width = section.offsetWidth;
+    canvas.height = section.offsetHeight;
+  };
+
+  const seed = () => {
+    particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+      x: Math.random() * canvas.width,
+      y: canvas.height + Math.random() * 120,
+      r: Math.random() * 2 + 0.8,
+      speed: Math.random() * 0.4 + 0.15,
+      drift: (Math.random() - 0.5) * 0.3,
+      opacity: Math.random() * 0.5 + 0.2,
+    }));
+  };
+
+  const draw = () => {
+    if (!active) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p) => {
+      p.y -= p.speed;
+      p.x += p.drift;
+      if (p.y < -8) {
+        p.y = canvas.height + 8;
+        p.x = Math.random() * canvas.width;
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,212,200,${p.opacity})`;
+      ctx.fill();
+    });
+    raf = requestAnimationFrame(draw);
+  };
+
+  resize();
+  seed();
+
+  const io = new IntersectionObserver(([e]) => {
+    active = e.isIntersecting;
+    if (active) { draw(); } else { cancelAnimationFrame(raf); }
+  }, { threshold: 0.05 });
+  io.observe(section);
+
+  window.addEventListener('resize', () => { resize(); seed(); }, { passive: true });
 }
 
 /* Sprint 149 — Testimonial stagger reveal + holographic card shine ----------- */

@@ -1777,6 +1777,94 @@ button { font: inherit; cursor: pointer; }
 }
 
 /* --------------------------------------------------------------------------
+   Sprint 150 — Stats banner, magnetic CTAs, testimonials ambient particles
+   -------------------------------------------------------------------------- */
+
+/* Stats banner */
+.stats-section {
+  padding-block: var(--space-16) var(--space-12);
+  position: relative;
+  overflow: hidden;
+}
+.stats-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,212,200,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(0,212,200,0.12);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stat-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  transform: scaleX(0);
+  transition: transform 0.6s cubic-bezier(0.34,1.2,0.64,1);
+}
+.stat-item.stat-counted::after { transform: scaleX(1); }
+
+.stat-num {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  color: var(--teal);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  display: block;
+}
+.stat-label {
+  font-size: var(--text-sm);
+  color: rgba(240,237,232,0.6);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  max-width: 16ch;
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; gap: var(--space-4); }
+  .stat-item { flex-direction: row; align-items: center; gap: var(--space-4); text-align: left; }
+  .stat-num { font-size: clamp(1.8rem, 8vw, 2.4rem); min-width: 4rem; }
+  .stat-label { max-width: none; }
+}
+
+/* Magnetic CTA — JS adds --mx, --my translate */
+.magnetic-cta {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform;
+}
+
+/* Testimonials ambient canvas */
+.tcard-ambient-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.45;
+}
+#testimonials { position: relative; overflow: hidden; }
+
+/* --------------------------------------------------------------------------
    Sprint 149 — Testimonials section + holographic card shine
    -------------------------------------------------------------------------- */
 

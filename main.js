@@ -9578,17 +9578,26 @@ function initBgDepthFog() {
   document.body.insertAdjacentElement('afterbegin', el);
 }
 
-/* Payment — wire pricing buttons to Stripe Payment Links --------------------- */
+/* Payment — wire pricing buttons to a hosted payment destination ------------- */
 /*
- * OWNER: paste your Stripe Payment Link URLs below (one per tier). Create them in
- * the Stripe dashboard → Payment links. Leave a value as '' and that button will
- * safely fall back to "Text to Start →" (opens SMS) until a link is added — the
- * site is never broken by a missing link.
+ * OWNER: paste a payment URL per tier below. Any hosted checkout works —
+ * a Stripe Payment Link (https://buy.stripe.com/...), PayPal.me
+ * (https://paypal.me/you/25), Cash App (https://cash.app/$tag/25), or Venmo.
+ * Leave a value as '' and that button stays a real tier-specific "Start" action
+ * that opens a pre-filled text to begin the purchase — so the section is fully
+ * functional now and upgrades to card-on-tap the moment a URL is added.
  */
 const PAYMENT_LINKS = {
   quick: '',     // $25 — Quick Fix
   clean: '',     // $50 — Clean Package
   buildout: '',  // $75 — Same-Day Buildout
+};
+
+const PAYMENT_PHONE = '7736477598';
+const PAYMENT_TIER_LABELS = {
+  quick: 'the Quick Fix ($25)',
+  clean: 'the Clean Package ($50)',
+  buildout: 'a Same-Day Buildout ($75+)',
 };
 
 function initPaymentLinks() {
@@ -9599,17 +9608,19 @@ function initPaymentLinks() {
     const url = (PAYMENT_LINKS[tier] || '').trim();
     const price = btn.dataset.price;
     if (/^https:\/\/\S+$/.test(url)) {
-      // Real Stripe Payment Link present — wire it up.
+      // Real hosted payment link present — pay by card/app on tap.
       btn.href = url;
       btn.target = '_blank';
       btn.rel = 'noopener';
       if (price) btn.textContent = `Pay $${price} →`;
     } else {
-      // No link yet — keep the personal SMS flow, label it honestly.
-      btn.href = 'sms:7736477598';
+      // No link yet — a real, tier-specific purchase-start text (not a dead button).
+      const what = PAYMENT_TIER_LABELS[tier] || 'a cleanup';
+      const body = `Hi Dominick — I'd like ${what}. How do I pay?`;
+      btn.href = `sms:${PAYMENT_PHONE}?&body=${encodeURIComponent(body)}`;
       btn.removeAttribute('target');
       btn.removeAttribute('rel');
-      btn.textContent = 'Text to Start →';
+      if (price) btn.textContent = `Get Started — $${price} →`;
     }
   });
 }

@@ -1777,6 +1777,127 @@ button { font: inherit; cursor: pointer; }
 }
 
 /* --------------------------------------------------------------------------
+   Sprint 149 — Testimonials section + holographic card shine
+   -------------------------------------------------------------------------- */
+
+.testimonials-section { padding-block: var(--space-20); }
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+  margin-top: var(--space-10);
+}
+@media (max-width: 680px) {
+  .testimonials-grid { grid-template-columns: 1fr; }
+}
+
+.tcard {
+  padding: var(--space-6);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Holographic shine overlay — moves with mouse via JS */
+.tcard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(0,212,180,0.14) 0%,
+    rgba(120,80,255,0.08) 35%,
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 1;
+}
+.tcard:hover::before { opacity: 1; }
+
+.tcard-stars {
+  display: flex;
+  gap: 3px;
+}
+.tstar {
+  color: #ffba00;
+  font-size: 1.1rem;
+  display: inline-block;
+  opacity: 0;
+  transform: scale(0.3) rotate(-30deg);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.tcard.stars-in .tstar { opacity: 1; transform: scale(1) rotate(0deg); }
+.tcard.stars-in .tstar:nth-child(1) { transition-delay: 0ms; }
+.tcard.stars-in .tstar:nth-child(2) { transition-delay: 60ms; }
+.tcard.stars-in .tstar:nth-child(3) { transition-delay: 120ms; }
+.tcard.stars-in .tstar:nth-child(4) { transition-delay: 180ms; }
+.tcard.stars-in .tstar:nth-child(5) { transition-delay: 240ms; }
+
+.tcard-quote {
+  font-size: 0.96rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  font-style: normal;
+  margin: 0;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+.tcard-quote::before {
+  content: '"';
+  font-size: 3.5rem;
+  line-height: 0;
+  position: absolute;
+  top: 0.5rem;
+  left: -0.3rem;
+  color: var(--teal);
+  opacity: 0.18;
+  font-family: Georgia, serif;
+  pointer-events: none;
+}
+
+.tcard-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  z-index: 2;
+}
+.tcard-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+.tcard-job {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--teal);
+  opacity: 0.85;
+}
+
+/* Staggered entry */
+.tcard { opacity: 0; transform: translateY(24px); }
+.tcard.tcard-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22,1,0.36,1);
+}
+.tcard:nth-child(1).tcard-in { transition-delay: 0ms; }
+.tcard:nth-child(2).tcard-in { transition-delay: 80ms; }
+.tcard:nth-child(3).tcard-in { transition-delay: 160ms; }
+.tcard:nth-child(4).tcard-in { transition-delay: 240ms; }
+
+/* --------------------------------------------------------------------------
    Sprint 148 — Live availability badge (hero), Try-It demo, sonar ping
    -------------------------------------------------------------------------- */
 

@@ -2894,6 +2894,15 @@ body::after {
   letter-spacing: -0.025em;
   color: var(--text);
   margin-bottom: var(--space-12);
+  /* Cinematic Sprint B — leans with scroll momentum (rides Lenis velocity).
+     --scroll-vel is -1..1; settles to 0 when scrolling stops. */
+  transform: skewY(calc(var(--scroll-vel, 0) * 0.7deg))
+             translateY(calc(var(--scroll-vel, 0) * -8px));
+  transition: transform 0.12s linear;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kinetic-text { transform: none; }
 }
 .k-word {
   display: inline-block;

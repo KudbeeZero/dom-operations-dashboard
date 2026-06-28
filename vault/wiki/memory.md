@@ -536,3 +536,43 @@
   prefers-reduced-motion: draws the static word once, no physics.
 - DISTINCT from initHeroCanvas (auto-play, pointer-events:none) — this one is CURSOR-INTERACTIVE.
   Chose this over an 18th parallax/spotlight effect (codebase already has 17 of those).
+
+## Payment + Footer goal — 2026-06-28
+- Owner goal: "make sure the payment section is working also the footer."
+- FOOTER (PR #153, merged): was link-less → initFooterLinkGlow was dead code. Added real
+  .footer-nav (What I Do / Pricing / FAQ / Contact / Text Dominick). Logo, float-CTA hide,
+  reef canvas, AA contrast all re-verified working.
+- PAYMENT (PRs #153/#154/#155, merged): static site = no backend, so card payment can only
+  go through a hosted link. Owner chose "SMS purchase flow is fine" after Stripe MCP proved
+  permission-blocked in-session (every call errors "requires approval"; can't be granted here).
+  - PAYMENT_LINKS config {quick,clean,buildout} + initPaymentLinks(): accepts ANY hosted URL
+    (Stripe Payment Link / PayPal.me / Cash App / Venmo). When a tier's URL is set → button
+    "Pay $X →" opens it (new tab). When empty → real tier-specific purchase TEXT
+    ("Hi Dominick — I'd like the Clean Package ($50). How do I pay?"), labeled "Get Started — $X →".
+  - Microcopy added: "Tap your tier to start by text — I confirm details, then you pay whatever's
+    easiest: card link, Cash App, Venmo, or Zelle."
+  - TO GO LIVE ON CARDS: owner pastes one URL into PAYMENT_LINKS, or grants the Stripe MCP
+    permission so HERMES can auto-create the links. Stripe test-vs-live check also blocked by
+    same permission gate — owner self-checks via dashboard Test-mode toggle / key prefix.
+
+## Cinematic rebuild — Lenis smooth-scroll spine — 2026-06-28
+- Owner ref: viral "$35k animated site for $12" playbook (Claude Code + GSAP ScrollTrigger +
+  Lenis smooth-scroll + baked-in cinematic layer). Audit: site already had 9/10 (GSAP, grain,
+  5 particle systems, vignette, glass, tints, scroll pacing, scroll-scrubbed underwater video).
+  MISSING piece = Lenis. Owner chose "bigger cinematic rebuild", keep the underwater video.
+  Plan file: ticklish-weaving-flamingo.md. Additive (keep all 152 existing effects).
+- SPRINT A (PR #157, merged): Lenis CDN (jsdelivr 1.1.20) before GSAP. initSmoothScroll
+  (FIRST in inits[]): reduced-motion + CDN guards; new Lenis({lerp:0.1,smoothWheel:true});
+  window.__lenis. Synced to ScrollTrigger: lenis.on('scroll',ScrollTrigger.update) +
+  gsap.ticker.add(t=>lenis.raf(t*1000)) + lagSmoothing(0). Anchors → lenis.scrollTo(-70 offset).
+  CSS scroll-behavior smooth→auto (never fight Lenis) + .lenis baseline classes.
+  Lenis v1 scrolls real document so window.scrollY + native scroll events still fire → existing
+  scroll consumers (progress bar, vignette, float CTA, dive-video scrub, sticky nav) unaffected.
+- SPRINT B (PR #158, merged): initScrollVelocityCinema writes --scroll-vel (-1..1) from
+  lenis.velocity each tick; .kinetic-text leans skewY(*0.7deg)+translateY(*-8px) with momentum,
+  settles to 0 on stop. One CSS-var write/tick, conflict-free (kinetic-text had no transform).
+- SPRINT C (QUEUED, not built): pinned full-bleed scroll beats + cinematic frame cohesion.
+  DEFERRED because pinning is layout-risky and this remote env can't reach Cloudflare to visually
+  verify — want owner to feel A+B live first before blind-pinning. Resume on owner confirmation.
+- CONSTRAINT all session: remote browser can't reach external HTTPS / Cloudflare preview URLs →
+  no visual QA; rely on node --check + static review. Stripe MCP permission-blocked.

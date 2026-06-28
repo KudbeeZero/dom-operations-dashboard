@@ -489,3 +489,46 @@
   0→400% scale while fading). Self-removes on animationend. Respects prefers-reduced-motion.
 - All three functions added to the inits[] array after Sprint 145 functions.
 - Cloudflare Pages ✅ green, no review comments. Squash-merged to main.
+
+## Sprint 149 — Testimonials Section + Holographic Card Shine — 2026-06-28
+- Branch: claude/sprint-149-testimonials-holoshine. PR #149. Squash-merged.
+- New #testimonials section between .kinetic-section and #faq. 4 glass .tcard articles
+  with 5-star markup + on-brand quotes (placeholders — swap for real ones when owner has them).
+  "Reviews" added to nav + mobile menu.
+- initTestimonialsReveal: IO (25% threshold, one-shot) on [data-tcard]. .tcard-in entry
+  (opacity/translateY, nth-child stagger); 200ms later .stars-in fills stars at 60ms intervals.
+- initTestimonialCardShine: pointer:fine. mousemove → --mx/--my for ::before radial gradient
+  + perspective(600px) rotateX/Y tilt; mouseleave resets.
+- CRITICAL BUG fixed in this sprint: cards used semantic <footer class="tcard-footer">,
+  which made querySelector('footer') in initFooterWave + initFloatingCTA grab the FIRST
+  card footer instead of the site footer (broke reef wave + made float CTA hide early).
+  Fixed: all 4 → <div>. LESSON: never put <footer>/<header>/<main>/<nav> inside cards.
+
+## Sprint 150 — Word-Spacing Bug Fix + Stats Counter + Magnetic CTAs + Ambient Particles — 2026-06-28
+- Branch: claude/sprint-150-word-fix-stats-magnetic. PR #150. Squash-merged.
+- BUG FIX (critical, from owner screenshot "Mostjobscomebackupthesameday"): initScrollRevealWords
+  selected ALL <p> ('p, [data-reveal-words]') and put trailing space INSIDE inline-block spans
+  (word + ' '). iOS Safari collapses that space → words run together. Fix: narrow selector to
+  [data-reveal-words], .section-body p, .about-body p, .hero-subtitle; createTextNode(' ')
+  BETWEEN spans; children guard. LESSON: never put meaningful whitespace inside inline-block.
+- initStatsCountUp: new #stats section above testimonials. 3 items (500+ docs / Same day /
+  $25 start). Numeric stats count 0→target ease-out-cubic 1.4s on IO entry; teal bottom bar
+  scaleX on completion. Mobile: 1-col horizontal.
+- initMagneticButtons: .btn-primary + .float-cta attract cursor within 80px (max 10px). pointer:fine.
+- initTestimonialsAmbient: 22 teal particles drift up on IO-gated canvas in #testimonials.
+
+## Sprint 151 — Interactive SMS Composer — 2026-06-28
+- Branch: claude/sprint-151-parallax-spotlight. PR #151. Squash-merged.
+- NOTE on branch name: started intending parallax/spotlight effects, but the site already
+  has 17 parallax/spotlight/cursor functions — pivoted to a genuinely NEW interactive section
+  instead of an 18th micro-effect. (Branch name is a vestige of the original plan.)
+- New #composer section between #faq and the about-strip. Chip-based SMS builder that lowers
+  friction to the #1 CTA (texting) by writing the message FOR the visitor.
+- initSmsComposer: two [data-chip-group] rows ('what' = resume/email/notes/doc/menu/other;
+  'size' = quick fix/standard/big). Single-select per group, re-click to deselect. Builds
+  "Hey Dominick — I've got {what} to clean up. It's {size}. Can you help?" (size sentence
+  dropped if unset; what falls back to "something"). Sets sms:7736477598?&body=<encoded>
+  (?&body= form works iOS+Android). Live preview bubble pulses (reflow-restart) on each change.
+- DECISION: deliberately a message COMPOSER, not a price estimator — pricing section is
+  "No quotes, no games", so a quote tool would fight the brand. Composer reinforces flat pricing.
+- Cloudflare Pages ✅ green. Squash-merged via PR #151.

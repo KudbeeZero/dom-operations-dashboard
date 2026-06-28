@@ -3755,6 +3755,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTextStrokeFill, initHoverMorphBorder, initBgRadialVignette,  // Sprint 143
     initScrollClipSlide, initHoverImageShimmer, initBgGradientDrift,       // Sprint 144
     initScrollElasticScale, initHoverBorderPulse, initBgDepthFog,          // Sprint 145
+    initParticleWord,                                                     // Sprint 152
     initSmsComposer,                                                      // Sprint 151
     initStatsCountUp, initMagneticButtons, initTestimonialsAmbient,       // Sprint 150
     initTestimonialsReveal, initTestimonialCardShine,                     // Sprint 149
@@ -9574,6 +9575,129 @@ function initBgDepthFog() {
   el.className = 'bg-depth-fog';
   el.setAttribute('aria-hidden', 'true');
   document.body.insertAdjacentElement('afterbegin', el);
+}
+
+/* Sprint 152 — Clarity Bloom: cursor-interactive particle text --------------- */
+
+function initParticleWord() {
+  const canvas = document.getElementById('particleWord');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const WORD = canvas.dataset.word || 'CLARITY';
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let particles = [];
+  let raf = null;
+  let active = false;
+  const pointer = { x: -9999, y: -9999, on: false };
+
+  const sizeCanvas = () => {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(rect.width * DPR));
+    canvas.height = Math.max(1, Math.round(rect.height * DPR));
+  };
+
+  const drawWordStatic = () => {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(0,212,200,0.85)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const fontSize = Math.min(w * 0.2, h * 0.62);
+    ctx.font = `900 ${fontSize}px "Barlow Condensed", sans-serif`;
+    ctx.fillText(WORD, w / 2, h / 2);
+  };
+
+  const buildParticles = () => {
+    const w = canvas.width, h = canvas.height;
+    drawWordStatic();
+    const data = ctx.getImageData(0, 0, w, h).data;
+    ctx.clearRect(0, 0, w, h);
+    particles = [];
+    const gap = Math.max(3, Math.round(DPR * 3));
+    for (let y = 0; y < h; y += gap) {
+      for (let x = 0; x < w; x += gap) {
+        if (data[(y * w + x) * 4 + 3] > 128) {
+          particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            hx: x,
+            hy: y,
+            vx: 0,
+            vy: 0,
+          });
+        }
+      }
+    }
+  };
+
+  const step = () => {
+    if (!active) return;
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(0,212,200,0.85)';
+    const repelR = 46 * DPR;
+    const dot = Math.max(1, DPR);
+    for (const p of particles) {
+      let ax = (p.hx - p.x) * 0.022;
+      let ay = (p.hy - p.y) * 0.022;
+      if (pointer.on) {
+        const dx = p.x - pointer.x;
+        const dy = p.y - pointer.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < repelR && dist > 0.01) {
+          const force = (repelR - dist) / repelR;
+          ax += (dx / dist) * force * 3.2;
+          ay += (dy / dist) * force * 3.2;
+        }
+      }
+      p.vx = (p.vx + ax) * 0.85;
+      p.vy = (p.vy + ay) * 0.85;
+      p.x += p.vx;
+      p.y += p.vy;
+      ctx.fillRect(p.x, p.y, dot, dot * 1.3);
+    }
+    raf = requestAnimationFrame(step);
+  };
+
+  const setPointer = (clientX, clientY) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = (clientX - rect.left) * DPR;
+    pointer.y = (clientY - rect.top) * DPR;
+    pointer.on = true;
+  };
+
+  sizeCanvas();
+
+  if (reduce) {
+    drawWordStatic();
+    return;
+  }
+
+  buildParticles();
+
+  canvas.addEventListener('mousemove', (e) => setPointer(e.clientX, e.clientY), { passive: true });
+  canvas.addEventListener('mouseleave', () => { pointer.on = false; });
+  canvas.addEventListener('touchmove', (e) => {
+    if (e.touches[0]) setPointer(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+  canvas.addEventListener('touchend', () => { pointer.on = false; });
+
+  const io = new IntersectionObserver(([e]) => {
+    active = e.isIntersecting;
+    if (active) step();
+    else if (raf) { cancelAnimationFrame(raf); raf = null; }
+  }, { threshold: 0.1 });
+  io.observe(canvas);
+
+  let rt;
+  window.addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => { sizeCanvas(); buildParticles(); }, 200);
+  }, { passive: true });
 }
 
 /* Sprint 151 — Interactive SMS composer (tap chips → prefilled text) --------- */

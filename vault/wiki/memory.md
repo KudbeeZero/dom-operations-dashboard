@@ -489,3 +489,50 @@
   0→400% scale while fading). Self-removes on animationend. Respects prefers-reduced-motion.
 - All three functions added to the inits[] array after Sprint 145 functions.
 - Cloudflare Pages ✅ green, no review comments. Squash-merged to main.
+
+## Sprints 149–151 — caught up on main in Sprint 152's commit — 2026-06-28
+> PROCESS NOTE: the 149/150/151 memory entries were written AFTER each PR squash-merged,
+> so they landed on dead feature branches and never reached main. Fixed going forward:
+> commit memory.md as part of the sprint's MAIN commit BEFORE merging. This block
+> back-fills all three on main.
+
+### Sprint 149 — Testimonials + Holographic Card Shine (PR #149, merged)
+- New #testimonials section (.kinetic-section → #faq): 4 glass .tcard with 5-star markup +
+  on-brand placeholder quotes. "Reviews" added to nav + mobile menu.
+- initTestimonialsReveal: IO (25%, one-shot) → .tcard-in entry + 200ms-later .stars-in fill.
+- initTestimonialCardShine: pointer:fine, mousemove → --mx/--my radial gradient + 3D tilt.
+- CRITICAL BUG fixed: cards used <footer class="tcard-footer"> → querySelector('footer') in
+  initFooterWave + initFloatingCTA grabbed the FIRST card footer not the site footer. All 4
+  → <div>. LESSON: never put <footer>/<header>/<main>/<nav> inside article cards.
+
+### Sprint 150 — Word-spacing bug fix + Stats + Magnetic CTAs + Ambient (PR #150, merged)
+- BUG FIX (owner screenshot "Mostjobscomebackupthesameday"): initScrollRevealWords selected
+  ALL <p> and put trailing space INSIDE inline-block spans (word + ' '); iOS Safari collapses
+  it → words merge. Fix: narrow selector to [data-reveal-words], .section-body p, .about-body p,
+  .hero-subtitle; createTextNode(' ') BETWEEN spans; children guard.
+  LESSON: never put meaningful whitespace inside inline-block elements.
+- initStatsCountUp: #stats section above testimonials, 3 count-up stats (500+/Same day/$25),
+  ease-out-cubic 1.4s on IO, teal bottom bar on completion. Mobile 1-col horizontal.
+- initMagneticButtons: .btn-primary + .float-cta attract cursor within 80px (max 10px). pointer:fine.
+- initTestimonialsAmbient: 22 teal particles drift up on IO-gated canvas in #testimonials.
+
+### Sprint 151 — Interactive SMS Composer (PR #151, merged)
+- New #composer section (#faq → about-strip). Chip builder writes a prefilled SMS to lower
+  friction to the #1 CTA. initSmsComposer: two groups (what/size), single-select+deselect,
+  builds "Hey Dominick — I've got {what} to clean up. It's {size}. Can you help?",
+  sets sms:7736477598?&body=<encoded> (iOS+Android), pulse bubble on change.
+- DECISION: a message COMPOSER, not a price estimator — pricing is "No quotes, no games".
+
+## Sprint 152 — Clarity Bloom: cursor-interactive particle text — 2026-06-28
+- Branch: claude/sprint-152-particle-clarity. PR #152.
+- Memory process fix applied: this commit catches main up on 149–151 BEFORE merge (above).
+- New #claritybloom section (#testimonials → #faq). A <canvas id="particleWord" data-word="CLARITY">
+  centerpiece you can play with: particles start scattered (chaos), spring into the word CLARITY
+  (clarity), and scatter away from the cursor on hover/touch, then spring back. Embodies the
+  chaos→clarity brand promise as a literal interactive toy.
+- initParticleWord: renders WORD to canvas, samples pixels (alpha>128, gap=DPR*3) for home
+  positions, spring force 0.022 + velocity damping 0.85, cursor repel radius 46*DPR force 3.2.
+  DPR-capped at 2. IO-gated (RAF pauses off-screen). Debounced resize rebuilds. Touch supported.
+  prefers-reduced-motion: draws the static word once, no physics.
+- DISTINCT from initHeroCanvas (auto-play, pointer-events:none) — this one is CURSOR-INTERACTIVE.
+  Chose this over an 18th parallax/spotlight effect (codebase already has 17 of those).

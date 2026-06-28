@@ -50,6 +50,24 @@ function initSmoothScroll() {
 }
 
 /* -------------------------------------------------------------------------
+   Cinematic Sprint B — scroll-velocity "camera lean". Lenis' scroll velocity
+   drives a --scroll-vel CSS var (-1..1); CSS leans/parallaxes cinematic type
+   with momentum, then settles to 0 as Lenis eases to a stop. Pure CSS-var write
+   per scroll tick (no per-element JS), so it's cheap and conflict-free.
+   ------------------------------------------------------------------------- */
+function initScrollVelocityCinema() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const lenis = window.__lenis;
+  if (!lenis) return; // depends on the Sprint A smooth-scroll spine
+  const root = document.documentElement;
+  lenis.on('scroll', () => {
+    const raw = typeof lenis.velocity === 'number' ? lenis.velocity : 0;
+    const v = Math.max(-1, Math.min(1, raw / 35)); // normalize to a gentle range
+    root.style.setProperty('--scroll-vel', v.toFixed(3));
+  });
+}
+
+/* -------------------------------------------------------------------------
    0. HERO CANVAS — particle field: chaos → align → sweep → snap → fade → loop
    ------------------------------------------------------------------------- */
 function initHeroCanvas() {
@@ -3665,7 +3683,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
-    initSmoothScroll,                                                     // Cinematic spine — must run first
+    initSmoothScroll, initScrollVelocityCinema,                           // Cinematic spine — must run first
     initPageIntro, initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
     initAboutEntrance, initBeforeAfter, initProcessTimeline,
     initPricingEntrance, initBentoReveal, initFaqStagger,

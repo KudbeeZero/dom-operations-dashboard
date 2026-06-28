@@ -489,3 +489,46 @@
   0→400% scale while fading). Self-removes on animationend. Respects prefers-reduced-motion.
 - All three functions added to the inits[] array after Sprint 145 functions.
 - Cloudflare Pages ✅ green, no review comments. Squash-merged to main.
+
+## Sprint 149 — Testimonials Section + Holographic Card Shine — 2026-06-28
+- Branch: claude/sprint-149-testimonials-holoshine. PR #149. Squash-merged.
+- New #testimonials section between .kinetic-section and #faq.
+  4 glass .tcard articles with 5-star markup and on-brand quotes (ready to swap for
+  real testimonials when owner collects them). "Reviews" added to nav + mobile menu.
+- initTestimonialsReveal: IO observer (25% threshold, one-shot) on each [data-tcard].
+  On entry: .tcard-in class (opacity 0→1, translateY 24→0) with nth-child stagger.
+  200ms after card entry: .stars-in class fills each .tstar with scale(0.3,rotate(-30°))
+  → scale(1) animation at 60ms intervals.
+- initTestimonialCardShine: pointer:fine only. mousemove updates --mx/--my CSS vars
+  driving ::before radial-gradient highlight. perspective(600px) rotateX/Y tilt from
+  cursor position in card bounds. Lifted box-shadow on hover. mouseleave resets both.
+- CRITICAL BUG FOUND AND FIXED: Testimonial cards originally used semantic <footer>
+  elements (<footer class="tcard-footer">). This caused querySelector('footer') in
+  initFooterWave and initFloatingCTA to target the FIRST card footer (line 589) instead
+  of the site footer (line 766) — breaking wave canvas and making float CTA hide when
+  testimonials scrolled into view. Fixed by changing all 4 tcard-footer elements from
+  <footer> to <div>. CSS is class-based; no CSS changes needed.
+- LESSON: Never use semantic block-level elements (<footer>, <header>, <main>, <nav>)
+  inside article cards — use <div> with BEM classes to avoid querySelector conflicts.
+- Cloudflare Pages ✅ green. Squash-merged to main via PR #149.
+
+## Sprint 150 — Word-Spacing Bug Fix + Stats Counter + Magnetic CTAs + Ambient Particles — 2026-06-28
+- Branch: claude/sprint-150-word-fix-stats-magnetic. PR #150. Squash-merged.
+- BUG FIX (critical): initScrollRevealWords used selector 'p, [data-reveal-words]' — ALL
+  paragraphs on page — and put trailing space INSIDE inline-block spans (word + ' ').
+  iOS Safari collapses trailing spaces inside inline-block when next sibling is also
+  inline-block, causing "Mostjobscomebackupthesameday" on the live site (screenshot).
+  Fix: narrow selector to [data-reveal-words], .section-body p, .about-body p,
+  .hero-subtitle; use createTextNode(' ') between spans (not inside); add children guard.
+  LESSON: never put meaningful whitespace inside inline-block elements; use text nodes
+  between siblings or margin-right instead.
+- initStatsCountUp: new #stats section above testimonials. 3 stat items:
+  "500+ Documents cleaned", "Same day / Turnaround on most jobs", "$25 Starting price".
+  Numeric stats count 0→target with ease-out cubic over 1.4s on IO entry (50% threshold).
+  Teal bottom border scaleX(0→1) draws when count completes. Mobile: 1-col with
+  horizontal layout (number left, label right).
+- initMagneticButtons: .btn-primary + .float-cta attract cursor within 80px radius,
+  max 10px translate. pointer:fine + no-reduced-motion only. Smooth transform reset.
+- initTestimonialsAmbient: 22 teal particles drift upward on IO-gated canvas injected
+  as first child of #testimonials. RAF pauses when section off-screen.
+- Cloudflare Pages ✅ green. Squash-merged via PR #150.

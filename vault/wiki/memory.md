@@ -489,3 +489,25 @@
   0→400% scale while fading). Self-removes on animationend. Respects prefers-reduced-motion.
 - All three functions added to the inits[] array after Sprint 145 functions.
 - Cloudflare Pages ✅ green, no review comments. Squash-merged to main.
+
+## Sprint 149 — Testimonials Section + Holographic Card Shine — 2026-06-28
+- Branch: claude/sprint-149-testimonials-holoshine. PR #149. Squash-merged.
+- New #testimonials section between .kinetic-section and #faq.
+  4 glass .tcard articles with 5-star markup and on-brand quotes (ready to swap for
+  real testimonials when owner collects them). "Reviews" added to nav + mobile menu.
+- initTestimonialsReveal: IO observer (25% threshold, one-shot) on each [data-tcard].
+  On entry: .tcard-in class (opacity 0→1, translateY 24→0) with nth-child stagger.
+  200ms after card entry: .stars-in class fills each .tstar with scale(0.3,rotate(-30°))
+  → scale(1) animation at 60ms intervals.
+- initTestimonialCardShine: pointer:fine only. mousemove updates --mx/--my CSS vars
+  driving ::before radial-gradient highlight. perspective(600px) rotateX/Y tilt from
+  cursor position in card bounds. Lifted box-shadow on hover. mouseleave resets both.
+- CRITICAL BUG FOUND AND FIXED: Testimonial cards originally used semantic <footer>
+  elements (<footer class="tcard-footer">). This caused querySelector('footer') in
+  initFooterWave and initFloatingCTA to target the FIRST card footer (line 589) instead
+  of the site footer (line 766) — breaking wave canvas and making float CTA hide when
+  testimonials scrolled into view. Fixed by changing all 4 tcard-footer elements from
+  <footer> to <div>. CSS is class-based; no CSS changes needed.
+- LESSON: Never use semantic block-level elements (<footer>, <header>, <main>, <nav>)
+  inside article cards — use <div> with BEM classes to avoid querySelector conflicts.
+- Cloudflare Pages ✅ green (b3198e4). Squash-merged to main via PR #149.

@@ -8,6 +8,48 @@
 document.documentElement.classList.add('js');
 
 /* -------------------------------------------------------------------------
+   Cinematic spine — Lenis smooth-scroll, synced with GSAP ScrollTrigger.
+   This is the inertial scroll that makes the 50+ ScrollTrigger beats read as
+   one cinematic camera move instead of discrete triggers. Reduced-motion users
+   keep native scroll. Exposed as window.__lenis for later scrubbed sections.
+   ------------------------------------------------------------------------- */
+function initSmoothScroll() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (typeof Lenis === 'undefined') return; // CDN guard — fall back to native scroll
+  if (window.__lenis) return;               // idempotent
+
+  const lenis = new Lenis({
+    lerp: 0.1,            // inertia: lower = floatier
+    smoothWheel: true,
+    wheelMultiplier: 1,
+  });
+  window.__lenis = lenis;
+
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    // Drive ScrollTrigger off Lenis' virtual scroll so scrubs stay in sync.
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  } else {
+    // No GSAP — run Lenis' own rAF loop.
+    const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); };
+    requestAnimationFrame(raf);
+  }
+
+  // In-page anchors (nav + CTAs) ride the smooth scroll instead of jumping.
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    const sel = a.getAttribute('href');
+    if (!sel || sel.length < 2) return; // skip bare "#"
+    a.addEventListener('click', (e) => {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      e.preventDefault();
+      lenis.scrollTo(el, { offset: -70 }); // clear the sticky header
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
    0. HERO CANVAS — particle field: chaos → align → sweep → snap → fade → loop
    ------------------------------------------------------------------------- */
 function initHeroCanvas() {
@@ -3623,6 +3665,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
   // take down the rest of the page's interactivity.
   const inits = [
+    initSmoothScroll,                                                     // Cinematic spine — must run first
     initPageIntro, initHeroCanvas, initHeroAnimation, initClarityScramble, initNav, initMobileBar, initDiveHero,
     initAboutEntrance, initBeforeAfter, initProcessTimeline,
     initPricingEntrance, initBentoReveal, initFaqStagger,

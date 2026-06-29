@@ -16,6 +16,11 @@ document.documentElement.classList.add('js');
    ------------------------------------------------------------------------- */
 function initSmoothScroll() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // Touch devices: Lenis' smoothTouch is off by default (native momentum scroll is
+  // already good on phones), so running its rAF + the velocity-lean writes is pure
+  // overhead — and part of the mobile load that triggers iOS Safari tab reloads.
+  // Skip it on coarse pointers; desktop keeps the buttery inertial scroll.
+  if (window.matchMedia('(pointer: coarse)').matches) return;
   if (typeof Lenis === 'undefined') return; // CDN guard — fall back to native scroll
   if (window.__lenis) return;               // idempotent
 
@@ -832,8 +837,14 @@ function initUnderwater() {
     });
   }
 
-  // Underwater scene canvas — skipped entirely under reduced motion.
-  if (prefersReduced || !canvas) return;
+  // Underwater scene canvas — skipped under reduced motion, AND on phones.
+  // The bubbles + plankton + shark-physics rAF is the single heaviest thing on the
+  // page; on mobile it (plus the reef canvas, glass blur, and caustics) blows past
+  // iOS Safari's memory/GPU ceiling and the tab gets discarded/reloaded ("resets
+  // itself"). The static CSS scene (bg gradient + .uw-rays + ridges) stays, and the
+  // cheap GSAP ray/card scroll transitions above still run — so #deep still looks right.
+  const coarseOrSmall = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+  if (prefersReduced || coarseOrSmall || !canvas) return;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
@@ -1121,7 +1132,10 @@ function initReef() {
   const canvas = document.getElementById('reefCanvas');
   if (!footer || !canvas) return;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReduced) return;            // static reef (CSS ridges + rays) only
+  // Skip the fish/motes rAF on phones too — part of the mobile memory diet that
+  // stops iOS Safari from reloading the tab. CSS ridges + rays keep the reef look.
+  const coarseOrSmall = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+  if (prefersReduced || coarseOrSmall) return;   // static reef (CSS ridges + rays) only
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
@@ -2629,6 +2643,7 @@ function initStepNumPop() {
    Sprint 30-B: Grain overlay — SVG noise texture adds film-grain depth
    ------------------------------------------------------------------------- */
 function initGrainOverlay() {
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile memory diet
   const grain = document.createElement('div');
   grain.id = 'grainOverlay';
   grain.setAttribute('aria-hidden', 'true');
@@ -5679,6 +5694,7 @@ function initScrollHueShift() {
 /* Sprint 83 — noise texture overlay, button ripple, hero scroll blur --------- */
 
 function initNoiseTextureOverlay() {
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile memory diet
   if (document.querySelector('.noise-overlay')) return;
   const el = document.createElement('div');
   el.className = 'noise-overlay';
@@ -7361,6 +7377,7 @@ function initHoverTextOutline() {
 
 function initSectionNoiseLayer() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile memory diet
   if (document.querySelector('.section-noise-layer')) return;
   const target = document.querySelector('.hero, body');
   if (!target) return;
@@ -8135,6 +8152,7 @@ function initHoverSpotlight() {
 
 function initBgVhsNoise() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile memory diet
   if (document.querySelector('.bg-vhs-noise')) return;
   const el = document.createElement('div');
   el.className = 'bg-vhs-noise';
@@ -9477,6 +9495,7 @@ function initHover3DDepthTilt() {
 }
 
 function initBgNoiseTexture() {
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile memory diet
   if (document.querySelector('.bg-noise-texture')) return;
   const el = document.createElement('div');
   el.className = 'bg-noise-texture';

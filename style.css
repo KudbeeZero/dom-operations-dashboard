@@ -8681,4 +8681,28 @@ svg path.draw-path, svg .draw-path {
   /* Failsafe: a phone must never get the 300vh scroll track even if the JS
      poster-only path is ever bypassed. */
   .dive.is-scrub { height: 100svh !important; }
+
+  /* Content visibility failsafe — on mobile, never gate content on a scroll
+     reveal. Several sections (services bento, pricing, process, about, faq) hand
+     their cards to a GSAP ScrollTrigger that sets inline opacity:0 and, when the
+     trigger's start position goes stale on a tall mobile page, never fires —
+     leaving whole sections invisible but still occupying height (the big empty
+     gap the owner saw where #services should be). A stylesheet !important beats
+     GSAP's inline opacity:0, so this forces every reveal-gated element visible
+     regardless of whether its trigger ever runs. Desktop is unaffected. */
+  html.js .reveal,
+  .bento-card,
+  .price-card,
+  .steps .step,
+  .about-block,
+  .faq-item,
+  .transform-panel,
+  .uw-card,
+  .tcard,
+  .stat-item {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    filter: none !important;
+  }
 }

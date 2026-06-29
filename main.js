@@ -3,8 +3,9 @@
    HERMES Executor: canvas hero, GSAP hero, nav, before/after, reveals, form, QR.
    ========================================================================== */
 
-/* Signal that JS is active so CSS can apply the hidden pre-reveal state.
-   Done at parse time (script is at end of <body>) to avoid a flash. */
+/* The `js` class is now added by a tiny inline <script> in <head> so the reveal
+   pre-state applies before paint even though main.js is deferred. Kept here as a
+   no-op guard in case the inline script is ever removed. */
 document.documentElement.classList.add('js');
 
 /* -------------------------------------------------------------------------
@@ -735,6 +736,9 @@ function initDiveHero() {
     metaReady = true;
     section.classList.add('is-playable');   // fade the video in over the poster
     if (inView) startLoop();
+    // The 300vh dive section's final height is only known now — recompute every
+    // downstream ScrollTrigger so post-#dive reveals (pricing, etc.) fire correctly.
+    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
   });
 
   // 0..1 progress across the section's scrollable height (read in rAF, not on scroll)
@@ -1849,12 +1853,28 @@ function initPricingEntrance() {
     stagger: 0.14,
     duration: 0.76,
     ease: 'back.out(1.7)',
-    scrollTrigger: { trigger: grid, start: 'top 86%' },
+    // once: reveal a single time and stay (don't re-hide on scroll-up). A global
+    // ScrollTrigger.refresh() after init/fonts/load recomputes this trigger's start
+    // so it fires reliably even though the 300vh #dive section shifts layout.
+    scrollTrigger: { trigger: grid, start: 'top 86%', once: true },
     onComplete() {
       document.querySelectorAll('.price-amount').forEach((el, i) => {
         setTimeout(() => el.classList.add('price-lit'), i * 120 + 80);
       });
     },
+  });
+
+  // Hard safety net: if ScrollTrigger somehow never fires (stale layout, refresh
+  // missed), the cards would be stuck at opacity:0 forever. After the page settles,
+  // force any still-hidden card visible so pricing can never silently disappear.
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      cards.forEach((c) => {
+        if (parseFloat(getComputedStyle(c).opacity) < 0.05) {
+          gsap.set(c, { clearProps: 'opacity,transform' });
+        }
+      });
+    }, 1200);
   });
 }
 
@@ -3826,6 +3846,19 @@ document.addEventListener('DOMContentLoaded', () => {
   for (const init of inits) {
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
   }
+
+  // ScrollTrigger positions are computed when each trigger is created, but the page
+  // keeps shifting afterward: the 300vh #dive video section, late web fonts, and a
+  // lot of JS-injected DOM all change layout. Without a refresh, downstream triggers
+  // (e.g. the pricing-grid entrance) point at stale scroll positions and never fire —
+  // leaving those cards stuck at the GSAP-inline opacity:0. Refresh after the inits
+  // build their triggers, and again whenever layout settles.
+  const safeRefresh = () => {
+    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+  };
+  safeRefresh();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(safeRefresh);
+  window.addEventListener('load', safeRefresh);
 
   // Safety net: base CSS classes like .scroll-zoom-fade set opacity:0/blur/clip-path
   // directly (not just in keyframes), and 145 sprints stacked these on every section,

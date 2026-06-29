@@ -8651,3 +8651,34 @@ svg path.draw-path, svg .draw-path {
 /* Reveal bypass: temporary inline-style phase handled in JS.
    This class is no longer applied — inline el.style.setProperty is used instead
    so the class can be cleaned up and hover effects are fully preserved. */
+
+/* ==========================================================================
+   MOBILE MEMORY / GPU DIET — stops iOS Safari from discarding + reloading the
+   tab ("the page resets itself") around the heavy underwater region. Desktop is
+   untouched; everything here is gated to small/touch screens. Pairs with the JS
+   guards that skip the underwater/reef canvases, grain overlays, and Lenis on
+   coarse pointers. The dark glass LOOK is preserved with a more opaque fill in
+   place of the (very expensive) live backdrop blur.
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* backdrop-filter blur is the #1 iOS Safari memory killer — each instance is an
+     offscreen GPU buffer. Drop them all on phones; keep the glass look via fill. */
+  .glass,
+  .glass-surface,
+  .tcard,
+  .composer,
+  .nav.scrolled,
+  .navbar.scrolled,
+  .mobile-menu {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: rgba(10, 18, 24, 0.82);
+  }
+
+  /* Huge animated caustic layer spanning the whole (very tall) depth-zone. */
+  .depth-zone::after { display: none !important; }
+
+  /* Failsafe: a phone must never get the 300vh scroll track even if the JS
+     poster-only path is ever bypassed. */
+  .dive.is-scrub { height: 100svh !important; }
+}

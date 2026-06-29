@@ -2435,24 +2435,31 @@ button { font: inherit; cursor: pointer; }
 /* No-JS and reduced-motion: everything is visible by default. */
 .reveal { opacity: 1; }
 
-/* JS-driven reveals (IntersectionObserver). Hidden state only applies when
-   JS is active (html.js) AND the user hasn't asked to reduce motion. */
+/* Reveals are now a pure-CSS load-time fade-up. Previously these stayed at
+   opacity:0 until a ~400 KB deferred main.js ran and an IntersectionObserver
+   added .is-visible — so on a cold load the whole page sat BLANK for 1–2 s
+   ("content's there, just not loading fast enough"). Now each .reveal animates
+   itself in within ~0.6 s with NO dependency on JS or scroll, so content is
+   always visible fast. JS's .is-visible/.is-instant still resolve to the same
+   end state when present. Reduced-motion keeps content instantly visible via the
+   base `.reveal { opacity:1 }` rule above (this block is no-preference only). */
 @media (prefers-reduced-motion: no-preference) {
   html.js .reveal {
     opacity: 0;
     transform: translateY(24px);
-    transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
-    transition-delay: var(--reveal-delay, 0ms);
+    animation: reveal-rise 0.5s var(--ease-out) var(--reveal-delay, 0ms) both;
     will-change: opacity, transform;
   }
-  html.js .reveal.is-visible {
+  html.js .reveal.is-visible,
+  html.js .reveal.is-instant {
     opacity: 1;
     transform: none;
   }
-  /* Already in the viewport on load → show immediately, no animation. */
-  html.js .reveal.is-instant {
-    transition: none;
-  }
+  html.js .reveal.is-instant { animation: none; }
+}
+@keyframes reveal-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* --------------------------------------------------------------------------

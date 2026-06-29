@@ -2330,10 +2330,12 @@ function initPriceCardSpotlight() {
    ------------------------------------------------------------------------- */
 function initSectionKickerReveal() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile: leave kickers plain
   if (!('IntersectionObserver' in window)) return;
   const kickers = document.querySelectorAll('.section-kicker');
   if (!kickers.length) return;
   kickers.forEach((el) => {
+    if (el.children.length) return; // already split — don't re-wrap
     const label = el.textContent;
     const chars = label.split('');
     el.innerHTML = chars.map((ch, i) =>
@@ -4043,9 +4045,11 @@ function initScrollProgressRing() {
 
 function initWordRevealWave() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile: leave paragraphs plain
   const paras = document.querySelectorAll('.section-body p, .hero-subtitle, .about-body p');
   if (!paras.length) return;
   paras.forEach((p) => {
+    if (p.children.length) return; // already split by another reveal — don't double-process
     const words = p.textContent.trim().split(/\s+/);
     if (words.length < 3) return;
     p.innerHTML = words.map((w, i) =>
@@ -4710,8 +4714,9 @@ function initStatGlowReveal() {
 
 function initCharWaveReveal() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile: leave headings plain
   document.querySelectorAll('.section h2, .ba-section h2, .section h3').forEach((el) => {
-    if (el.querySelector('span') || el.dataset.charWave) return;
+    if (el.querySelector('span') || el.children.length || el.dataset.charWave) return;
     el.dataset.charWave = '1';
     const text = el.textContent;
     el.innerHTML = text.split('').map((ch, i) =>
@@ -5932,10 +5937,16 @@ function initScrollInkBlot() {
 
 function initWordPopIn() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile: leave headings plain
   const targets = document.querySelectorAll('.hero-title, h2, h3');
   if (!targets.length) return;
   targets.forEach((el) => {
     if (el.dataset.wordPop) return;
+    // CRITICAL: if the heading already has element children — e.g. another reveal
+    // (initCharWaveReveal) split it into <span> chars, or it has native <em>/<br> —
+    // do NOT re-wrap. Reading el.innerHTML here and splitting it would shred that
+    // markup, rendering raw attributes (class="char-wave-char" …) as visible text.
+    if (el.children.length) return;
     el.dataset.wordPop = '1';
     const words = el.innerHTML.split(/(\s+)/);
     el.innerHTML = words.map((w, i) =>
@@ -9507,6 +9518,7 @@ function initBgNoiseTexture() {
 
 function initScrollStaggerChars() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return; // mobile: leave text plain
   const els = document.querySelectorAll('[data-stagger-chars]');
   if (!els.length) return;
   els.forEach((el) => {

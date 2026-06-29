@@ -3877,6 +3877,27 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(safeRefresh);
   window.addEventListener('load', safeRefresh);
 
+  // Universal GSAP-from fallback. Many sections (bento, pricing, process, about,
+  // faq, headings, underwater cards) hide their content via gsap.from({opacity:0})
+  // gated on a ScrollTrigger. On a tall/slow page those triggers can fail to fire,
+  // stranding whole sections invisible (no desktop fallback existed except pricing).
+  // Shortly after load, force-clear any reveal target still hidden so content can
+  // never silently disappear. Pairs with the CSS load-time fade-up for .reveal.
+  const revealFallback = () => {
+    const sel = '.bento-card, .price-card, .steps .step, .step-num, .step-formats span,'
+      + ' .about-icon, .about-headline, .about-copy, .about-cta,'
+      + ' .section-title, .faq-item, .uw-card';
+    document.querySelectorAll(sel).forEach((el) => {
+      const cs = getComputedStyle(el);
+      const hidden = parseFloat(cs.opacity) < 0.05
+        || (cs.clipPath && cs.clipPath !== 'none' && cs.clipPath.includes('inset'));
+      if (!hidden) return;
+      if (typeof gsap !== 'undefined') gsap.set(el, { clearProps: 'opacity,transform,clipPath' });
+      else { el.style.opacity = '1'; el.style.transform = 'none'; el.style.clipPath = 'none'; }
+    });
+  };
+  window.addEventListener('load', () => setTimeout(revealFallback, 800));
+
   // Safety net: base CSS classes like .scroll-zoom-fade set opacity:0/blur/clip-path
   // directly (not just in keyframes), and 145 sprints stacked these on every section,
   // heading, and card. Only one CSS animation wins the cascade; others leave their
@@ -9904,7 +9925,10 @@ function initParticleWord() {
     return;
   }
 
-  buildParticles();
+  // Lazy: buildParticles() does a synchronous getImageData (50–200ms) — far too
+  // expensive to run on load for a section well below the fold. Defer it until the
+  // canvas first scrolls into view so it never blocks first paint.
+  let built = false;
 
   canvas.addEventListener('mousemove', (e) => setPointer(e.clientX, e.clientY), { passive: true });
   canvas.addEventListener('mouseleave', () => { pointer.on = false; });
@@ -9915,15 +9939,17 @@ function initParticleWord() {
 
   const io = new IntersectionObserver(([e]) => {
     active = e.isIntersecting;
-    if (active) step();
-    else if (raf) { cancelAnimationFrame(raf); raf = null; }
+    if (active) {
+      if (!built) { sizeCanvas(); buildParticles(); built = true; }
+      step();
+    } else if (raf) { cancelAnimationFrame(raf); raf = null; }
   }, { threshold: 0.1 });
   io.observe(canvas);
 
   let rt;
   window.addEventListener('resize', () => {
     clearTimeout(rt);
-    rt = setTimeout(() => { sizeCanvas(); buildParticles(); }, 200);
+    rt = setTimeout(() => { if (built) { sizeCanvas(); buildParticles(); } }, 200);
   }, { passive: true });
 }
 

@@ -764,3 +764,9 @@
 - CSS: extended `.tilt-active` transform-transition suppression to price cards + will-change.
 - Verified headless (forced fine-pointer): bento+price get matrix3d + tilt-active, spotlight tracks
   cursor, inline transform clears on leave, 0 page errors.
+
+## 2026-06-30 — Loop: card specular sheen (pairs with tilt)
+- Extended initCardTilt to inject a `.card-sheen` span per card and drive --gx/--gy from the cursor.
+- Soft white radial (rgba 255 0.08, 200px) that fades in only while `.tilt-active`; absolute/out-of-flow
+  so no layout shift; low alpha keeps text readable. Reduced-motion: tilt init never runs → sheen stays hidden.
+- Verified headless: 9 sheens, opacity 1 on tilt, --gx tracks cursor, card height unchanged, fades on leave, 0 errors.

@@ -734,3 +734,24 @@
 - CSS cleanup (dead keyframes/classes for cut effects) deliberately NOT done here — riskier, a
   separate careful follow-up. Cut effects remain recoverable in git history.
 - Kept the KEEP Set + filter as a harmless guard even though the array now only holds KEEP names.
+
+## Cloudflare Turnstile on the chat (branch claude/chat-turnstile, task #18)
+- Stronger anti-abuse than IP rate-limiting (which IP rotation defeats): Turnstile proves a real
+  browser before /api/chat reaches Claude.
+- functions/api/chat.js: turnstileOk(env, token, ip) verifies body.turnstileToken via
+  https://challenges.cloudflare.com/turnstile/v0/siteverify. FAILS OPEN when TURNSTILE_SECRET
+  unset (feature off) or siteverify errors (net blip); FAILS CLOSED (403) only on an explicit
+  bad/forged/missing token when the secret IS set. Runs after origin/rate-limit, before Claude.
+- index.html: Turnstile script (async) + invisible container #chatTurnstile with
+  data-sitekey="REPLACE_WITH_TURNSTILE_SITEKEY".
+- main.js initChatbot: getTurnstileToken() — active only when a real site key is set AND the
+  script loaded; invisible widget, execution:'execute', fresh token per send via execute→callback,
+  6s timeout → null so it never hangs the chat, turnstile.reset() after each send (tokens are
+  single-use). Sends { messages, turnstileToken } (null when off). style.css: .chat-turnstile
+  height:0 (no layout footprint).
+- OWNER SETUP (set BOTH or neither): Cloudflare → Turnstile → create widget (free) → put the
+  PUBLIC site key in index.html #chatTurnstile data-sitekey, and the SECRET key in Pages env as
+  TURNSTILE_SECRET → redeploy. Setting the secret without the sitekey would 403 (documented).
+- Verified: node --check; mock siteverify (unset→ok, no-token→403, valid→ok, forged→403,
+  neterr→fail-open); headless render-check with placeholder key — script+container present
+  (height 0), chat opens/sends, POST carries turnstileToken:null, no console errors.

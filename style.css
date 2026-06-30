@@ -2009,7 +2009,10 @@ button { font: inherit; cursor: pointer; }
 }
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* auto-fit + centered so the row stays balanced at any count (it dropped from
+     3 to 2 stats when the unverifiable "documents cleaned" figure was removed). */
+  grid-template-columns: repeat(auto-fit, minmax(160px, 220px));
+  justify-content: center;
   gap: var(--space-6);
   list-style: none;
   padding: 0;
@@ -9025,3 +9028,44 @@ svg path.draw-path, svg .draw-path {
 @media (prefers-reduced-motion: reduce) {
   .btn-ripple { display: none !important; }
 }
+
+/* ==========================================================================
+   HONEST REVIEWS — replaces the old testimonial cards. The brand's edge is
+   honesty, so instead of inventing 5-star quotes we say so plainly and invite
+   real ones. Single centered glass panel.
+   ========================================================================== */
+.honest-review {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-8);
+  border-radius: var(--radius-lg, 16px);
+  text-align: center;
+}
+.honest-review-lead {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  color: var(--text);
+  margin: 0 0 var(--space-4);
+}
+.honest-review-body {
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  line-height: 1.65;
+  margin: 0 auto var(--space-8);
+  max-width: 52ch;
+}
+.honest-review-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+.honest-review-link {
+  color: var(--teal);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transition: color 0.2s var(--ease-out);
+}
+.honest-review-link:hover { color: #00ffe6; }

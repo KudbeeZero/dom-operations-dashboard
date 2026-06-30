@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connect Platform — Dashboard</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <h1>Connect platform dashboard</h1>
+    <p class="muted">Sample seller flow: create a connected account, onboard to receive
+      payouts, add products (priced and sold by the platform), then view the shared storefront.</p>
+
+    <!-- 1. Create + onboard the connected account -->
+    <section class="card">
+      <h2>1 · Your account</h2>
+      <div id="noAccount">
+        <label>Display name <input id="displayName" placeholder="Acme Co." /></label>
+        <label>Contact email <input id="contactEmail" type="email" placeholder="owner@acme.com" /></label>
+        <button id="createAccount">Create account</button>
+      </div>
+      <div id="hasAccount" hidden>
+        <p>Account: <code id="accountId"></code></p>
+        <p>Status: <span id="status" class="badge">checking…</span></p>
+        <button id="onboard">Onboard to receive payments</button>
+        <button id="refreshStatus" class="ghost">Refresh status</button>
+      </div>
+    </section>
+
+    <!-- 2. Create a product (created at the PLATFORM level, mapped to this account) -->
+    <section class="card" id="productsCard" hidden>
+      <h2>2 · Add a product</h2>
+      <p class="muted">Created on the platform and mapped to your account, so a sale routes its
+        payout to you.</p>
+      <label>Name <input id="pName" placeholder="T-shirt" /></label>
+      <label>Description <input id="pDesc" placeholder="100% cotton" /></label>
+      <label>Price (USD) <input id="pPrice" type="number" min="1" step="0.01" placeholder="25.00" /></label>
+      <button id="createProduct">Create product</button>
+      <p id="productMsg" class="muted"></p>
+    </section>
+
+    <!-- 3. Storefront link (single shared storefront for all accounts) -->
+    <section class="card" id="storeCard" hidden>
+      <h2>3 · Storefront</h2>
+      <p>All products from all connected accounts are listed here:</p>
+      <p><a id="storeLink" href="/storefront" target="_blank" rel="noopener">Open the storefront →</a></p>
+    </section>
+  </main>
+
+  <script>
+    // The demo tracks a single account id in the page + URL (?accountId=…).
+    // A real app would look this up from your session/DB per logged-in user.
+    const qs = new URLSearchParams(location.search);
+    let accountId = qs.get('accountId') || localStorage.getItem('accountId') || null;
+
+    const $ = (id) => document.getElementById(id);
+    const api = async (url, body) => {
+      const r = await fetch(url, body
+        ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+        : {});
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    };
+
+    function showAccount() {
+      $('noAccount').hidden = true;
+      $('hasAccount').hidden = false;
+      $('productsCard').hidden = false;
+      $('storeCard').hidden = false;
+      $('accountId').textContent = accountId;
+      refreshStatus();
+    }
+
+    async function refreshStatus() {
+      const s = $('status');
+      s.textContent = 'checking…'; s.className = 'badge';
+      try {
+        const st = await api('/api/accounts/' + accountId + '/status');
+        if (st.readyToReceivePayments && st.onboardingComplete) {
+          s.textContent = 'Ready to receive payments'; s.classList.add('ok');
+        } else if (st.onboardingComplete) {
+          s.textContent = 'Onboarding complete — finishing verification'; s.classList.add('warn');
+        } else {
+          s.textContent = 'Onboarding incomplete (' + (st.requirementsStatus || 'info needed') + ')';
+          s.classList.add('warn');
+        }
+      } catch (e) { s.textContent = 'Error: ' + e.message; s.classList.add('err'); }
+    }
+
+    $('createAccount').onclick = async () => {
+      try {
+        const { accountId: id } = await api('/api/accounts', {
+          displayName: $('displayName').value.trim(),
+          contactEmail: $('contactEmail').value.trim(),
+        });
+        accountId = id; localStorage.setItem('accountId', id);
+        showAccount();
+      } catch (e) { alert(e.message); }
+    };
+
+    $('onboard').onclick = async () => {
+      try {
+        const { url } = await api('/api/accounts/' + accountId + '/onboarding-link', {});
+        location.href = url; // hosted Stripe onboarding
+      } catch (e) { alert(e.message); }
+    };
+
+    $('refreshStatus').onclick = refreshStatus;
+
+    $('createProduct').onclick = async () => {
+      try {
+        const dollars = parseFloat($('pPrice').value);
+        if (!dollars) return alert('Enter a price.');
+        await api('/api/products', {
+          name: $('pName').value.trim(),
+          description: $('pDesc').value.trim(),
+          priceInCents: Math.round(dollars * 100),
+          accountId,
+          currency: 'usd',
+        });
+        $('productMsg').textContent = 'Product created. See it on the storefront.';
+        $('pName').value = $('pDesc').value = $('pPrice').value = '';
+      } catch (e) { $('productMsg').textContent = 'Error: ' + e.message; }
+    };
+
+    if (accountId) { localStorage.setItem('accountId', accountId); showAccount(); }
+  </script>
+</body>
+</html>

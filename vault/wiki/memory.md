@@ -650,3 +650,24 @@
   publishing privacy/AUP to footer is a flagged future decision, not done.
 - NEXT (owner OK'd loop): #11 Stripe test checkout (BLOCKED on owner choosing: paste 3 test
   Payment Link URLs vs placeholder+TODO — will ASK), then #12 phase-2 polish.
+
+## Stripe Connect sample — recipient model (branch claude/stripe-connect-recipient, task #15)
+- Self-contained Node/Express reference app in stripe-connect-sample/ (does NOT touch the
+  marketing site, not Cloudflare-deployed). Owner gave the canned Stripe Connect spec.
+- This is the RECIPIENT model (platform owns pricing + fees), distinct from task #11 (simple
+  $25/$50/$75 own-payments on the live site — still pending owner's test Payment Link URLs).
+- Spec-exact: v2.core.accounts.create with dashboard:'express', responsibilities fees/losses
+  'application', configuration.recipient.capabilities.stripe_balance.stripe_transfers.requested;
+  NO top-level type. accountLinks configurations:['recipient']. Status read live from API
+  (recipient.stripe_transfers.status==='active' + requirements.summary.minimum_deadline.status).
+  Products at PLATFORM level w/ metadata.connected_account_id mapping. Single /storefront lists
+  all products + accounts. Checkout = DESTINATION charge (payment_intent_data.transfer_data.
+  destination + application_fee_amount 10%), hosted checkout. Thin V2 connect webhook
+  (parseThinEvent → v2.core.events.retrieve) for requirements.updated + recipient
+  capability_status_updated, registered before express.json with raw body. One stripeClient =
+  new Stripe(KEY), no apiVersion. Fail-fast on missing/placeholder STRIPE_SECRET_KEY. stripe:"latest".
+- SUPERSEDES the parked PR #165 / branch claude/stripe-connect-sample (built for the wrong
+  merchant/direct-charge/subscription model + based on stale main → would revert phase-1/legal
+  work). #165 should be closed.
+- Gate: node --check server.js (Stripe MCP was disconnected so couldn't doc-verify; followed the
+  spec's exact shapes). Full runtime test is owner's (needs sk_test_ keys + stripe listen).

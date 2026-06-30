@@ -56,6 +56,9 @@
   /* Transitions */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in:  cubic-bezier(0.4, 0, 1, 1);
+  /* Symmetric ease-in-out for bidirectional motion (sliding indicators, nav
+     resize) — tokenized so the curve is defined once, not repeated inline. */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* --------------------------------------------------------------------------
@@ -2838,13 +2841,13 @@ body::after {
   background: var(--teal);
   transform: scaleX(0);
   transform-origin: right;
-  transition: transform 0.28s ease, transform-origin 0s 0.28s;
+  transition: transform 0.28s var(--ease-out), transform-origin 0s 0.28s;
 }
 .nav-links a:hover::after,
 .nav-links a.is-active::after {
   transform: scaleX(1);
   transform-origin: left;
-  transition: transform 0.28s ease;
+  transition: transform 0.28s var(--ease-out);
 }
 .nav-links a.is-active { color: var(--text); }
 
@@ -3087,8 +3090,8 @@ body::after {
   border-radius: 1px;
   box-shadow: 0 0 8px rgba(0,212,200,0.5);
   transition:
-    left  0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    left  0.3s var(--ease-smooth),
+    width 0.3s var(--ease-smooth);
   pointer-events: none;
 }
 
@@ -3163,7 +3166,7 @@ body::after {
 }
 
 /* Nav shrink — compact mode on scroll */
-.nav-inner { transition: padding 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+.nav-inner { transition: padding 0.35s var(--ease-smooth); }
 #nav.nav-compact .nav-inner {
   padding-top:    max(var(--space-2), env(safe-area-inset-top));
   padding-bottom: var(--space-2);

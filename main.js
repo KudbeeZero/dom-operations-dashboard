@@ -1372,7 +1372,7 @@ function initProcessTimeline() {
       gsap.from(num, {
         scale: 0.35, opacity: 0,
         duration: 0.55,
-        ease: 'back.out(2.8)',
+        ease: 'back.out(1.7)',
         delay: 0.1,
         scrollTrigger: { trigger: step, start: 'top 84%' },
       });
@@ -1613,7 +1613,7 @@ function initAboutEntrance() {
   const cta      = block.querySelector('.about-cta');
 
   const tl = gsap.timeline({ scrollTrigger: { trigger: block, start: 'top 82%' } });
-  if (icon)     tl.from(icon,     { scale: 0.35, opacity: 0, duration: 0.6,  ease: 'back.out(2.4)' });
+  if (icon)     tl.from(icon,     { scale: 0.35, opacity: 0, duration: 0.6,  ease: 'back.out(1.7)' });
   if (headline) tl.from(headline, { clipPath: 'inset(0 100% 0 0)', duration: 0.72, ease: 'power3.inOut' }, '-=0.2');
   if (copy)     tl.from(copy,     { y: 18, opacity: 0, duration: 0.55, ease: 'power2.out' }, '-=0.3');
   if (cta)      tl.from(cta,      { y: 14, opacity: 0, duration: 0.45, ease: 'power2.out' }, '-=0.2');

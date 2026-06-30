@@ -783,3 +783,11 @@
   offsetParent), so progress math MUST use getBoundingClientRect().top, not offsetTop. (Tripped the first render-check.)
 - Verified headless: p ramps 0→1, messy/clean crossfade, captions change, stamp →0.92 opacity, reduced-motion
   static, 0 console errors. Registered in KEEP + inits.
+
+## 2026-06-30 — Loop: Refined polish program (owner picked "refined polish" → "also harmonize animations")
+### PR1 — Accessibility & focus polish (CSS-only)
+- Added a consolidated `:focus-visible` teal ring (2px, var(--teal), offset 3px) for nav links,
+  mobile-menu links, .btn/.btn-primary, #scrollTop, chat launcher/close/send/chips, price CTAs.
+  (Audited the 5 pre-existing focus-visible rules first — all on niche/dead classes, no overlap.)
+- Gated `.btn-ripple` under prefers-reduced-motion in CSS (JS already guards; this is defensive).
+- Verified headless: keyboard Tab shows teal rgb(0,212,200) 2px ring on nav-link + btn, 0 errors.

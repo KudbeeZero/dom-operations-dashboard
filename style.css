@@ -171,6 +171,7 @@ button { font: inherit; cursor: pointer; }
   background: var(--surface-2);
   border-color: var(--teal);
   color: var(--teal);
+  transform: translateY(-2px);
 }
 
 /* --------------------------------------------------------------------------
@@ -529,7 +530,7 @@ button { font: inherit; cursor: pointer; }
    BEFORE / AFTER slider
    -------------------------------------------------------------------------- */
 .ba-section { padding: var(--space-24) 0; }
-.ba-head { margin-bottom: var(--space-6); }
+.ba-head { margin-bottom: var(--space-16); }
 .ba-intro { color: var(--text-muted); font-size: 1rem; margin-bottom: var(--space-8); }
 
 .showcase-tabs {
@@ -774,9 +775,10 @@ button { font: inherit; cursor: pointer; }
   font-weight: 700;
 }
 .bento-card p { color: var(--text-muted); font-size: var(--text-base); }
-.bento-example {
+/* Specific enough to beat `.bento-card p` without !important */
+.bento-card .bento-example {
   margin-top: var(--space-1);
-  font-size: 0.8rem !important;
+  font-size: 0.8rem;
   display: flex;
   gap: 0.35rem;
   align-items: baseline;
@@ -839,19 +841,13 @@ button { font: inherit; cursor: pointer; }
 }
 .price-card:hover { transform: translateY(-4px); }
 
+/* Featured tier reads through one calm signal: a static gold border + the
+   "Most Popular" badge. The old perpetual gold shimmer sweep was redundant and
+   too flashy for the refined direction, so it's gone. */
 .price-card.featured {
   border-color: rgba(201,168,76,0.45);
   overflow: hidden;
 }
-.price-card.featured::before {
-  content: "";
-  position: absolute; inset: 0;
-  background: linear-gradient(120deg, transparent 30%, var(--gold-dim) 50%, transparent 70%);
-  background-size: 250% 100%;
-  animation: shimmer 5s linear infinite;
-  pointer-events: none;
-}
-@keyframes shimmer { to { background-position: -250% 0; } }
 
 .price-badge {
   position: absolute; top: var(--space-4); right: var(--space-4);
@@ -1354,7 +1350,8 @@ button { font: inherit; cursor: pointer; }
   color: var(--text-muted);
   line-height: 1.7;
 }
-.faq-link { color: var(--teal); text-decoration: underline; text-underline-offset: 3px; }
+.faq-link { color: var(--teal); text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s var(--ease-out); }
+.faq-link:hover { color: #00ffe6; }
 .faq-item summary:hover { color: var(--teal); }
 
 /* --------------------------------------------------------------------------
@@ -2114,9 +2111,8 @@ button { font: inherit; cursor: pointer; }
   border-radius: inherit;
   background: radial-gradient(
     circle at var(--mx, 50%) var(--my, 50%),
-    rgba(0,212,180,0.14) 0%,
-    rgba(120,80,255,0.08) 35%,
-    transparent 65%
+    rgba(0,212,200,0.12) 0%,
+    transparent 60%
   );
   opacity: 0;
   transition: opacity 0.3s;
@@ -2162,7 +2158,7 @@ button { font: inherit; cursor: pointer; }
   top: 0.5rem;
   left: -0.3rem;
   color: var(--teal);
-  opacity: 0.18;
+  opacity: 0.32;
   font-family: Georgia, serif;
   pointer-events: none;
 }
@@ -2503,7 +2499,6 @@ button { font: inherit; cursor: pointer; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .price-card.featured::before { animation: none; }
   .scroll-chevron { animation: none; }
 }
 

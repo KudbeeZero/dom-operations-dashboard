@@ -576,3 +576,33 @@
   verify — want owner to feel A+B live first before blind-pinning. Resume on owner confirmation.
 - CONSTRAINT all session: remote browser can't reach external HTTPS / Cloudflare preview URLs →
   no visual QA; rely on node --check + static review. Stripe MCP permission-blocked.
+
+## Phase 1 visual upgrade — refined & professional + SEO (branch claude/dom-visual-upgrade-p1-qq1g38)
+- OWNER DIRECTION (this phase): "make the call, I'm driving, you're my executive director."
+  Take the site from flashy → refined & professional (credible enough that people ask "do you
+  design websites?") AND make it discoverable organically ("hit keywords, get it out there").
+  Decision made on owner's behalf: Curate + polish + SEO, shipped as two small reviewable PRs.
+- PR1 (curate + polish): main.js inits loop (~3863) now runs a KEEP Set allowlist
+  (`if (!KEEP.has(init.name)) continue;`) — ~50 curated essentials/tasteful effects RUN, the
+  other ~106 gimmicks SKIPPED (char-wave/word-pop/scramble/typewriter/glitch/neon/rainbow text,
+  cursor trails, sparks/confetti, glow halos/rings/pulses, icon/badge bounce-pop-wiggle, 3D
+  tilt/chromatic, redundant initScroll*/initHover* variants, initBg* aurora/comet/ink/scanline/
+  fog/vignette). Functions stay DEFINED (nothing deleted) — just not invoked; tune KEEP later.
+  Also added a ranInits guard so duplicate array entries don't double-run.
+  KEY SAFETY: content visibility no longer depends on these (pure-CSS reveal-rise, cf1d4c3) so
+  cutting is safe — nothing strands.
+- PR1 polish (style.css): .ba-head margin-bottom space-6→space-16 (rhythm consistency);
+  .btn-ghost:hover gets translateY(-2px) to match .btn-primary; .bento-example → .bento-card
+  .bento-example (specificity beats `.bento-card p`, dropped !important); .faq-link:hover added;
+  .tcard::before shine de-purpled (removed rgba(120,80,255) — violated "no purple" token — now
+  teal-only + softer); .tcard-quote::before opacity 0.18→0.32 (was too faint); removed the
+  always-on 5s gold shimmer on .price-card.featured::before (kept static gold border + "Most
+  Popular" badge as the single calm signal) + its @keyframes shimmer + orphaned reduced-motion rule.
+- PR2 (SEO, queued in same branch): JSON-LD (ProfessionalService + Service/Offer tiers + FAQPage),
+  robots.txt + sitemap.xml, explicit twitter tags, alt-text/keyword pass. Flag: og:image is an SVG
+  (social scrapers won't render) — owner to supply 1200x630 PNG. NO aggregateRating unless reviews
+  are real. Owner organic to-do: Google Business Profile (#1 lever), Search Console + Bing
+  (submit sitemap), real Google reviews, directory citations, a few real backlinks. Single page kept.
+- Deep-research legal report COMPLETED (saved to scratchpad task wi4b0a5wd.output): belt-and-suspenders
+  IP (WMFH + present-tense assignment conditioned on full payment), client = domain registrant (ICANN
+  TAC handover), refuse PHI/PCI/SSN/FERPA/attorney-client (FTC data-minimization). Feeds task #10.

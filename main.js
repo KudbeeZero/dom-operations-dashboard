@@ -2378,8 +2378,13 @@ function initChatbot() {
 
   function openPanel() {
     panel.hidden = false;
+    panel.setAttribute('aria-modal', 'true');
     launcher.classList.add('is-hidden');
     launcher.setAttribute('aria-expanded', 'true');
+    // Lock the page behind the panel: overflow lock for native scroll, and stop
+    // Lenis (desktop smooth scroll) so the background doesn't scroll under it.
+    document.body.style.overflow = 'hidden';
+    try { window.__lenis && window.__lenis.stop(); } catch (_) {}
     if (!greeted) {
       greeted = true;
       addMsg('bot', "Hey — I'm Dominick's assistant. Ask me what I can clean up, how much it costs, or how to send a file. For a real job, text 773-647-7598.");
@@ -2388,8 +2393,11 @@ function initChatbot() {
   }
   function closePanel() {
     panel.hidden = true;
+    panel.setAttribute('aria-modal', 'false');
     launcher.classList.remove('is-hidden');
     launcher.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    try { window.__lenis && window.__lenis.start(); } catch (_) {}
     launcher.focus();
   }
 
@@ -2412,6 +2420,7 @@ function initChatbot() {
     if (busy) return;
     busy = true;
     sendBtn.disabled = true;
+    input.disabled = true;          // don't let the user type into a message that won't send yet
     chips?.setAttribute('hidden', '');
     addMsg('user', text);
     history.push({ role: 'user', content: text });
@@ -2478,6 +2487,7 @@ function initChatbot() {
       }
       busy = false;
       sendBtn.disabled = false;
+      input.disabled = false;
       input.focus();
     }
   }

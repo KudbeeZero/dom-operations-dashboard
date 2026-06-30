@@ -8804,3 +8804,6 @@ svg path.draw-path, svg .draw-path {
   .chat-launcher { transition: none; }
   .chat-typing span { animation: none; opacity: 0.6; }
 }
+
+/* Cloudflare Turnstile container — invisible widget, no layout footprint. */
+.chat-turnstile { height: 0; overflow: hidden; }

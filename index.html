@@ -1015,6 +1015,11 @@
       <button class="chat-chip" type="button">How do I send you a file?</button>
     </div>
 
+    <!-- Cloudflare Turnstile (invisible bot-check). Put your PUBLIC site key in
+         data-sitekey AND set TURNSTILE_SECRET in the Pages env — set both or neither.
+         Until a real key is here, the front-end skips Turnstile (chat works as-is). -->
+    <div id="chatTurnstile" class="chat-turnstile" data-sitekey="REPLACE_WITH_TURNSTILE_SITEKEY"></div>
+
     <form id="chatForm" class="chat-form" autocomplete="off">
       <label class="sr-only" for="chatInput">Type your question</label>
       <input id="chatInput" class="chat-input" type="text" name="message"
@@ -1033,6 +1038,9 @@
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Cloudflare Turnstile (invisible bot-check for the chat). Self-initializes; main.js
+       uses it only if a real site key is set on #chatTurnstile. -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script defer src="main.js"></script>
 </body>
 </html>

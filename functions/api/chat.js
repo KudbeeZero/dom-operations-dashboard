@@ -72,6 +72,31 @@ async function rateLimited(env, ip) {
   }
 }
 
+// Verify a Cloudflare Turnstile token (proves a real browser). Fails OPEN when
+// TURNSTILE_SECRET isn't set (feature off) or when siteverify is unreachable — an
+// explicit bad/forged token is the only thing that fails closed (403). So a setup
+// gap or a network blip never takes the bot down, but a forged token is rejected.
+async function turnstileOk(env, token, ip) {
+  const secret = env.TURNSTILE_SECRET;
+  if (!secret) return true; // not configured → skip
+  if (!token) return false; // configured but no token → reject
+  try {
+    const form = new URLSearchParams();
+    form.append('secret', secret);
+    form.append('response', token);
+    if (ip) form.append('remoteip', ip);
+    const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body: form,
+    });
+    const data = await r.json();
+    return !!data.success;
+  } catch (err) {
+    console.warn('[chat] Turnstile verify error — failing open:', err && err.message);
+    return true;
+  }
+}
+
 export async function onRequestPost({ request, env }) {
   // 1. Fail fast with a clear message if the key isn't configured.
   //    PLACEHOLDER: set ANTHROPIC_API_KEY in the Cloudflare Pages dashboard
@@ -105,6 +130,15 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({ error: 'Invalid request.' }, 400);
   }
+
+  // 2b. Bot check (Cloudflare Turnstile). No-op until TURNSTILE_SECRET is set.
+  if (!(await turnstileOk(env, body?.turnstileToken, ip))) {
+    return json(
+      { error: 'Couldn’t verify you’re human — refresh the page and try again, or text Dominick at 773-647-7598.' },
+      403,
+    );
+  }
+
   let messages = Array.isArray(body?.messages) ? body.messages : null;
   if (!messages || messages.length === 0) {
     return json({ error: 'No message provided.' }, 400);

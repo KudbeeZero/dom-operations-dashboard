@@ -2240,6 +2240,39 @@ function initChatbot() {
   let busy = false;
   let greeted = false;
 
+  // --- Cloudflare Turnstile (optional bot-check) ---------------------------
+  // Active only when a real site key is set on #chatTurnstile (data-sitekey) and
+  // the Turnstile script has loaded. Otherwise we send no token and the backend
+  // fails open. Invisible widget, executed on demand to get a fresh per-message token.
+  const tsEl = document.getElementById('chatTurnstile');
+  const SITEKEY = tsEl && tsEl.dataset ? tsEl.dataset.sitekey : '';
+  const turnstileOn = !!SITEKEY && !SITEKEY.includes('REPLACE');
+  let tsWidget = null;
+  let tsResolve = null;
+
+  function getTurnstileToken() {
+    return new Promise((resolve) => {
+      if (!turnstileOn || !window.turnstile || !tsEl) return resolve(null);
+      try {
+        if (tsWidget === null) {
+          tsWidget = window.turnstile.render(tsEl, {
+            sitekey: SITEKEY,
+            size: 'invisible',
+            execution: 'execute',
+            callback: (token) => { if (tsResolve) { const r = tsResolve; tsResolve = null; r(token); } },
+            'error-callback': () => { if (tsResolve) { const r = tsResolve; tsResolve = null; r(null); } },
+          });
+        }
+        tsResolve = resolve;
+        // Never let the widget hang the chat — bail to null after 6s.
+        setTimeout(() => { if (tsResolve) { tsResolve = null; resolve(null); } }, 6000);
+        window.turnstile.execute(tsWidget);
+      } catch (_) {
+        resolve(null);
+      }
+    });
+  }
+
   const scrollDown = () => { log.scrollTop = log.scrollHeight; };
 
   function addMsg(role, text) {
@@ -2297,10 +2330,11 @@ function initChatbot() {
     let answer = '';
 
     try {
+      const turnstileToken = await getTurnstileToken();
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages: history }),
+        body: JSON.stringify({ messages: history, turnstileToken }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -2346,6 +2380,10 @@ function initChatbot() {
       botEl.classList.add('is-error');
       botEl.textContent = 'Connection trouble. Text Dominick at 773-647-7598.';
     } finally {
+      // Reset the (single-use) Turnstile token so the next message gets a fresh one.
+      if (turnstileOn && window.turnstile && tsWidget !== null) {
+        try { window.turnstile.reset(tsWidget); } catch (_) {}
+      }
       busy = false;
       sendBtn.disabled = false;
       input.focus();

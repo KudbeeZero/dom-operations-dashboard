@@ -814,3 +814,11 @@
 - Softened the two bounciest GSAP spring outliers to the existing standard: back.out(2.8)→1.7 (bento card land),
   back.out(2.4)→1.7 (about icon). Left the intentional, documented bento anchor/rest hierarchy (2.0/1.5) alone.
 - Verified headless: tokens resolve, nav underline uses --ease-out, bento+about entrances settle at opacity 1, 0 errors.
+
+## 2026-06-30 — Loop: social share PNG (og:image was a non-rendering SVG)
+- og:image/twitter:image pointed at /assets/og-image.svg — most platforms (FB, LinkedIn, iMessage, X, WhatsApp,
+  Slack) DON'T render SVG share cards, so link previews showed no image. Real organic-reach gap.
+- Rendered a 1200x630 brand PNG from the existing SVG via headless Chromium WITH the real Barlow Condensed /
+  DM Sans fonts (loaded through the agent proxy; brandFontLoaded=true). Saved assets/og-image.png (~252KB).
+  Render harness in scratchpad (render-og.mjs + ogcard.html); proxy passed via chromium.launch proxy + ignoreHTTPSErrors.
+- Repointed og:image, twitter:image, and JSON-LD "image" to the PNG; added og:image:type/width/height/alt. Kept the SVG.

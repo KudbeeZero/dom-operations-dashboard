@@ -1420,21 +1420,32 @@ function initCardTilt() {
 
   const MAX = 6; // degrees of lean at the card edge — present but never gimmicky
   document.querySelectorAll('.bento-card, .price-card').forEach((card) => {
-    let raf = 0, rx = 0, ry = 0;
+    // Specular sheen — a soft highlight that rides with the cursor so the tilted
+    // card looks like glass catching the light. Out-of-flow (absolute), so it
+    // doesn't affect the card's flex layout; only visible while .tilt-active.
+    const sheen = document.createElement('span');
+    sheen.className = 'card-sheen';
+    sheen.setAttribute('aria-hidden', 'true');
+    card.prepend(sheen);
+
+    let raf = 0, rx = 0, ry = 0, gx = 50, gy = 50;
     const draw = () => {
       raf = 0;
       // scale(1.015) keeps the hover "lift" the CSS :hover used to provide,
       // now that the inline transform overrides it.
       card.style.transform =
         `perspective(900px) rotateX(${ry.toFixed(2)}deg) rotateY(${rx.toFixed(2)}deg) scale(1.015)`;
+      sheen.style.setProperty('--gx', gx.toFixed(1) + '%');
+      sheen.style.setProperty('--gy', gy.toFixed(1) + '%');
     };
     card.addEventListener('pointerenter', () => card.classList.add('tilt-active'));
     card.addEventListener('pointermove', (e) => {
       const r = card.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width - 0.5;   // -0.5 (left) .. 0.5 (right)
-      const py = (e.clientY - r.top) / r.height - 0.5;   // -0.5 (top)  .. 0.5 (bottom)
-      rx = px * 2 * MAX;    // cursor right → lean right
-      ry = -py * 2 * MAX;   // cursor down  → lean back
+      const nx = (e.clientX - r.left) / r.width;   // 0 (left) .. 1 (right)
+      const ny = (e.clientY - r.top) / r.height;   // 0 (top)  .. 1 (bottom)
+      gx = nx * 100; gy = ny * 100;
+      rx = (nx - 0.5) * 2 * MAX;    // cursor right → lean right
+      ry = -(ny - 0.5) * 2 * MAX;   // cursor down  → lean back
       if (!raf) raf = requestAnimationFrame(draw);
     });
     card.addEventListener('pointerleave', () => {

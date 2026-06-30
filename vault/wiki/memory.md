@@ -800,3 +800,9 @@
   NOTE: on close, computed body overflow reverts to stylesheet "hidden auto" (overflow-x hidden is the normal page setting) — vertical scroll restored, not a bug.
 - Tactile: .chat-close hover scale(1.15)/active scale(0.95); .chat-chip:active.
 - Verified headless: open→aria-modal true+overflow hidden; submit→input+send disabled then re-enabled; Escape→aria-modal false+scroll restored; 0 errors.
+
+### PR3 — Nav anchor offset + active-link precision
+- Anchor smooth-scroll offset now measures live nav height (`#nav` offsetHeight + 14) instead of hardcoded -70,
+  so anchors land correctly under the compact nav. (Only runs when Lenis is active = desktop.)
+- initActiveNav rootMargin -28%/-68% → -15%/-75% (focal band ~15-25% down; wider = no gaps, higher = less lag).
+- Verified headless: all 6 nav links (#showcase…#contact) activate for their section, 0 errors.

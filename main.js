@@ -50,7 +50,11 @@ function initSmoothScroll() {
       const el = document.querySelector(sel);
       if (!el) return;
       e.preventDefault();
-      lenis.scrollTo(el, { offset: -70 }); // clear the sticky header
+      // Clear the sticky header — measure it live so the landing point stays
+      // correct after the nav shrinks into its compact state on scroll.
+      const navEl = document.getElementById('nav');
+      const navH = navEl ? navEl.offsetHeight : 70;
+      lenis.scrollTo(el, { offset: -(navH + 14) });
     });
   });
 }
@@ -1711,7 +1715,10 @@ function initActiveNav() {
 
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => { if (entry.isIntersecting) setActive(entry.target.id); });
-  }, { rootMargin: '-28% 0px -68% 0px' });
+    // Focal band ~15%–25% down the viewport: wide enough to avoid gaps between
+    // short sections leaving no link active, high enough that the active link
+    // tracks what you're actually reading rather than lagging behind.
+  }, { rootMargin: '-15% 0px -75% 0px' });
 
   sections.forEach(s => io.observe(s));
 }

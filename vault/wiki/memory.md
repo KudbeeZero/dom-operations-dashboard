@@ -838,3 +838,9 @@
 - PR: Local SEO schema (areaServed Illinois, LocalBusiness, per-service Service) + WCAG --text-faint contrast + minor ARIA.
 - PR: Dead CSS cleanup (~196/200 keyframes, ~370/741 classes dead; preserve JS-runtime classes like .tilt-active/.is-active).
 - Owner to set Turnstile sitekey; Stripe links later. Zelle/text fine for now.
+
+### PR B — Local SEO schema + WCAG contrast
+- JSON-LD ProfessionalService: added honest region-only `address` (addressRegion IL, addressCountry US) and
+  `areaServed` array [State Illinois, Country US] for local-search signals. Validated JSON parses.
+- `--text-faint` 0.28 → 0.50: 0.28 was ~3.5:1 (WCAG AA fail). Computed 0.42=3.66 (still fail), 0.50=4.73:1 (pass).
+  0.50 still sits below muted 0.55 so the text hierarchy holds. Used on disclaimer/footer/placeholders (small text).

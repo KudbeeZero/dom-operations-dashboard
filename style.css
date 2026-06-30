@@ -15,7 +15,7 @@
   /* Text */
   --text:          #f0ede8;
   --text-muted:    rgba(240,237,232,0.55);
-  --text-faint:    rgba(240,237,232,0.28);
+  --text-faint:    rgba(240,237,232,0.50); /* 4.73:1 on the obsidian bg (meets WCAG AA); still the faintest tier, just below muted 0.55 */
 
   /* Accents */
   --teal:          #00d4c8;

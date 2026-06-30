@@ -1408,9 +1408,43 @@ function initCardSpotlight() {
    ------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------
-   CARD TILT — smooth lerp-based 3D perspective tilt on bento service cards
-   (fine pointer / desktop only; respects prefers-reduced-motion)
+   CARD TILT — subtle rAF-driven 3D perspective tilt on the bento service
+   cards and pricing cards. Pairs with the existing cursor spotlight (which
+   drives --mx/--my): the glow tracks the cursor while the card leans toward
+   it, for a premium "glass panel you can push on" feel. Desktop / fine-pointer
+   only, and fully skipped under prefers-reduced-motion.
    ------------------------------------------------------------------------- */
+function initCardTilt() {
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const MAX = 6; // degrees of lean at the card edge — present but never gimmicky
+  document.querySelectorAll('.bento-card, .price-card').forEach((card) => {
+    let raf = 0, rx = 0, ry = 0;
+    const draw = () => {
+      raf = 0;
+      // scale(1.015) keeps the hover "lift" the CSS :hover used to provide,
+      // now that the inline transform overrides it.
+      card.style.transform =
+        `perspective(900px) rotateX(${ry.toFixed(2)}deg) rotateY(${rx.toFixed(2)}deg) scale(1.015)`;
+    };
+    card.addEventListener('pointerenter', () => card.classList.add('tilt-active'));
+    card.addEventListener('pointermove', (e) => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5;   // -0.5 (left) .. 0.5 (right)
+      const py = (e.clientY - r.top) / r.height - 0.5;   // -0.5 (top)  .. 0.5 (bottom)
+      rx = px * 2 * MAX;    // cursor right → lean right
+      ry = -py * 2 * MAX;   // cursor down  → lean back
+      if (!raf) raf = requestAnimationFrame(draw);
+    });
+    card.addEventListener('pointerleave', () => {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      card.classList.remove('tilt-active'); // restores the CSS transform transition
+      card.style.transform = '';            // settle smoothly back to rest
+    });
+  });
+}
+
 
 /* -------------------------------------------------------------------------
    COUNT-UP — IO-triggered number animation on trust bar stats
@@ -2417,7 +2451,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollVignette, initStaggerListReveal, initKeyboardNav, initDynamicThemeColor,
     initCascadeReveal, initPaymentLinks, initParticleWord, initSmsComposer,
     initStatsCountUp, initTestimonialsReveal, initLiveAvailabilityPing, initTryItDemo,
-    initChatbot,
+    initChatbot, initCardTilt,
   ];
   // ── Refined curation (Phase 1 visual upgrade) ──────────────────────────────
   // The site accumulated ~158 init effects over 150 sprints — too flashy and too
@@ -2425,7 +2459,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // depends on any of them (the pure-CSS reveal-rise fade in style.css handles that),
   // so we run only a curated, tasteful allowlist and SKIP the gimmicks: per-character
   // wave/scramble/glitch/typewriter/neon/rainbow text, cursor trails, sparks/confetti,
-  // glow halos/rings/pulses, icon/badge bounce-pop-wiggle, 3D tilt/chromatic effects,
+  // glow halos/rings/pulses, icon/badge bounce-pop-wiggle, chromatic effects,
   // the redundant initScroll*/initHover* variants, and the initBg* aurora/comet/ink/
   // scanline/fog/vignette backgrounds. Skipped functions stay DEFINED — just not run,
   // so nothing is deleted and the set can be tuned later. Cutting an effect is the win.
@@ -2449,6 +2483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'initContactForm', 'initQRCode', 'initPaymentLinks', 'initLiveAvailabilityPing', 'initChatbot',
     // Tasteful hover (desktop / fine-pointer — subtle, not flashy)
     'initCardSpotlight', 'initPriceCardSpotlight', 'initMagneticButtons', 'initButtonRipple',
+    'initCardTilt',
   ]);
   const ranInits = new Set();
   for (const init of inits) {

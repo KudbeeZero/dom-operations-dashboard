@@ -755,3 +755,12 @@
 - Verified: node --check; mock siteverify (unset→ok, no-token→403, valid→ok, forged→403,
   neterr→fail-open); headless render-check with placeholder key — script+container present
   (height 0), chat opens/sends, POST carries turnstileToken:null, no console errors.
+
+## 2026-06-30 — Loop: next-level interactive pass (PR: card 3D tilt)
+- Revived `initCardTilt()` (was deleted in the #173 slim-down, leaving orphaned `.tilt-active` CSS).
+- Subtle rAF-driven 3D perspective tilt (max 6°, scale 1.015 lift) on `.bento-card` + `.price-card`,
+  layered on the existing cursor spotlight (initCardSpotlight/initPriceCardSpotlight drive --mx/--my).
+- Desktop/fine-pointer only; fully skipped under prefers-reduced-motion. Added to KEEP + inits.
+- CSS: extended `.tilt-active` transform-transition suppression to price cards + will-change.
+- Verified headless (forced fine-pointer): bento+price get matrix3d + tilt-active, spotlight tracks
+  cursor, inline transform clears on leave, 0 page errors.

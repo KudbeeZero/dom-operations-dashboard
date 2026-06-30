@@ -5072,3 +5072,37 @@ nav a,
   transition: color 0.2s var(--ease-out);
 }
 .honest-review-link:hover { color: #00ffe6; }
+
+/* ==========================================================================
+   COPY-PHONE TOAST — confirmation pill shown when a desktop visitor clicks a
+   phone link (initCopyPhone copies the number). Fixed, bottom-center, glass.
+   ========================================================================== */
+.copy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translate(-50%, 12px);
+  z-index: 2000;
+  max-width: min(90vw, 420px);
+  padding: 0.7rem 1.1rem;
+  background: rgba(19, 19, 22, 0.92);
+  color: var(--text, #f0ede8);
+  border: 1px solid rgba(0, 212, 200, 0.45);
+  border-radius: var(--radius-full, 9999px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+}
+.copy-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .copy-toast { transition: opacity 0.2s linear; }
+  .copy-toast.show { transform: translate(-50%, 0); }
+}

@@ -621,3 +621,32 @@
   it; owner to supply a 1200x630 PNG and swap og:image + twitter:image.
 - Validation: node JSON.parse on the ld+json block OK; xmllint sitemap well-formed. Live
   Rich Results Test = owner (this env can't reach Google).
+
+## Legal & policy foundation (task #10, branch claude/legal-docs-foundation)
+- Drafted 5 client docs + index in vault/legal/ from the verified deep-research report
+  (21/25 claims confirmed). Every file opens with the not-legal-advice disclaimer + IL
+  attorney-review flag. Plain English, Dominick's first-person voice.
+  - web-design-agreement.md — scope/timeline/deposit/revisions/kill+late fee + the IP core:
+    "work made for hire PLUS present-tense assignment, conditioned on PAYMENT IN FULL" (AIGA/
+    Bonsai/PandaDoc norm; bare WMFH alone doesn't transfer — assignment is load-bearing).
+    Client owns site + source on final payment; optional portfolio credit + reusable
+    background-IP carve-out; client-owns-domain + no-sensitive-data clauses.
+  - domain-hosting-ownership.md — client = registrant + owns registrar/hosting logins; if
+    Dominick registers, never leave his personal email on it, hand over via TAC (registrar
+    must provide within 5 calendar days) + full handover CHECKLIST (domain, registrar, hosting,
+    DNS, source, CMS, assets, analytics, email, how-to note).
+  - acceptable-use-no-sensitive-data.md — REFUSE list (PHI/patient, SSN/gov-ID, full card/
+    bank #s, FERPA, attorney-client) built on FTC "Scale Down"; "redact it first or don't
+    send it." PHI access is the HIPAA-BA trigger → refusing PHI = never a BA (do NOT cite the
+    refuted "conduit exception").
+  - privacy-confidentiality.md — collect only what's needed, TLS in transit, no logins asked,
+    kept briefly then deleted, never shared/sold/published; don't-email-SSNs warning.
+  - web-design-packages.md — One-Pager / Multi-Page / Care-&-Updates; ownership on final
+    payment; domain+hosting at cost, no markup; PRICES are placeholders for Dominick to set
+    (survey price-bands were REFUTED — not cited).
+  - README.md index.
+- IL flag in privacy + acceptable-use: federal/FTC baseline only; PIPA/BIPA outside verified
+  set → attorney to confirm. Kept as vault/legal/ markdown (no site pages — owner single-page);
+  publishing privacy/AUP to footer is a flagged future decision, not done.
+- NEXT (owner OK'd loop): #11 Stripe test checkout (BLOCKED on owner choosing: paste 3 test
+  Payment Link URLs vs placeholder+TODO — will ASK), then #12 phase-2 polish.

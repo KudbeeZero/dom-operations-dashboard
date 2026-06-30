@@ -844,3 +844,18 @@
   `areaServed` array [State Illinois, Country US] for local-search signals. Validated JSON parses.
 - `--text-faint` 0.28 → 0.50: 0.28 was ~3.5:1 (WCAG AA fail). Computed 0.42=3.66 (still fail), 0.50=4.73:1 (pass).
   0.50 still sits below muted 0.55 so the text hierarchy holds. Used on disclaimer/footer/placeholders (small text).
+
+### PR C — Dead CSS purge (big perf/tech-debt win)
+- IMPORTANT correction: the audit's "196 dead keyframes" was WRONG — it checked keyframe names vs HTML/JS, but
+  keyframes are referenced from CSS `animation:` props. Only 3 keyframes were textually dead. The REAL dead code
+  was dead CLASS RULES (492 of 846 class names, ~58%, leftover from the removed init effects).
+- Tooling: PostCSS + postcss-selector-parser (installed in scratchpad). A rule is removed only when EVERY
+  comma-selector is gated by a dead class in a REQUIRED position; classes inside :not()/:is()/:where()/:has()
+  are ignored (so we never drop rules that match live elements via negation). Safelist: lenis-*, js, is-*, has-*,
+  *-active, *-in, *-visible. "Live" = class token present anywhere in index.html or main.js (generous = safe).
+- Result: removed 719 rules + pruned 29 selectors + 193 emptied media queries + 118 now-orphaned keyframes.
+  style.css 279KB→162KB (-42%), 9072→5074 lines.
+- VERIFICATION (the safety net): before/after computed-style diff of EVERY element (648) on desktop+mobile.
+  Under reduced-motion (deterministic) → 0 diffs across all 634 elements. Non-RM run's 16/12 diffs were pure
+  animation-timing noise. Final functional check: hero/6 bento/3 price/honest/19 sections/chat all good, 0 errors.
+- Purge scripts in scratchpad (purge.mjs, cssdiff-rm.mjs). Class-name dead-set ~492; this removed their rules safely.

@@ -1,0 +1,16 @@
+{
+  "name": "stripe-connect-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sample Stripe Connect integration: V2 recipient account onboarding, platform-level products, a shared storefront, destination charges with an application fee, and thin V2 Connect webhooks.",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "stripe": "latest"
+  }
+}

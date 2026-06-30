@@ -12,12 +12,65 @@ const MODEL = 'claude-haiku-4-5';
 const MAX_TOKENS = 1024;          // cap on the reply length (bounds cost)
 const MAX_TURNS = 10;             // only keep the last N messages of history
 const MAX_CHARS_PER_MSG = 2000;   // reject absurdly long single messages
+const RL_PER_MIN = 12;            // max requests per IP per minute
+const RL_PER_DAY = 150;           // max requests per IP per day
+
+// Browser Origins allowed to call this endpoint. A request whose Origin is present
+// but not on this list is rejected (cheap defense; spoofable by non-browsers, but
+// it stops naive cross-site abuse for free). Same-origin requests that omit Origin
+// are allowed — the per-IP rate limiter still applies to them.
+const ALLOWED_ORIGINS = [
+  'https://igotadom.online',
+  'https://www.igotadom.online',
+];
+const ALLOWED_ORIGIN_SUFFIX = '.dom-operations-dashboard.pages.dev'; // CF preview deploys
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), {
     status,
     headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
   });
+
+function originAllowed(origin) {
+  if (!origin) return true; // no Origin header → allow (rate limiter still gates it)
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  try {
+    return new URL(origin).hostname.endsWith(ALLOWED_ORIGIN_SUFFIX);
+  } catch {
+    return false;
+  }
+}
+
+// Per-IP fixed-window rate limit backed by Cloudflare KV (Workers isolates share no
+// memory, so an in-memory counter can't work). Fails OPEN: if CHAT_KV isn't bound or
+// KV errors, we allow the request so a setup gap or KV hiccup never takes the bot down.
+async function rateLimited(env, ip) {
+  const kv = env.CHAT_KV;
+  if (!kv) {
+    console.warn('[chat] CHAT_KV not bound — running without rate limiting.');
+    return false;
+  }
+  if (!ip) return false;
+  const now = Date.now();
+  const minKey = `rl:m:${ip}:${Math.floor(now / 60000)}`;
+  const dayKey = `rl:d:${ip}:${Math.floor(now / 86400000)}`;
+  try {
+    const [minRaw, dayRaw] = await Promise.all([kv.get(minKey), kv.get(dayKey)]);
+    const minCount = parseInt(minRaw || '0', 10);
+    const dayCount = parseInt(dayRaw || '0', 10);
+    if (minCount >= RL_PER_MIN || dayCount >= RL_PER_DAY) return true;
+    // Not over the limit — record this request. (KV has no atomic increment; a benign
+    // read-modify-write race is acceptable at this scale.)
+    await Promise.all([
+      kv.put(minKey, String(minCount + 1), { expirationTtl: 60 }),
+      kv.put(dayKey, String(dayCount + 1), { expirationTtl: 86400 }),
+    ]);
+    return false;
+  } catch (err) {
+    console.warn('[chat] KV rate-limit error — failing open:', err && err.message);
+    return false;
+  }
+}
 
 export async function onRequestPost({ request, env }) {
   // 1. Fail fast with a clear message if the key isn't configured.
@@ -28,6 +81,20 @@ export async function onRequestPost({ request, env }) {
     return json(
       { error: 'The assistant isn’t set up yet. Text Dominick at 773-647-7598 and he’ll help you directly.' },
       503,
+    );
+  }
+
+  // 1b. Only accept calls from our own site (cheap cross-site-abuse guard).
+  if (!originAllowed(request.headers.get('Origin'))) {
+    return json({ error: 'Not allowed.' }, 403);
+  }
+
+  // 1c. Per-IP rate limit (protects metered API spend). Fails open if KV isn't set up.
+  const ip = request.headers.get('CF-Connecting-IP');
+  if (await rateLimited(env, ip)) {
+    return json(
+      { error: 'You’re sending messages a little fast — give it a few seconds, or just text Dominick at 773-647-7598.' },
+      429,
     );
   }
 

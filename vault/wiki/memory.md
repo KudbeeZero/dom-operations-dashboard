@@ -697,3 +697,22 @@
   Turnstile) is a flagged follow-up. One-page site → full content fits in the prompt (no RAG yet).
 - Verified locally with Chromium: launcher→panel→greeting→user echo→graceful fallback→close, no
   page errors. Live streaming test is owner's after key+deploy (this env can't run Functions/API).
+
+## Chat endpoint rate-limiting (branch claude/chat-rate-limit, task #17)
+- Hardened functions/api/chat.js (the open /api/chat POST) against abuse of the metered Claude
+  spend, before the Claude call:
+  - ORIGIN allowlist: rejects (403) requests whose Origin is present but not igotadom.online /
+    www / *.dom-operations-dashboard.pages.dev. Missing Origin is allowed (rate limiter still gates).
+  - PER-IP RATE LIMIT via Cloudflare KV (binding CHAT_KV): fixed windows RL_PER_MIN=12/min,
+    RL_PER_DAY=150/day, keyed by CF-Connecting-IP. Over limit → 429 friendly "sending a little
+    fast, text Dominick" message. FAILS OPEN: if CHAT_KV unbound or KV errors, requests are
+    allowed (a setup gap or KV hiccup never takes the bot down) — logs a warning when unbound.
+  - KV has no atomic increment; benign read-modify-write race accepted at this scale.
+- OWNER SETUP (one step): Cloudflare Pages → project → Settings → Functions → KV namespace
+  bindings → create namespace (e.g. chat-ratelimit) → bind as CHAT_KV → redeploy. Until then the
+  endpoint runs unthrottled but working.
+- Verified locally: node --check + mock tests (originAllowed all cases pass; 13th request blocked,
+  per-IP isolated, fail-open unbound). Live abuse test is owner's.
+- NOT bot-proof (IP rotation defeats it) — stronger upgrade = Cloudflare Turnstile (front-end
+  challenge + siteverify in the Function), flagged as next layer if abuse appears. Native CF WAF
+  rate-limiting rule is a zero-code dashboard alternative the owner can also enable.

@@ -8989,3 +8989,32 @@ svg path.draw-path, svg .draw-path {
   .cleanup-cinema { height: 220vh; }
   .cleanup-stain { width: 64px; height: 64px; }
 }
+
+/* ==========================================================================
+   KEYBOARD FOCUS RINGS — a consistent teal outline for keyboard users.
+   :focus-visible only, so mouse clicks never show a ring but Tab navigation
+   always does. Covers the interactive controls that previously fell back to
+   the browser default (nav + mobile menu links, buttons/CTAs, scroll-to-top,
+   and the chat widget controls).
+   ========================================================================== */
+.nav-links a:focus-visible,
+.mobile-menu a:focus-visible,
+.btn:focus-visible,
+.btn-primary:focus-visible,
+#scrollTop:focus-visible,
+.chat-launcher:focus-visible,
+.chat-close:focus-visible,
+.chat-send:focus-visible,
+.chat-chip:focus-visible,
+.price-cta:focus-visible,
+.price-cta-alt:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* The click ripple is already skipped in JS under reduced motion; gate it in
+   CSS too so it can never animate for a reduced-motion visitor. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-ripple { display: none !important; }
+}

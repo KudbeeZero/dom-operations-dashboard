@@ -2852,9 +2852,14 @@ body::after {
    Sprint 13 — Polish: 3D tilt + CTA pulse + count-up
    ========================================================================== */
 
-/* --- 3D card tilt: suppress CSS transition while rAF drives the transform */
-.bento-card.tilt-active {
+/* --- 3D card tilt: suppress the CSS transform transition while rAF drives the
+   transform (otherwise every frame would fight a 0.25s ease and feel laggy).
+   On pointerleave the class is removed, restoring the transition for a smooth
+   settle back to rest. */
+.bento-card.tilt-active,
+.price-card.tilt-active {
   transition: border-color 0.25s, box-shadow 0.25s;
+  will-change: transform;
 }
 
 /* --- CTA pulse ring: expanding box-shadow halo on primary action buttons */

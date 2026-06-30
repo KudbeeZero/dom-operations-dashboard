@@ -716,3 +716,21 @@
 - NOT bot-proof (IP rotation defeats it) — stronger upgrade = Cloudflare Turnstile (front-end
   challenge + siteverify in the Function), flagged as next layer if abuse appears. Native CF WAF
   rate-limiting rule is a zero-code dashboard alternative the owner can also enable.
+
+## Bundle slim-down — delete dead effect code (branch claude/slim-js-bundle, task #12)
+- PR #167 curated the runtime to a KEEP allowlist (~53 effects) but the cut effects' CODE still
+  shipped. main.js was 10,513 lines / 410KB — the heaviest asset.
+- Measured: 413 init* functions defined, 53 in KEEP, 360 dead. A one-shot Node transform
+  (scratchpad/slim.mjs, not committed) deleted every non-KEEP top-level `function init*(){...}`
+  block (column-0 function → next column-0 `}`), removed orphan one-line comment headers, and
+  REBUILT the inits[] array by filtering the ORIGINAL array order to KEEP members (preserves exact
+  current execution order; dedups the old duplicate entries).
+- RESULT: main.js 10,513 → 3,359 lines, 410KB → 141KB (~66% smaller). 363 function blocks removed.
+  node --check passes; zero non-KEEP init functions remain; initChatbot + all KEEP intact.
+- REGRESSION GATE (headless Chromium, desktop 1440 + mobile 390): IDENTICAL to pre-slim baseline —
+  hero "Chaos to Clarity.", 0 gibberish, 3/3 pricing cards, all sections same heights (e.g. desktop
+  #services 1927 / #pricing 1271 — match earlier render-check exactly), 0 stranded, 0 console
+  errors, chat launcher opens + sends. Same site, less code.
+- CSS cleanup (dead keyframes/classes for cut effects) deliberately NOT done here — riskier, a
+  separate careful follow-up. Cut effects remain recoverable in git history.
+- Kept the KEEP Set + filter as a harmless guard even though the array now only holds KEEP names.

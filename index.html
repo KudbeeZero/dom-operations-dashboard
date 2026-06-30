@@ -7,7 +7,9 @@
        paint. main.js is now deferred, so this can't wait for it. -->
   <script>document.documentElement.classList.add('js');</script>
   <title>I Got A Dom — Chaos to Clarity. Same-Day Document Cleanup.</title>
-  <meta name="description" content="I turn messy notes, screenshots, menus, and rough drafts into clean, professional, ready-to-send results. Same day." />
+  <meta name="description" content="Same-day document cleanup and resume formatting. I turn messy notes, screenshots, menus, and rough drafts into clean, professional, ready-to-send results — usually within hours." />
+  <meta name="author" content="Dominick — I Got A Dom" />
+  <meta name="theme-color" content="#0d0d0f" />
 
   <!-- Canonical home (custom domain) -->
   <link rel="canonical" href="https://igotadom.online/" />
@@ -20,6 +22,9 @@
   <meta property="og:site_name" content="I Got A Dom" />
   <meta property="og:image" content="https://igotadom.online/assets/og-image.svg" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="I Got A Dom — Chaos to Clarity." />
+  <meta name="twitter:description" content="Same-day document cleanup and resume formatting. Messy notes, screenshots, and rough drafts in — clean, ready-to-send results out." />
+  <meta name="twitter:image" content="https://igotadom.online/assets/og-image.svg" />
 
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
 
@@ -29,6 +34,117 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@300..700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Structured data: helps Google understand the business, the price tiers, and the
+       FAQ (eligible for FAQ rich results). Kept strictly honest — no aggregateRating
+       until there are real, verifiable reviews. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfessionalService",
+        "@id": "https://igotadom.online/#business",
+        "name": "I Got A Dom",
+        "description": "Same-day document cleanup and resume formatting. Messy notes, screenshots, menus, and rough drafts go in; clean, professional, ready-to-send results come out — usually within hours.",
+        "url": "https://igotadom.online/",
+        "logo": "https://igotadom.online/assets/logo.svg",
+        "image": "https://igotadom.online/assets/og-image.svg",
+        "telephone": "+1-773-647-7598",
+        "priceRange": "$25–$75",
+        "areaServed": {
+          "@type": "Country",
+          "name": "United States"
+        },
+        "knowsAbout": [
+          "Document cleanup",
+          "Document formatting",
+          "Resume formatting",
+          "Cover letters and bios",
+          "Screenshot to text",
+          "Meeting notes cleanup"
+        ],
+        "makesOffer": [
+          {
+            "@type": "Offer",
+            "name": "Quick Fix",
+            "description": "One short document or screenshot cleanup, formatted and returned same day.",
+            "price": "25",
+            "priceCurrency": "USD"
+          },
+          {
+            "@type": "Offer",
+            "name": "Clean Package",
+            "description": "Resume or multi-page document, fully formatted and structured, with one round of tweaks — same day.",
+            "price": "50",
+            "priceCurrency": "USD"
+          },
+          {
+            "@type": "Offer",
+            "name": "Same-Day Buildout",
+            "description": "Larger or rush jobs and multiple pieces, assembled and cleaned together with priority same-day handling.",
+            "price": "75",
+            "priceCurrency": "USD"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://igotadom.online/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What can you actually help with?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Resumes, bios, cover letters, meeting notes, screenshots with text in them, menus, flyers, rough email drafts, voice note transcriptions, scattered bullet points — basically anything that's a mess on paper or on a screen. If you're not sure, just ask."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I send you my stuff?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Text me at 773-647-7598 — that's the fastest. You can also fill out the form on the site. Send whatever you have: a screenshot, a file attachment, a Google Docs link, copied text, or a photo."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does it take?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Most jobs come back the same day — many within a few hours. If your job is bigger or I'm slammed, I'll tell you upfront."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What if I don't like what I get back?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "I fix it. Same day, no argument, no extra charge. Tell me what you want changed and I'll get it right."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my stuff confidential?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. I don't share, sell, publish, or show anyone what you send me. Everything stays between us."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do you need any logins or passwords?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Just send me the document, screenshot, or text. I don't need access to your accounts — ever."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <!-- Page-load intro overlay — wipes upward via JS; removed after transition -->

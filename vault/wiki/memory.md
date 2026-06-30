@@ -859,3 +859,9 @@
   Under reduced-motion (deterministic) → 0 diffs across all 634 elements. Non-RM run's 16/12 diffs were pure
   animation-timing noise. Final functional check: hero/6 bento/3 price/honest/19 sections/chat all good, 0 errors.
 - Purge scripts in scratchpad (purge.mjs, cssdiff-rm.mjs). Class-name dead-set ~492; this removed their rules safely.
+
+### PR D — a11y ARIA polish
+- 6 .bento-icon emoji divs → aria-hidden="true" (decorative; the h3 carries meaning).
+- Contact form: each input/textarea got aria-describedby → its error span (now id'd error-name/need/reach + aria-live=polite),
+  so screen readers announce validation errors tied to the field. Form JS still uses data-for to populate (unchanged).
+- Verified headless: icons hidden, describedby targets exist & are the error spans, 0 errors.

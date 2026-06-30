@@ -806,3 +806,11 @@
   so anchors land correctly under the compact nav. (Only runs when Lenis is active = desktop.)
 - initActiveNav rootMargin -28%/-68% → -15%/-75% (focal band ~15-25% down; wider = no gaps, higher = less lag).
 - Verified headless: all 6 nav links (#showcase…#contact) activate for their section, 0 errors.
+
+### PR4 — Animation harmonization (conservative)
+- Added :root token `--ease-smooth: cubic-bezier(0.4,0,0.2,1)` and pointed the slider-tab indicator +
+  .nav-inner padding transitions at it (pure tokenization — zero visual change).
+- Nav underline transform transition: generic `ease` → `var(--ease-out)` (snappier, matches reveal language).
+- Softened the two bounciest GSAP spring outliers to the existing standard: back.out(2.8)→1.7 (bento card land),
+  back.out(2.4)→1.7 (about icon). Left the intentional, documented bento anchor/rest hierarchy (2.0/1.5) alone.
+- Verified headless: tokens resolve, nav underline uses --ease-out, bento+about entrances settle at opacity 1, 0 errors.

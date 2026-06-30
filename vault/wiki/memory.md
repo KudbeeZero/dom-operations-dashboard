@@ -822,3 +822,19 @@
   DM Sans fonts (loaded through the agent proxy; brandFontLoaded=true). Saved assets/og-image.png (~252KB).
   Render harness in scratchpad (render-og.mjs + ogcard.html); proxy passed via chromium.launch proxy + ignoreHTTPSErrors.
 - Repointed og:image, twitter:image, and JSON-LD "image" to the PNG; added og:image:type/width/height/alt. Kept the SVG.
+
+## 2026-06-30 — Loop: weaknesses audit (3 parallel Explore agents) + honesty pass
+- Ran 3 audits: performance/tech-debt, conversion/honesty/functional, SEO/a11y. Full findings drove a plan.
+- Owner decisions: DROP the unverifiable "500+ documents cleaned" stat; REPLACE the 4 fabricated testimonials
+  (Marcus T./Jasmine R./David K./Sophia M.) with an honest section.
+### PR A — Honesty pass (brand-critical)
+- Removed the "500+ documents cleaned" stat li; stats-grid → auto-fit+centered so the remaining 2 (Same day, $25) stay balanced.
+- Replaced testimonial cards with `.honest-review` panel: "No fake reviews here. / I'd rather earn yours than invent one."
+  + real text CTA. Kept section id="testimonials" (nav/anchor intact). initTestimonialsReveal no-ops safely (no .tcard left).
+- JSON-LD already had NO fake aggregateRating/Review (line 43 confirms) — nothing to remove there.
+- NOTE: .tcard/.tstar/.testimonials-grid CSS is now dead — fold into the upcoming dead-CSS cleanup PR.
+- Verified headless: 500+ gone, fake names gone, honest panel visible, 0 errors.
+### Audit follow-ups still queued
+- PR: Local SEO schema (areaServed Illinois, LocalBusiness, per-service Service) + WCAG --text-faint contrast + minor ARIA.
+- PR: Dead CSS cleanup (~196/200 keyframes, ~370/741 classes dead; preserve JS-runtime classes like .tilt-active/.is-active).
+- Owner to set Turnstile sitekey; Stripe links later. Zelle/text fine for now.

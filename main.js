@@ -3715,6 +3715,146 @@ function initSectionCounter() {
   update(0);
 }
 
+/* -------------------------------------------------------------------------
+   Chat assistant widget — talks to the /api/chat Cloudflare Function, which
+   proxies Claude and streams the reply back as SSE. Renders token-by-token.
+   ------------------------------------------------------------------------- */
+function initChatbot() {
+  const launcher = document.getElementById('chatLauncher');
+  const panel = document.getElementById('chatPanel');
+  const closeBtn = document.getElementById('chatClose');
+  const log = document.getElementById('chatLog');
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSend');
+  const chips = document.getElementById('chatChips');
+  if (!launcher || !panel || !form || !input || !log) return;
+
+  const history = [];          // [{role:'user'|'assistant', content}]
+  let busy = false;
+  let greeted = false;
+
+  const scrollDown = () => { log.scrollTop = log.scrollHeight; };
+
+  function addMsg(role, text) {
+    const el = document.createElement('div');
+    el.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+    el.textContent = text;
+    log.appendChild(el);
+    scrollDown();
+    return el;
+  }
+
+  function openPanel() {
+    panel.hidden = false;
+    launcher.classList.add('is-hidden');
+    launcher.setAttribute('aria-expanded', 'true');
+    if (!greeted) {
+      greeted = true;
+      addMsg('bot', "Hey — I'm Dominick's assistant. Ask me what I can clean up, how much it costs, or how to send a file. For a real job, text 773-647-7598.");
+    }
+    setTimeout(() => input.focus(), 50);
+  }
+  function closePanel() {
+    panel.hidden = true;
+    launcher.classList.remove('is-hidden');
+    launcher.setAttribute('aria-expanded', 'false');
+    launcher.focus();
+  }
+
+  launcher.addEventListener('click', openPanel);
+  closeBtn?.addEventListener('click', closePanel);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !panel.hidden) closePanel();
+  });
+
+  if (chips) {
+    chips.addEventListener('click', (e) => {
+      const btn = e.target.closest('.chat-chip');
+      if (!btn || busy) return;
+      input.value = btn.textContent;
+      form.requestSubmit();
+    });
+  }
+
+  async function send(text) {
+    if (busy) return;
+    busy = true;
+    sendBtn.disabled = true;
+    chips?.setAttribute('hidden', '');
+    addMsg('user', text);
+    history.push({ role: 'user', content: text });
+
+    // Typing indicator, replaced by the streamed text as it arrives.
+    const botEl = addMsg('bot', '');
+    botEl.innerHTML = '<span class="chat-typing"><span></span><span></span><span></span></span>';
+    let answer = '';
+
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+
+      if (!resp.ok || !resp.body) {
+        let msg = 'The assistant is busy right now. Text Dominick at 773-647-7598.';
+        try { const j = await resp.json(); if (j && j.error) msg = j.error; } catch (_) {}
+        botEl.classList.add('is-error');
+        botEl.textContent = msg;
+        return;
+      }
+
+      // Parse the Claude SSE stream: lines `data: {json}`, type content_block_delta.
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();           // keep the trailing partial line
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const payload = trimmed.slice(5).trim();
+          if (!payload || payload === '[DONE]') continue;
+          let evt;
+          try { evt = JSON.parse(payload); } catch (_) { continue; }
+          if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
+            answer += evt.delta.text;
+            botEl.textContent = answer;
+            scrollDown();
+          }
+        }
+      }
+
+      if (answer.trim()) {
+        history.push({ role: 'assistant', content: answer });
+      } else {
+        botEl.classList.add('is-error');
+        botEl.textContent = "Sorry — I couldn't answer that. Text Dominick at 773-647-7598.";
+      }
+    } catch (_) {
+      botEl.classList.add('is-error');
+      botEl.textContent = 'Connection trouble. Text Dominick at 773-647-7598.';
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    send(text);
+  });
+}
+
 /* ------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   // Each init is isolated so a failure in one (e.g. a blocked CDN) can't
@@ -3859,6 +3999,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStatsCountUp, initMagneticButtons, initTestimonialsAmbient,       // Sprint 150
     initTestimonialsReveal, initTestimonialCardShine,                     // Sprint 149
     initLiveAvailabilityPing, initTryItDemo, initSonarPing,               // Sprint 148
+    initChatbot,                                                          // AI chat assistant
   ];
   // ── Refined curation (Phase 1 visual upgrade) ──────────────────────────────
   // The site accumulated ~158 init effects over 150 sprints — too flashy and too
@@ -3887,7 +4028,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'initSmsComposer', 'initParticleWord', 'initFaqAnimation', 'initStatsCountUp',
     'initCountUp', 'initFloatingCTA',
     // Forms · utility · conversion
-    'initContactForm', 'initQRCode', 'initPaymentLinks', 'initLiveAvailabilityPing',
+    'initContactForm', 'initQRCode', 'initPaymentLinks', 'initLiveAvailabilityPing', 'initChatbot',
     // Tasteful hover (desktop / fine-pointer — subtle, not flashy)
     'initCardSpotlight', 'initPriceCardSpotlight', 'initMagneticButtons', 'initButtonRipple',
   ]);

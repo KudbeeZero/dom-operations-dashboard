@@ -671,3 +671,29 @@
   work). #165 should be closed.
 - Gate: node --check server.js (Stripe MCP was disconnected so couldn't doc-verify; followed the
   spec's exact shapes). Full runtime test is owner's (needs sk_test_ keys + stripe listen).
+
+## AI chat assistant (branch claude/ai-chat-assistant, task #16)
+- Owner wanted a chat/type AI bot with full access to site content. Site is static on
+  Cloudflare Pages → added a Cloudflare PAGES FUNCTION (functions/api/chat.js) so the API key
+  stays server-side. No new hosting/framework/build. Directly answers earlier PHP/Bootstrap/
+  new-host questions: none needed.
+- functions/api/chat.js: onRequestPost; fail-fast if env.ANTHROPIC_API_KEY missing (returns a
+  friendly "text Dominick" 503); validates input (last 10 turns, 2000 char/msg cap); calls
+  Claude Messages API (model claude-haiku-4-5, max_tokens 1024, stream:true, system=KNOWLEDGE
+  with cache_control ephemeral); streams the SSE straight back to the browser. Only onRequestPost
+  exported (Pages auto-405s other methods).
+- functions/api/_knowledge.js: the system prompt = full site knowledge (brand/voice, services,
+  EXACT pricing $25/$50/$75+, process, FAQ, contact) + HARD RULES: only talk about I Got A Dom,
+  no legal/tax/medical/financial advice, refuse PHI/SSN/full card+bank #s, funnel real jobs to
+  text 773-647-7598, short answers. Edit this one file when the site changes.
+- Front end: index.html chat launcher + #chatPanel (before scripts); style.css widget (dark/teal
+  glass, mobile full-screen sheet, reduced-motion); main.js initChatbot() — opens panel, streams
+  /api/chat SSE (parses content_block_delta → text_delta), example chips, graceful error fallback
+  ("text Dominick"). Added initChatbot to BOTH the inits array and the KEEP allowlist.
+- MODEL is a one-line swap to claude-sonnet-4-6 for higher quality (pricier).
+- OWNER SETUP REQUIRED: add ANTHROPIC_API_KEY in Cloudflare Pages → Settings → Environment
+  variables (encrypted), then redeploy. Until then the widget shows the friendly fallback (safe).
+- COST/ABUSE: metered usage; ships basic input caps only. Real rate-limiting (Cloudflare WAF/
+  Turnstile) is a flagged follow-up. One-page site → full content fits in the prompt (no RAG yet).
+- Verified locally with Chromium: launcher→panel→greeting→user echo→graceful fallback→close, no
+  page errors. Live streaming test is owner's after key+deploy (this env can't run Functions/API).

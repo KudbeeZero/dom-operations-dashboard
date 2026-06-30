@@ -1458,6 +1458,53 @@ function initCardTilt() {
 
 
 /* -------------------------------------------------------------------------
+   CLEANUP CINEMA — scroll-scrubbed "messy → clean" document transformation.
+   Maps the section's scroll progress to a --p (0..1) custom property that the
+   CSS keys every transform/opacity off of. Uses position:sticky in CSS (not a
+   JS scroll-pin), so it can never hijack or break page scrolling. Under
+   prefers-reduced-motion it collapses to a static clean sheet.
+   ------------------------------------------------------------------------- */
+function initCleanupCinema() {
+  const section = document.getElementById('cleanup');
+  if (!section) return;
+  const caption = document.getElementById('cleanupCaption');
+  const paper = section.querySelector('.cleanup-paper');
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    section.classList.add('cleanup-static');
+    section.style.setProperty('--p', '1');
+    if (paper) paper.classList.add('is-done');
+    if (caption) caption.textContent = 'Clean, formatted, ready to send.';
+    return;
+  }
+
+  const CAPTIONS = [
+    [0.00, 'A messy draft — typos, stains, crooked.'],
+    [0.30, 'Fixing the typos…'],
+    [0.55, 'Straightening and reformatting…'],
+    [0.90, 'Clean, formatted, ready to send.'],
+  ];
+  let raf = 0, lastCap = -1;
+
+  const update = () => {
+    raf = 0;
+    const rect = section.getBoundingClientRect();
+    const total = section.offsetHeight - window.innerHeight;
+    const scrolled = Math.min(Math.max(-rect.top, 0), total);
+    const p = total > 0 ? scrolled / total : 0;
+    section.style.setProperty('--p', p.toFixed(4));
+    if (paper) paper.classList.toggle('is-done', p > 0.9);
+    let idx = 0;
+    for (let i = 0; i < CAPTIONS.length; i++) if (p >= CAPTIONS[i][0]) idx = i;
+    if (idx !== lastCap && caption) { caption.textContent = CAPTIONS[idx][1]; lastCap = idx; }
+  };
+  const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+}
+
+/* -------------------------------------------------------------------------
    COUNT-UP — IO-triggered number animation on trust bar stats
    ------------------------------------------------------------------------- */
 function initCountUp() {
@@ -2462,7 +2509,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollVignette, initStaggerListReveal, initKeyboardNav, initDynamicThemeColor,
     initCascadeReveal, initPaymentLinks, initParticleWord, initSmsComposer,
     initStatsCountUp, initTestimonialsReveal, initLiveAvailabilityPing, initTryItDemo,
-    initChatbot, initCardTilt,
+    initChatbot, initCardTilt, initCleanupCinema,
   ];
   // ── Refined curation (Phase 1 visual upgrade) ──────────────────────────────
   // The site accumulated ~158 init effects over 150 sprints — too flashy and too
@@ -2489,7 +2536,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'initUnderwater', 'initReef', 'initBeforeAfter', 'initSliderTabIndicator',
     'initSliderHint', 'initShowcaseAutoplay', 'initTransformDemo', 'initTryItDemo',
     'initSmsComposer', 'initParticleWord', 'initFaqAnimation', 'initStatsCountUp',
-    'initCountUp', 'initFloatingCTA',
+    'initCountUp', 'initFloatingCTA', 'initCleanupCinema',
     // Forms · utility · conversion
     'initContactForm', 'initQRCode', 'initPaymentLinks', 'initLiveAvailabilityPing', 'initChatbot',
     // Tasteful hover (desktop / fine-pointer — subtle, not flashy)

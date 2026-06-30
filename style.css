@@ -8831,3 +8831,161 @@ svg path.draw-path, svg .draw-path {
 
 /* Cloudflare Turnstile container — invisible widget, no layout footprint. */
 .chat-turnstile { height: 0; overflow: hidden; }
+
+/* ==========================================================================
+   CLEANUP CINEMA — scroll-scrubbed "Chaos to Clarity" document transformation
+   A messy resume straightens, de-stains, fixes typos and sharpens into a clean
+   version as the section scrolls. All keyed off --p (0 = messy, 1 = clean),
+   set by initCleanupCinema from scroll progress. The paper is position:sticky
+   (no JS scroll-pinning), so it can't hijack or break page scrolling.
+   ========================================================================== */
+.cleanup-cinema {
+  --p: 1;                 /* default clean: if JS never runs, the doc reads clean */
+  position: relative;
+  height: 260vh;          /* scroll room for the scrub; sticky child stays centered */
+  background: transparent;
+}
+.cleanup-track {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+/* clarity glow behind the paper — brightens as the doc gets clean */
+.cleanup-track::after {
+  content: "";
+  position: absolute;
+  width: 70vmin;
+  height: 70vmin;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,200,0.22), transparent 65%);
+  opacity: calc(var(--p) * 0.9);
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 0;
+}
+.cleanup-stage {
+  position: relative;
+  z-index: 1;
+  width: min(640px, 90vw);
+  text-align: center;
+}
+.cleanup-head { margin-bottom: var(--space-8); }
+.cleanup-caption {
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  min-height: 1.5em;       /* reserve space so swapping captions doesn't jump */
+  transition: color 0.3s ease;
+}
+
+/* The paper sheet. Crooked + blurred while messy, straight + crisp when clean. */
+.cleanup-paper {
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 320px;
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  background: #f7f4ee;
+  color: #1b1b20;
+  border-radius: 10px;
+  text-align: left;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.6);
+  transform: rotate(calc((1 - var(--p)) * -3.4deg)) scale(calc(0.96 + var(--p) * 0.04));
+  filter: blur(calc((1 - var(--p)) * 2.4px));
+}
+
+/* Coffee-ring stain — fades out as the page gets clean. */
+.cleanup-stain {
+  content: "";
+  position: absolute;
+  top: 12%;
+  right: 9%;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, transparent 52%, rgba(120,72,30,0.30) 54%, rgba(120,72,30,0.16) 66%, transparent 72%);
+  opacity: calc(1 - var(--p));
+  pointer-events: none;
+}
+
+/* Messy and clean copies are stacked; we cross-fade between them with --p. */
+.cleanup-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.cleanup-doc--clean {
+  position: absolute;
+  inset: clamp(1.5rem, 4vw, 2.75rem);
+  opacity: clamp(0, calc((var(--p) - 0.45) * 2.4), 1);
+}
+.cleanup-doc--messy {
+  opacity: clamp(0, calc((0.6 - var(--p)) * 2.4), 1);
+}
+.cl-line {
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  line-height: 1.5;
+  color: #2a2a30;
+}
+.cl-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+  margin-bottom: 0.25rem;
+}
+/* messy lines lean and wander a little for that "rough draft" feel */
+.cleanup-doc--messy .cl-line:nth-child(2) { transform: rotate(0.5deg); margin-left: 0.6rem; }
+.cleanup-doc--messy .cl-line:nth-child(3) { transform: rotate(-0.7deg); }
+.cleanup-doc--messy .cl-line:nth-child(4) { transform: rotate(0.4deg); margin-left: 0.3rem; }
+.cleanup-doc--messy .cl-line:nth-child(5) { transform: rotate(-0.4deg); }
+.cl-typo {
+  text-decoration: underline wavy #d4453e;
+  text-underline-offset: 3px;
+}
+
+/* "Ready ✓" stamp lands when the doc is clean (toggled via .is-done in JS). */
+.cleanup-stamp {
+  position: absolute;
+  bottom: 8%;
+  right: 8%;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: clamp(0.9rem, 1.8vw, 1.15rem);
+  color: #00897f;
+  border: 2.5px solid #00897f;
+  border-radius: 8px;
+  padding: 4px 12px;
+  transform: rotate(-9deg) scale(1.5);
+  opacity: 0;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.18, 1.4, 0.5, 1);
+  pointer-events: none;
+}
+.cleanup-paper.is-done .cleanup-stamp {
+  opacity: 0.92;
+  transform: rotate(-9deg) scale(1);
+}
+
+/* Reduced-motion (set by JS): collapse the scroll room and just show the clean
+   sheet — no blur, no scrub, no tall empty section. */
+.cleanup-cinema.cleanup-static {
+  height: auto;
+  padding: var(--space-20) 0;
+}
+.cleanup-cinema.cleanup-static .cleanup-track {
+  position: static;
+  height: auto;
+}
+.cleanup-cinema.cleanup-static .cleanup-paper { filter: none; transform: none; }
+.cleanup-cinema.cleanup-static .cleanup-doc--messy,
+.cleanup-cinema.cleanup-static .cleanup-stain { display: none; }
+.cleanup-cinema.cleanup-static .cleanup-doc--clean { position: static; inset: auto; opacity: 1; }
+
+@media (max-width: 640px) {
+  .cleanup-cinema { height: 220vh; }
+  .cleanup-stain { width: 64px; height: 64px; }
+}

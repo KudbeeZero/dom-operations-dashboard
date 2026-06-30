@@ -664,6 +664,45 @@
     </div>
   </section>
 
+  <!-- ============================== CLEANUP CINEMA ============================== -->
+  <!-- Scroll-scrubbed "Chaos to Clarity": a messy resume straightens, de-stains,
+       fixes its typos and sharpens into a clean version as you scroll. Driven by a
+       --p (0..1) custom property set from scroll progress (initCleanupCinema). The
+       paper is sticky (no scroll hijacking); reduced-motion shows the clean state. -->
+  <section id="cleanup" class="cleanup-cinema" aria-label="Watch a messy document become clean as you scroll">
+    <div class="cleanup-track">
+      <div class="cleanup-stage">
+        <header class="cleanup-head">
+          <span class="section-kicker">The Cleanup</span>
+          <h2 class="section-title">Scroll. Watch the mess clear.</h2>
+          <p class="cleanup-caption" id="cleanupCaption">A messy draft — typos, stains, crooked.</p>
+        </header>
+
+        <div class="cleanup-paper" aria-hidden="true">
+          <span class="cleanup-stain"></span>
+
+          <div class="cleanup-doc cleanup-doc--messy">
+            <p class="cl-line cl-title">reezume —  jon DOE</p>
+            <p class="cl-line">i has 10 yrs <span class="cl-typo">experiance</span> in   sales,, and <span class="cl-typo">amrketing</span></p>
+            <p class="cl-line">worked at  acme co. 2015-2020</p>
+            <p class="cl-line">skills:: excel,powerpoint , <span class="cl-typo">teamwrk</span></p>
+            <p class="cl-line"><span class="cl-typo">refrences</span> availible upon  reqest</p>
+          </div>
+
+          <div class="cleanup-doc cleanup-doc--clean">
+            <p class="cl-line cl-title">Resume — Jon Doe</p>
+            <p class="cl-line">10 years of experience in sales and marketing</p>
+            <p class="cl-line">Acme Co. — 2015–2020</p>
+            <p class="cl-line">Skills: Excel, PowerPoint, teamwork</p>
+            <p class="cl-line">References available upon request</p>
+          </div>
+
+          <span class="cleanup-stamp">Ready ✓</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============================== KINETIC STATEMENT ============================== -->
   <section class="kinetic-section" aria-label="The core promise">
     <div class="container">

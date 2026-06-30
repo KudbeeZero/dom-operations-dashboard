@@ -770,3 +770,16 @@
 - Soft white radial (rgba 255 0.08, 200px) that fades in only while `.tilt-active`; absolute/out-of-flow
   so no layout shift; low alpha keeps text readable. Reduced-motion: tilt init never runs → sheen stays hidden.
 - Verified headless: 9 sheens, opacity 1 on tilt, --gx tracks cursor, card height unchanged, fades on leave, 0 errors.
+
+## 2026-06-30 — Loop: BOLD new section — Cleanup Cinema (owner picked "one bold new section")
+- New scroll-scrubbed "Chaos to Clarity" section (#cleanup), inserted between Process and the Kinetic statement.
+- A messy resume (typos w/ red wavy underline, coffee stain, crooked, blurred) cross-fades into a clean
+  version as you scroll; teal "Ready ✓" stamp lands at the end; caption updates per phase.
+- Implementation: CSS `position: sticky` paper + a passive rAF scroll listener (initCleanupCinema) that maps
+  section scroll progress to a `--p` (0..1) custom property the CSS keys all transforms/opacity off of.
+  NO GSAP pin / no scroll hijacking → can't break page scrolling (low blast radius). 260vh tall (220 on mobile).
+- prefers-reduced-motion: JS adds .cleanup-static → collapses height, hides messy layer, shows clean sheet only.
+- IMPORTANT gotcha for future scroll work: #cleanup offsetTop != true doc position (positioned ancestor is the
+  offsetParent), so progress math MUST use getBoundingClientRect().top, not offsetTop. (Tripped the first render-check.)
+- Verified headless: p ramps 0→1, messy/clean crossfade, captions change, stamp →0.92 opacity, reduced-motion
+  static, 0 console errors. Registered in KEEP + inits.

@@ -606,3 +606,18 @@
 - Deep-research legal report COMPLETED (saved to scratchpad task wi4b0a5wd.output): belt-and-suspenders
   IP (WMFH + present-tense assignment conditioned on full payment), client = domain registrant (ICANN
   TAC handover), refuse PHI/PCI/SSN/FERPA/attorney-client (FTC data-minimization). Feeds task #10.
+
+## PR2 SHIPPED — on-page SEO (branch claude/dom-visual-upgrade-p1-seo-qq1g38)
+- index.html <head>: added JSON-LD @graph — ProfessionalService (name, desc, url, logo,
+  telephone +1-773-647-7598, priceRange $25–$75, areaServed US, knowsAbout, makesOffer x3
+  for Quick Fix $25 / Clean Package $50 / Same-Day Buildout $75) + FAQPage (the 6 real FAQ
+  Q&As → FAQ rich-result eligible). NO aggregateRating (no real reviews yet — stays honest).
+- Enhanced meta description (adds "same-day document cleanup" + "resume formatting" without
+  breaking voice); added explicit twitter:title/description/image, meta author, theme-color.
+- New robots.txt (allow all + Sitemap line) + sitemap.xml (single canonical URL, lastmod).
+- Only <img> on the page is the logo (alt already good); before/after is CSS/canvas, so no
+  alt-text gap. Title already strong ("Same-Day Document Cleanup") — left as-is.
+- KNOWN FOLLOW-UP: og:image is an SVG (assets/og-image.svg) — social scrapers won't render
+  it; owner to supply a 1200x630 PNG and swap og:image + twitter:image.
+- Validation: node JSON.parse on the ld+json block OK; xmllint sitemap well-formed. Live
+  Rich Results Test = owner (this env can't reach Google).

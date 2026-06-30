@@ -3860,7 +3860,41 @@ document.addEventListener('DOMContentLoaded', () => {
     initTestimonialsReveal, initTestimonialCardShine,                     // Sprint 149
     initLiveAvailabilityPing, initTryItDemo, initSonarPing,               // Sprint 148
   ];
+  // ── Refined curation (Phase 1 visual upgrade) ──────────────────────────────
+  // The site accumulated ~158 init effects over 150 sprints — too flashy and too
+  // heavy for the "refined & professional" direction. Content visibility no longer
+  // depends on any of them (the pure-CSS reveal-rise fade in style.css handles that),
+  // so we run only a curated, tasteful allowlist and SKIP the gimmicks: per-character
+  // wave/scramble/glitch/typewriter/neon/rainbow text, cursor trails, sparks/confetti,
+  // glow halos/rings/pulses, icon/badge bounce-pop-wiggle, 3D tilt/chromatic effects,
+  // the redundant initScroll*/initHover* variants, and the initBg* aurora/comet/ink/
+  // scanline/fog/vignette backgrounds. Skipped functions stay DEFINED — just not run,
+  // so nothing is deleted and the set can be tuned later. Cutting an effect is the win.
+  const KEEP = new Set([
+    // Structure · nav · scroll spine
+    'initSmoothScroll', 'initScrollVelocityCinema', 'initNav', 'initMobileBar',
+    'initActiveNav', 'initNavShrink', 'initScrollProgress', 'initScrollToTop',
+    'initDynamicThemeColor', 'initKeyboardNav', 'initScrollVignette',
+    // Content visibility · reveals (clean fades only)
+    'initScrollReveals', 'initPageIntro', 'initHeadingReveal', 'initPricingEntrance',
+    'initBentoReveal', 'initProcessTimeline', 'initFaqStagger', 'initFooterEntrance',
+    'initAboutEntrance', 'initContactReveal', 'initContactSteps', 'initTrustBarEntrance',
+    'initCascadeReveal', 'initStaggerListReveal', 'initTestimonialsReveal',
+    // Signature interactive showpieces (the "wow" — kept)
+    'initHeroCanvas', 'initHeroAnimation', 'initClarityScramble', 'initDiveHero',
+    'initUnderwater', 'initReef', 'initBeforeAfter', 'initSliderTabIndicator',
+    'initSliderHint', 'initShowcaseAutoplay', 'initTransformDemo', 'initTryItDemo',
+    'initSmsComposer', 'initParticleWord', 'initFaqAnimation', 'initStatsCountUp',
+    'initCountUp', 'initFloatingCTA',
+    // Forms · utility · conversion
+    'initContactForm', 'initQRCode', 'initPaymentLinks', 'initLiveAvailabilityPing',
+    // Tasteful hover (desktop / fine-pointer — subtle, not flashy)
+    'initCardSpotlight', 'initPriceCardSpotlight', 'initMagneticButtons', 'initButtonRipple',
+  ]);
+  const ranInits = new Set();
   for (const init of inits) {
+    if (!KEEP.has(init.name) || ranInits.has(init.name)) continue;
+    ranInits.add(init.name);
     try { init(); } catch (err) { console.error(`${init.name} failed:`, err); }
   }
 

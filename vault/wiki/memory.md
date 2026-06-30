@@ -791,3 +791,12 @@
   (Audited the 5 pre-existing focus-visible rules first — all on niche/dead classes, no overlap.)
 - Gated `.btn-ripple` under prefers-reduced-motion in CSS (JS already guards; this is defensive).
 - Verified headless: keyboard Tab shows teal rgb(0,212,200) 2px ring on nav-link + btn, 0 errors.
+
+### PR2 — Chat widget UX correctness
+- Disable #chatInput while streaming (alongside #chatSend), re-enable in finally. CSS `.chat-input:disabled` (dimmed, not-allowed).
+- `.chat-send:disabled:hover` no longer lights up teal.
+- aria-modal toggles true/false on open/close (was static false).
+- Body scroll-lock on open: `body.overflow='hidden'` + `window.__lenis.stop()` (guarded); restored on close (`''` + `.start()`).
+  NOTE: on close, computed body overflow reverts to stylesheet "hidden auto" (overflow-x hidden is the normal page setting) — vertical scroll restored, not a bug.
+- Tactile: .chat-close hover scale(1.15)/active scale(0.95); .chat-chip:active.
+- Verified headless: open→aria-modal true+overflow hidden; submit→input+send disabled then re-enabled; Escape→aria-modal false+scroll restored; 0 errors.

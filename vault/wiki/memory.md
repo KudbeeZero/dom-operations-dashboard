@@ -865,3 +865,11 @@
 - Contact form: each input/textarea got aria-describedby → its error span (now id'd error-name/need/reach + aria-live=polite),
   so screen readers announce validation errors tied to the field. Form JS still uses data-for to populate (unchanged).
 - Verified headless: icons hidden, describedby targets exist & are the error spans, 0 errors.
+
+## 2026-06-30 — Loop: desktop click-to-copy phone (owner away, autonomous P1 pick)
+- Owner couldn't reach desktop / set up keys, said "move forward with the most logical next fix."
+- Chose P1 option 1: initCopyPhone() — on (hover:hover)+(pointer:fine) only, intercepts a[href^="sms:"]/[tel:]
+  clicks, copies "773-647-7598" via navigator.clipboard, shows a .copy-toast pill (aria-live). Fail-safe: on
+  clipboard reject, toast still shows the number. Mobile untouched (early-return on coarse → sms: opens Messages).
+- Registered in inits + KEEP. CSS .copy-toast (glass pill, bottom-center, reduced-motion aware).
+- Verified headless (desktop, clipboard perms): clipboard = 773-647-7598, toast shown, sms: navigation prevented, 0 errors.

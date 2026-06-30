@@ -2321,6 +2321,46 @@ function initScrollVignette() {
 /* Sprint 52 — custom scrollbar, card focus ring, section counter ------------ */
 
 /* -------------------------------------------------------------------------
+   COPY PHONE — on desktop, sms:/tel: links usually dead-end (no handler), so a
+   visitor who wants to text can't get the number. Intercept those clicks on
+   fine-pointer devices, copy the number to the clipboard, and show a toast.
+   Mobile is left untouched: there the link correctly opens Messages/the dialer.
+   ------------------------------------------------------------------------- */
+function initCopyPhone() {
+  // Desktop / fine-pointer only — on phones the sms:/tel: link is the right action.
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  if (!navigator.clipboard) return; // no Clipboard API → leave the links as-is
+  const NUM = '773-647-7598';
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let toast;
+  const showToast = (msg) => {
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'copy-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    // reflow so the show transition restarts if it's already visible
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), reduce ? 3000 : 2600);
+  };
+
+  document.querySelectorAll('a[href^="sms:"], a[href^="tel:"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigator.clipboard.writeText(NUM)
+        .then(() => showToast('Copied ' + NUM + ' ✓  — paste it into your texting app'))
+        .catch(() => showToast('Text me at ' + NUM));
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
    Chat assistant widget — talks to the /api/chat Cloudflare Function, which
    proxies Claude and streams the reply back as SSE. Renders token-by-token.
    ------------------------------------------------------------------------- */
@@ -2526,7 +2566,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollVignette, initStaggerListReveal, initKeyboardNav, initDynamicThemeColor,
     initCascadeReveal, initPaymentLinks, initParticleWord, initSmsComposer,
     initStatsCountUp, initTestimonialsReveal, initLiveAvailabilityPing, initTryItDemo,
-    initChatbot, initCardTilt, initCleanupCinema,
+    initChatbot, initCardTilt, initCleanupCinema, initCopyPhone,
   ];
   // ── Refined curation (Phase 1 visual upgrade) ──────────────────────────────
   // The site accumulated ~158 init effects over 150 sprints — too flashy and too
@@ -2556,6 +2596,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'initCountUp', 'initFloatingCTA', 'initCleanupCinema',
     // Forms · utility · conversion
     'initContactForm', 'initQRCode', 'initPaymentLinks', 'initLiveAvailabilityPing', 'initChatbot',
+    'initCopyPhone',
     // Tasteful hover (desktop / fine-pointer — subtle, not flashy)
     'initCardSpotlight', 'initPriceCardSpotlight', 'initMagneticButtons', 'initButtonRipple',
     'initCardTilt',

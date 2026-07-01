@@ -9,7 +9,10 @@
   clean, professional, ready-to-send results. Same day.*
 
 ## CTAs
-- Primary: **Send Me Something →**
+- Primary: **Text Dominick →** → `sms:7736477598` (hero, nav, mobile menu,
+  sticky mobile bar). *Changed 2026-06-25 (mobile hero polish): all primary
+  CTAs point at SMS since it's the lowest-friction real channel. The old
+  primary "Send Me Something →" survives as the contact section title.*
 - Secondary/ghost: **See What I Do ↓**
 - Form submit: **Send It →**
 

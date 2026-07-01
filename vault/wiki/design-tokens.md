@@ -1,6 +1,6 @@
 # Design — I Got A Dom
 
-> Design tokens are the source of truth. They live in `outputs/site/style.css`
+> Design tokens are the source of truth. They live in `style.css` (repo root)
 > under `:root`. Keep this file and that block in sync.
 
 ## Aesthetic
@@ -9,7 +9,8 @@ accent. Glassmorphism on nav, pricing cards, and the contact form only.
 
 ## Palette
 - bg `#0d0d0f` · surface `#131316` · surface-2 `#1a1a1f` · surface-3 `#212128`
-- text `#f0ede8` (warm ivory) · muted 55% · faint 28%
+- text `#f0ede8` (warm ivory) · muted 55% · faint 50% *(was 28%; raised
+  2026-06-30 for WCAG AA — 4.73:1 on obsidian)*
 - teal `#00d4c8` (primary) · gold `#c9a84c` (secondary) · chrome `rgba(255,255,255,0.82)`
 
 ## Type

@@ -766,6 +766,10 @@ function initDiveHero() {
         Math.abs(video.currentTime - renderTime) > 0.01) {
       try { video.currentTime = renderTime; } catch (_) {}
     }
+    // Expose eased descent progress (0..1) — CSS phases the caption lines,
+    // the scroll cue, and the depth hairline off this one variable.
+    const p = duration > END_EPSILON ? renderTime / (duration - END_EPSILON) : 0;
+    section.style.setProperty('--dive-p', p.toFixed(4));
     rafId = requestAnimationFrame(tick);
   }
   function startLoop() { if (rafId == null) rafId = requestAnimationFrame(tick); }

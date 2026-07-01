@@ -158,11 +158,27 @@ button { font: inherit; cursor: pointer; }
   transition: all 0.2s var(--ease-out);
 }
 
-.btn-primary { background: var(--teal); color: #0d0d0f; }
+.btn-primary {
+  background: var(--teal);
+  color: #0d0d0f;
+  box-shadow: 0 6px 22px rgba(0, 212, 200, 0.16);
+}
 .btn-primary:hover {
   background: #00ffe6;
   box-shadow: 0 0 30px var(--teal-glow);
   transform: translateY(-2px);
+}
+.btn:active { transform: translateY(0) scale(0.98); }
+
+/* Arrow micro-interaction — the glyph leads on hover, the button stays put */
+.btn .btn-arrow {
+  display: inline-block;
+  transition: transform 0.25s var(--ease-out);
+}
+.btn:hover .btn-arrow { transform: translateX(4px); }
+.btn:hover .btn-arrow--down { transform: translateY(3px); }
+@media (prefers-reduced-motion: reduce) {
+  .btn .btn-arrow { transition: none; }
 }
 
 .btn-ghost {
@@ -370,6 +386,26 @@ button { font: inherit; cursor: pointer; }
   color: var(--teal);
   margin-bottom: var(--space-4);
 }
+/* Hairline ticks framing the eyebrow */
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--teal));
+  vertical-align: middle;
+  margin: 0 var(--space-3);
+  opacity: 0.65;
+}
+.hero-eyebrow::after {
+  background: linear-gradient(270deg, transparent, var(--teal));
+}
+/* Not enough line width for the ticks on small screens — they wrap ugly */
+@media (max-width: 640px) {
+  .hero-eyebrow::before,
+  .hero-eyebrow::after { display: none; }
+}
 
 .hero-headline {
   font-family: var(--font-display);
@@ -382,7 +418,15 @@ button { font: inherit; cursor: pointer; }
 }
 .hero-headline span { display: inline-block; }
 .word-chaos { color: #d7d2ca; }               /* brighter so "Chaos" reads clearly */
-.word-to    { color: var(--text-muted); font-weight: 600; margin: 0 0.25em; }
+/* Small connective — the two nouns carry the headline, "to" steps back */
+.word-to    {
+  color: var(--text-faint);
+  font-weight: 500;
+  font-size: 0.42em;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+  margin: 0 0.5em;
+}
 .word-clarity { color: var(--teal); text-shadow: 0 0 50px var(--teal-glow), 0 0 18px rgba(0,212,200,0.5); }
 
 .hero-sub {
@@ -424,9 +468,10 @@ button { font: inherit; cursor: pointer; }
 }
 .hero-phone:hover { color: #00ffe6; }
 .hero-trust {
-  margin-top: var(--space-3);
+  margin-top: var(--space-4);
   font-size: var(--text-xs);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--text-faint);
 }
 
@@ -1294,6 +1339,44 @@ button { font: inherit; cursor: pointer; }
   background: #7fc7d8;
   box-shadow: 0 0 12px #7fc7d8;
   animation: dive-pulse 1.8s var(--ease-out) infinite;
+}
+
+/* --- Cinematic scrub phasing — driven by --dive-p (0..1, set per frame by
+   initDiveHero). Scoped to .is-scrub so poster-only / reduced-motion devices
+   see the full static composition. Opacity clamps to [0,1] natively, so the
+   raw calc() ramps below are safe. --- */
+.dive.is-scrub .dive-line-2 {
+  display: inline-block;
+  opacity: calc((var(--dive-p, 0) - 0.45) * 3.2);
+  transform: translateY(clamp(0px, calc((0.76 - var(--dive-p, 0)) * 52px), 16px));
+}
+.dive.is-scrub .dive-cue {
+  opacity: calc(1 - var(--dive-p, 0) * 14);
+  pointer-events: none;
+}
+/* Depth hairline — a quiet progress meter for the descent */
+.dive-progress {
+  display: none;
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(300px, 38vw);
+  height: 2px;
+  z-index: 3;
+  background: rgba(234, 246, 251, 0.14);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.dive.is-scrub .dive-progress { display: block; }
+.dive-progress-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #7fc7d8;
+  box-shadow: 0 0 10px rgba(127, 199, 216, 0.8);
+  transform: scaleX(var(--dive-p, 0));
+  transform-origin: left center;
 }
 @keyframes dive-pulse {
   0%, 100% { opacity: 0.35; transform: scale(0.8); }
@@ -2792,8 +2875,10 @@ body::after {
   70%  { box-shadow: 0 0 0 14px rgba(0,212,200,0); }
   100% { box-shadow: 0 0 0 0    rgba(0,212,200,0); }
 }
+/* Pulse a few times after load to draw the eye, then go quiet — an
+   infinite pulse reads as template noise, not intent. */
 .btn-primary {
-  animation: cta-pulse 2.8s ease-out 2.2s infinite;
+  animation: cta-pulse 2.8s ease-out 2.2s 3;
 }
 @media (prefers-reduced-motion: reduce) {
   .btn-primary { animation: none; }
@@ -4704,11 +4789,14 @@ nav a,
 .tcard,
 .composer,
 .nav.scrolled,
-.mobile-menu {
+.mobile-menu,
+.chat-panel {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     background-color: rgba(10, 18, 24, 0.82);
   }
+  /* The chat sheet's own fill is nearly opaque — keep it, just drop the blur */
+  .chat-panel { background-color: rgba(19, 19, 22, 0.97); }
 
   /* Huge animated caustic layer spanning the whole (very tall) depth-zone. */
   .depth-zone::after { display: none !important; }

@@ -865,3 +865,41 @@
 - Contact form: each input/textarea got aria-describedby → its error span (now id'd error-name/need/reach + aria-live=polite),
   so screen readers announce validation errors tied to the field. Form JS still uses data-for to populate (unchanged).
 - Verified headless: icons hidden, describedby targets exist & are the error spans, 0 errors.
+
+## 2026-07-01 — Security & compliance audit (branch claude/security-compliance-audit-aoydew)
+- Full read-only audit; this env COULD reach the live site (unlike prior sessions), so
+  findings are HTTP-verified, not just static.
+- 🔴 TOP FINDING: Cloudflare Pages serves the ENTIRE repo root — real contents of
+  vault/wiki/memory.md, vault/legal/*, CLAUDE.md, and stripe-connect-sample/server.js were
+  publicly fetchable at igotadom.online (content-verified). functions/ was NOT exposed
+  (index fallback). No secrets/keys anywhere in the repo (grep-verified) — information
+  disclosure, not credential leakage.
+- Chat endpoint: no API key client-side ✅; live /api/chat returns 503 (ANTHROPIC_API_KEY
+  unset) so cost exposure is currently ZERO; KV rate-limit + Turnstile code present but both
+  fail open until owner binds CHAT_KV / sets keys. GO-LIVE ORDER MATTERS: bind CHAT_KV →
+  Turnstile pair → API key LAST.
+- stripe-connect-sample: confirmed standalone (no site links, can't execute on Pages,
+  placeholder keys only, PAYMENT_LINKS all empty → no card charge can fire). Live payment
+  remains SMS/Zelle by owner decision.
+- Vault drift found: copy.md primary CTA was stale (said "Send Me Something →", site uses
+  "Text Dominick →" per the documented 2026-06-25 decision); design-tokens.md said faint 28%
+  (live 0.50 after WCAG fix) + stale outputs/site/ path. Site copy otherwise matches
+  copy.md/services.md verbatim (hero, 6 services, tiers, disclaimers).
+- Legal docs in vault/legal/: complete as drafts, deliberately not surfaced on the site
+  (flagged decision stands) — but were publicly fetchable raw via the top finding.
+- www.igotadom.online does NOT resolve (apex fine). chat.js allowlists www as an origin;
+  owner to add the custom domain or we drop it from ALLOWED_ORIGINS.
+
+## Sprint A — security fix: block public repo internals — 2026-07-01
+- Same branch (claude/security-compliance-audit-aoydew; owner pre-approved merge-if-green).
+- Fix = 3 scoped Pages Functions returning 404 (Functions run BEFORE static assets, so they
+  shadow the files without deleting/moving anything — honors the never-delete rule):
+  functions/vault/[[path]].js, functions/stripe-connect-sample/[[path]].js,
+  functions/CLAUDE.md.js. Scoped catch-alls (not a root _middleware) so normal traffic
+  never invokes a Function.
+- Synced the stale vault docs to reality: copy.md primary CTA → "Text Dominick →" (sms:)
+  with the old primary noted as the contact-section title; design-tokens.md faint 28%→50%
+  (WCAG note) + token path corrected to repo-root style.css.
+- Deliberately NOT blocked: README.md (harmless, public repo anyway), robots/sitemap.
+- POST-MERGE VERIFICATION (this env can curl the live site): /vault/wiki/memory.md,
+  /stripe-connect-sample/server.js, /CLAUDE.md must return 404; / must stay 200.

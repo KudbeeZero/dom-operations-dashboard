@@ -5160,3 +5160,72 @@ nav a,
   transition: color 0.2s var(--ease-out);
 }
 .honest-review-link:hover { color: #00ffe6; }
+
+/* ==========================================================================
+   Sprint 154 — Websites & AI section (#web)
+   Reuses the token system; card look matches the bento glass language.
+   ========================================================================== */
+.section-lede {
+  margin-top: var(--space-4);
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  line-height: 1.65;
+  max-width: 58ch;
+}
+
+.web-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
+.web-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+}
+.web-card:hover { border-color: rgba(0, 212, 200, 0.35); transform: translateY(-3px); }
+.web-card h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+}
+.web-card p {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.web-own {
+  margin-top: var(--space-3);
+  color: var(--teal);
+  font-weight: 600;
+}
+/* The two AI cards sit on the bottom row and carry a quiet teal accent */
+.web-card--ai { background: linear-gradient(180deg, rgba(0, 212, 200, 0.05), transparent 60%), var(--surface); }
+.web-card--ai h3 { color: var(--teal); }
+
+.web-cta { text-align: center; }
+.web-cta-line {
+  font-size: var(--text-lg);
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin-bottom: var(--space-5);
+}
+.web-fineprint {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  max-width: 52ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 900px) {
+  .web-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .web-grid { grid-template-columns: 1fr; }
+}

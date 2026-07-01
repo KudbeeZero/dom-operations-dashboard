@@ -928,3 +928,24 @@
 - QA: node --check pass; Playwright shots at 375/768/1280 (hero + full page), 0 page errors
   at all three; mobile tick-wrap regression caught and fixed before PR.
 - NOT merged — owner wants visual sign-off on the live preview first (taste call).
+
+## Sprint 154 — Websites & AI services + organic growth plan (branch claude/hermes-sprint-154-web-ai-services)
+- Owner direction (verbatim intent): he's a FULL GRAPHIC DESIGNER; site must also sell
+  website design, AI/agents building mini apps, SEO + AI-search optimization, "fraction of
+  the cost", everything tailored to the customer, CUSTOMER OWNS EVERYTHING, tech-powered
+  delivery. Also: a plan for organic traffic + the walk-around-with-QR business play.
+- New #web section ("Beyond Documents / I design websites, too.") between #services and the
+  transform strip: 5 cards — One-Pager / Multi-Page / Care & Updates (content sourced from
+  vault/legal/web-design-packages.md) + AI Search Optimization + Mini Apps & AI Agents
+  (teal-accent variants). Ownership line on each package card; deposit/handover fineprint;
+  section CTA → sms. NO PRICES SHOWN (packages doc prices are unset placeholders — decided
+  "text for a straight price" instead of inventing numbers; owner can hand me numbers later).
+- FAQ: added "Do you build websites?" (page + FAQPage JSON-LD kept in sync). knowsAbout +
+  meta description extended with web design / graphic design / SEO / AEO / mini apps.
+- Chatbot _knowledge.js: full web/AI service block + HARD RULE never to invent web prices.
+- vault/wiki/services.md: new "Websites & AI" section (source of truth synced same commit).
+- NEW vault/wiki/growth-plan.md: the organic plan — QR walk-in play (print card w/ pitch),
+  Google Business Profile + Search Console + review loop (owner's #1 levers), on-page AEO
+  (done parts checked), future /websites page split + llms.txt, before/after content flywheel.
+- DECISION: no new nav link (nav is at its 5-link overflow cap per Wave-10 decision);
+  #web is reachable by scroll + FAQ + chatbot. Revisit if web leads become primary.

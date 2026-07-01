@@ -949,3 +949,18 @@
   (done parts checked), future /websites page split + llms.txt, before/after content flywheel.
 - DECISION: no new nav link (nav is at its 5-link overflow cap per Wave-10 decision);
   #web is reachable by scroll + FAQ + chatbot. Revisit if web leads become primary.
+
+## Sprint 155 — Print-ready QR pitch card (branch claude/hermes-sprint-155-qr-pitch-card)
+- HERMES NEXT #1 from Sprint 154 ("go"). assets/print/qr-pitch-card.pdf — US business card
+  3.5x2in + 0.125in bleed (3.75x2.25 pages), 2 pages: FRONT = cleanup pitch ("Chaos to
+  Clarity." small-to treatment matching the site hero, photo-of-your-messy-menu pitch, $25
+  hook, phone) with QR → https://igotadom.online ("Scan to see it in action"); BACK = website
+  pitch ("I design websites, too.", own-everything + fraction-of-agency-cost, straight-price-
+  by-text) with QR → sms:7736477598 ("Scan to text Dominick").
+- Brand-exact: obsidian bg, teal wash, real Barlow Condensed/DM Sans (fonts loaded through
+  the proxy, verified document.fonts.check=true). QR tiles white w/ teal ring for scan
+  contrast. PNG previews of both sides alongside; generator source kept as card-source.mjs.
+- VERIFIED: both QRs decode correctly from the rendered pixels (jsqr: front →
+  https://igotadom.online, back → sms:7736477598). Iterated twice on the back side (overflow,
+  then phone-number wrap) — final fits with safe margins.
+- Print note for owner: any print shop takes the PDF; ask for "full bleed, 3.5x2 trim".

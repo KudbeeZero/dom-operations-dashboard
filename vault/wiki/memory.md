@@ -903,3 +903,28 @@
 - Deliberately NOT blocked: README.md (harmless, public repo anyway), robots/sitemap.
 - POST-MERGE VERIFICATION (this env can curl the live site): /vault/wiki/memory.md,
   /stripe-connect-sample/server.js, /CLAUDE.md must return 404; / must stay 200.
+
+## Sprint 153 — Premium homepage elevation (branch claude/hermes-sprint-153-premium-homepage)
+- Owner brief: homepage should read like a professionally designed site, not a template —
+  elevate EXECUTION of the existing brand (no new brand direction). Restraint > more effects.
+- Typography: hero "to" demoted to a small connective (0.42em, faint, weight 500) so the two
+  nouns carry the headline — Chaos → Clarity contrast is now typographic, not just color.
+  Eyebrow got hairline teal ticks (hidden ≤640px — they wrapped ugly on 375px, caught in
+  screenshot QA). Trust strip → uppercase micro-tracked (copy unchanged).
+- CTA craft: primary buttons get a resting teal shadow + :active press; arrows wrapped in
+  .btn-arrow spans (nav, hero, mobile menu) that slide +4px on hover (↓ variant translates
+  down). The INFINITE cta-pulse on .btn-primary → 3 iterations (draws the eye once, then
+  quiet — perpetual pulse reads as template noise).
+- Dive video = cinematic beat: initDiveHero's rAF now writes --dive-p (eased 0..1) on #dive;
+  CSS phases the composition off it — headline line 1 ("I dive in —") present from the
+  surface, line 2 ("and bring it back clean.") fades/rises in the second half of the descent,
+  "Scroll to dive" cue fades out immediately on first scrub, and a quiet depth hairline
+  (scaleX progress meter) tracks the dive. ALL scoped to .is-scrub — poster-only devices
+  (mobile/coarse/reduced-motion/no-codec) get the full static composition. Verified by
+  forcing .is-scrub + --dive-p in headless (opacity/transform ramps correct at 0/.3/.5/.7/1;
+  static op=1) since this Chromium can't decode H.264.
+- Mobile perf: .chat-panel added to the ≤768px backdrop-filter kill list (fill 0.97 keeps
+  the look; blur was a leftover iOS memory cost).
+- QA: node --check pass; Playwright shots at 375/768/1280 (hero + full page), 0 page errors
+  at all three; mobile tick-wrap regression caught and fixed before PR.
+- NOT merged — owner wants visual sign-off on the live preview first (taste call).
